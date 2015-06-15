@@ -7,8 +7,8 @@
     <ProjectGuid>{ECFF40C5-390E-4811-9254-287AAF4F2A30}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InvokeIR.PowerForensics</RootNamespace>
-    <AssemblyName>Invoke-IR.PowerForensics</AssemblyName>
+    <RootNamespace>InvokeIR</RootNamespace>
+    <AssemblyName>PowerForensics</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -17,10 +17,10 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\Modules\PowerForensics\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +33,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files\Reference Assemblies\Microsoft\WindowsPowerShell\v1.0\System.Management.Automation.dll</HintPath>
@@ -43,55 +45,78 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InvokeIR\Hash\Cmdlets\GetHash.cs" />
-    <Compile Include="InvokeIR\Hash\Hash.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Artifacts\GetDirectoryInodeSuccession.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Artifacts\Prefetch\Cmdlet\GetPrefetch.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Artifacts\Prefetch\Prefetch.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Artifacts\Timezone\Cmdlet\GetTimezone.cs" />
-    <Compile Include="InvokeIR\PowerForensics\DD\DD.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Formats\Cmdlets\Get-Mactime.cs" />
-    <Compile Include="InvokeIR\PowerForensics\Formats\Mactime.cs" />
-    <Compile Include="InvokeIR\PowerForensics\MBR\Partition.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\AttrDef\AttrDef.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\AttrDef\Cmdlets\GetAttrDef.cs" />
-    <Compile Include="InvokeIR\Win32\Helper\NTFSHelper.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\VBR\Cmdlets\GetVolumeBootRecord.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\LogFile\Cmdlet\Get-LogFile.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\LogFile\LogFile.cs" />
-    <Compile Include="InvokeIR\PowerForensics\MBR\Cmdlets\GetMBR.cs" />
-    <Compile Include="InvokeIR\PowerForensics\MBR\MasterBootRecord.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\EA.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\EAInformation.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\Cmdlets\GetMFTAttribute.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\IndexRoot.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Cmdlets\CopyFileRaw.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\IndexNumber\Cmdlet\GetMFTRecordIndex.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\USNJrnl\USNJrnl.cs" />
-    <Compile Include="InvokeIR\Win32\ExternDll.cs" />
-    <Compile Include="InvokeIR\PowerForensics\DD\Cmdlets\InvokeDD.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\VolumeData\Cmdlets\GetFileSystemStatistic.cs" />
-    <Compile Include="InvokeIR\PowerForensics\MBR\Cmdlets\GetPartitionTable.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\Attr.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\AttributeFactory.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\AttributeHeader.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\Data.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\FileName.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\NonResident.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\ObjectId.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\StandardInformation.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\VolumeInformation.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Attributes\VolumeName.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\MFTRecord\Cmdlets\GetMFTRecord.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\Cmdlets\GetContentRaw.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\IndexNumber\IndexEntry.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\IndexNumber\IndexNumber.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\MasterFileTable.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\MFT\MFTRecord\MFTRecord.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\VBR\VolumeBootRecord.cs" />
-    <Compile Include="InvokeIR\PowerForensics\NTFS\VolumeData\VolumeData.cs" />
-    <Compile Include="InvokeIR\Win32\Win32.cs" />
-    <Compile Include="InvokeIR\Win32\WinIoCtl.cs" />
+    <Compile Include="PowerForensics\_FileSystems\FAT32\__VolumeBootRecord\VolumeBootRecord.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\3 - Volume\Volume.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\6 - Bitmap\Bitmap.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\PageHeader.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\Restart.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\RestartAreaHeader.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\8 - BadClus\BadClus.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\UsnJrnl\UsnJrnlDetail.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\NonResident\DataRun.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\FileRecord\FileRecord.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-BadCluster.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-Bitmap.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-UsnJrnlInformation.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-DeletedExecutable.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-DeletedFile.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-FileRecord.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-UsnJrnl.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-VolumeInformation.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-VolumeName.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-VolumeShadowCopy.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-Hash.cs" />
+    <Compile Include="PowerForensics\Utilities\Hash\Hash.cs" />
+    <Compile Include="PowerForensics\Artifacts\Browser\BrowserHistory.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-DirectoryInodeSuccession.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Prefetch.cs" />
+    <Compile Include="PowerForensics\Artifacts\Prefetch\Prefetch.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Timezone.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-BootSector.cs" />
+    <Compile Include="PowerForensics\Utilities\DD\DD.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Formats\Format-Hex.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Formats\Format-Mactime.cs" />
+    <Compile Include="PowerForensics\Formats\HexDump.cs" />
+    <Compile Include="PowerForensics\Formats\Mactime.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-GPT.cs" />
+    <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTableHeader.cs" />
+    <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTableEntry.cs" />
+    <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTable.cs" />
+    <Compile Include="PowerForensics\__BootSectors\MBR\PartitionEntry.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\5 - AttrDef\AttrDef.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-AttrDef.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ChildItemRaw.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\IndexNumber\IndexNumber.cs" />
+    <Compile Include="SQLite\DatabaseHeader.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-VolumeBootRecord.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\LogFile.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-MBR.cs" />
+    <Compile Include="PowerForensics\__BootSectors\MBR\MasterBootRecord.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-FileRecordAttribute.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\IndexRoot.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Copy-FileRaw.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-FileRecordIndex.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\UsnJrnl\UsnJrnl.cs" />
+    <Compile Include="Win32\ExternDll.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Invoke-DD.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-PartitionTable.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\Attr.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\AttributeFactory.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\AttributeHeader.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\Data.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\FileName.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\NonResident\NonResident.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\ObjectId.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\StandardInformation.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\VolumeInformation.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\VolumeName.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-MFTRecord.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ContentRaw.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\IndexNumber\IndexEntry.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MasterFileTable.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MFTRecord\MFTRecord.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\__VolumeBootRecord\VolumeBootRecord.cs" />
+    <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
