@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Diagnostics;
 using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS

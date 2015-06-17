@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {

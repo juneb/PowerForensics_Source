@@ -1,13 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Security.Principal;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Microsoft.Win32.SafeHandles;
-using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.Win32
 {

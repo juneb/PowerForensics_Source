@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Text;
-using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
 {

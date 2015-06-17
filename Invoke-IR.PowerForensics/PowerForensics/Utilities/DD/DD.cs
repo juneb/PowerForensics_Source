@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics

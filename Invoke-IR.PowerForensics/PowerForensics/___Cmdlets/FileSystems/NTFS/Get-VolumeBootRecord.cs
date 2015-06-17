@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Management.Automation;
-using System.Text.RegularExpressions;
 using InvokeIR.Win32;
 using InvokeIR.PowerForensics.NTFS;
 
