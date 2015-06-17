@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
@@ -50,7 +49,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal StandardInformation(byte[] attrBytes, string attrName)
         {
-            AttrHeader.ATTR_HEADER_RESIDENT header = new AttrHeader.ATTR_HEADER_RESIDENT(attrBytes.Take(24).ToArray());
+            byte[] headerBytes = new byte[24];
+            Array.Copy(attrBytes, 0, headerBytes, 0, headerBytes.Length);
+            AttrHeader.ATTR_HEADER_RESIDENT header = new AttrHeader.ATTR_HEADER_RESIDENT(headerBytes);
             Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;

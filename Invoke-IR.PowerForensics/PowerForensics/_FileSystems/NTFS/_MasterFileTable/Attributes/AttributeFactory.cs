@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace InvokeIR.PowerForensics.NTFS
@@ -9,16 +8,20 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal static Attr Get(byte[] Bytes, int offset, out int offsetToATTR)
         {
+            byte[] commonHeaderBytes = new byte[16];
+            Array.Copy(Bytes, offset, commonHeaderBytes, 0, commonHeaderBytes.Length);
+            AttrHeader.ATTR_HEADER_COMMON commonAttributeHeader = new AttrHeader.ATTR_HEADER_COMMON(commonHeaderBytes);
+            
+            // Get byte[] representing the current attribute 
+            byte[] AttrBytes = new byte[commonAttributeHeader.TotalSize];
+            Array.Copy(Bytes, offset, AttrBytes, 0, AttrBytes.Length);
+
             // This needs to be looked at...
-            if (BitConverter.ToUInt32(Bytes.Skip(offset).Take(4).ToArray(), 0) != 0xD0)
-            {
-                AttrHeader.ATTR_HEADER_COMMON commonAttributeHeader = new AttrHeader.ATTR_HEADER_COMMON(Bytes.Skip(offset).Take(16).ToArray());
-                
-                // Get byte[] representing the current attribute 
-                byte[] AttrBytes = Bytes.Skip(offset).Take((int)commonAttributeHeader.TotalSize).ToArray();
-                
+            if (BitConverter.ToUInt32(AttrBytes, 0) != 0xD0)
+            {   
                 // Get byte[] representing the Attribute Name
-                byte[] NameBytes = AttrBytes.Skip(commonAttributeHeader.NameOffset).Take(commonAttributeHeader.NameLength * 2).ToArray();
+                byte[] NameBytes = new byte[commonAttributeHeader.NameLength * 2];
+                Array.Copy(AttrBytes, commonAttributeHeader.NameOffset, NameBytes, 0, NameBytes.Length);
                 
                 // Decode byte[] into Unicode String
                 string AttrName = Encoding.Unicode.GetString(NameBytes);
@@ -38,7 +41,6 @@ namespace InvokeIR.PowerForensics.NTFS
                 // If attribute is resident
                 else
                 {
-
                     #region ATTRSwitch
 
                     switch (commonAttributeHeader.ATTRType)
@@ -70,7 +72,6 @@ namespace InvokeIR.PowerForensics.NTFS
                     }
 
                     #endregion ATTRSwitch
-
                 }
 
                 return null;

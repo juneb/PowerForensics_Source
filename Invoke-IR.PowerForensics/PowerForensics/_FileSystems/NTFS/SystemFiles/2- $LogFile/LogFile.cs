@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Linq;
 using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
@@ -125,7 +124,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
         public Restart(byte[] bytes)
         {
-            restartHeader = new RestartAreaHeader(bytes.Take(72).ToArray());
+            byte[] restartHeaderBytes = new byte[72];
+            Array.Copy(bytes, 0, restartHeaderBytes, 0, restartHeaderBytes.Length);
+            restartHeader = new RestartAreaHeader(restartHeaderBytes);
             //opRecord = new LogFile(bytes.Skip(72).Take(88).ToArray());
         }
 

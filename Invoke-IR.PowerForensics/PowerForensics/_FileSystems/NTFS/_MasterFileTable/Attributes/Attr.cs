@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
@@ -43,11 +42,16 @@ namespace InvokeIR.PowerForensics.NTFS
 
             while (offsetToATTR < (RecordHeader.RealSize - 8))
             { 
-                AttrHeader.ATTR_HEADER_COMMON commonAttributeHeader = new AttrHeader.ATTR_HEADER_COMMON(recordBytes.Skip(offsetToATTR).Take(16).ToArray());
+                byte[] commonHeaderBytes = new byte[16];
+                Array.Copy(recordBytes, offsetToATTR, commonHeaderBytes, 0, commonHeaderBytes.Length);
+                AttrHeader.ATTR_HEADER_COMMON commonAttributeHeader = new AttrHeader.ATTR_HEADER_COMMON(commonHeaderBytes);
+                
                 if (commonAttributeHeader.ATTRType == attribute)
-                {       
+                {
+                    byte[] attrBytes = new byte[commonAttributeHeader.TotalSize];
+                    Array.Copy(recordBytes, offsetToATTR, attrBytes, 0, attrBytes.Length);
                     // Return bytes for Attr
-                    return recordBytes.Skip(offsetToATTR).Take((int)commonAttributeHeader.TotalSize).ToArray();    
+                    return attrBytes;;    
                 }
 
                 else
@@ -68,4 +72,5 @@ namespace InvokeIR.PowerForensics.NTFS
             return AttributeFactory.Get(attrBytes, 0, out offsetToAttr);   
         }
     }
+
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
@@ -100,19 +99,27 @@ namespace InvokeIR.PowerForensics
 
                 // Set object properties
                 BootCode = mbrCode;
-                DiskSignature = BitConverter.ToString(MBRBytes.Skip(440).Take(4).ToArray()).Replace("-", "");
+                byte[] sigBytes = new byte[4];
+                Array.Copy(MBRBytes, 440, sigBytes, 0, sigBytes.Length);
+                DiskSignature = BitConverter.ToString(sigBytes).Replace("-", "");
                 MBRSignature = MD5Signature;
 
                 for (int i = 446; i <= 478; i += PARTITION_ENTRY_SIZE)
                 {
-                    PartitionEntry entry = new PartitionEntry(MBRBytes.Skip(i).Take(PARTITION_ENTRY_SIZE).ToArray());
+                    byte[] partitionBytes = new byte[PARTITION_ENTRY_SIZE];
+                    Array.Copy(MBRBytes, i, partitionBytes, 0, partitionBytes.Length);
+                    PartitionEntry entry = new PartitionEntry(partitionBytes);
+
                     if (entry.SystemID != "EMPTY")
                     {
                         partitionList.Add(entry);
                     }
                 }
 
-                PartitionEntry entry4 = new PartitionEntry(MBRBytes.Skip(494).Take(PARTITION_ENTRY_SIZE).ToArray());
+                byte[] entry4Bytes = new byte[PARTITION_ENTRY_SIZE];
+                Array.Copy(MBRBytes, 494, entry4Bytes, 0, entry4Bytes.Length);
+                PartitionEntry entry4 = new PartitionEntry(entry4Bytes);
+
                 if (entry4.SystemID == "MS_EXTENDED_LBA")
                 {
                     List<PartitionEntry> pList = GetExtended(streamToRead, entry4.StartSector);
@@ -161,8 +168,13 @@ namespace InvokeIR.PowerForensics
 
             byte[] extendedMBR = NativeMethods.readDrive(streamToRead, offset, 512);
 
-            pList.Add(new PartitionEntry(extendedMBR.Skip(446).Take(16).ToArray(), startSector));
-            PartitionEntry secondEntry = new PartitionEntry(extendedMBR.Skip(462).Take(16).ToArray(), startSector);
+            byte[] extendedPartitionBytes = new byte[PARTITION_ENTRY_SIZE];
+            Array.Copy(extendedMBR, 446, extendedPartitionBytes, 0, extendedPartitionBytes.Length);
+            pList.Add(new PartitionEntry(extendedPartitionBytes, startSector));
+
+            byte[] secondEntryBytes = new byte[PARTITION_ENTRY_SIZE];
+            Array.Copy(extendedMBR, 462, secondEntryBytes, 0, secondEntryBytes.Length);
+            PartitionEntry secondEntry = new PartitionEntry(secondEntryBytes, startSector);
             pList.Add(secondEntry);
 
             if(secondEntry.SystemID == "MS_EXTENDED")

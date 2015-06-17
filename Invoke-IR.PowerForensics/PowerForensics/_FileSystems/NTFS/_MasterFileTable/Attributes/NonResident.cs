@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
-
     public class NonResident : Attr
     {
+        #region Structs
 
         struct ATTR_HEADER_NON_RESIDENT
         {
@@ -24,7 +23,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
             internal ATTR_HEADER_NON_RESIDENT(byte[] bytes)
             {
-                commonHeader = new AttrHeader.ATTR_HEADER_COMMON(bytes.Take(16).ToArray());
+                byte[] headerBytes = new byte[16];
+                Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
+                commonHeader = new AttrHeader.ATTR_HEADER_COMMON(headerBytes);
                 StartVCN = BitConverter.ToUInt64(bytes, 16);
                 LastVCN = BitConverter.ToUInt64(bytes, 24);
                 DataRunOffset = BitConverter.ToUInt16(bytes, 32);
@@ -35,6 +36,8 @@ namespace InvokeIR.PowerForensics.NTFS
                 IniSize = BitConverter.ToUInt64(bytes, 56);
             }
         }
+
+        #endregion Structs
 
         #region Properties
 
@@ -78,7 +81,7 @@ namespace InvokeIR.PowerForensics.NTFS
             return contentBytes;
         }
 
-        public static List<byte> GetContent(string volume, NonResident nonResAttr)
+        public static byte[] GetContent(string volume, NonResident nonResAttr)
         {
 
             List<byte> DataBytes = new List<byte>();
@@ -93,8 +96,9 @@ namespace InvokeIR.PowerForensics.NTFS
                 DataBytes.AddRange(NativeMethods.readDrive(streamToRead, offset, length));
             }
 
-            DataBytes.Take((int)nonResAttr.RealSize);
-            return DataBytes;
+            byte[] dataBytes = new byte[nonResAttr.RealSize];
+            Array.Copy(DataBytes.ToArray(), 0, dataBytes, 0, dataBytes.Length);
+            return dataBytes;
 
         }
 

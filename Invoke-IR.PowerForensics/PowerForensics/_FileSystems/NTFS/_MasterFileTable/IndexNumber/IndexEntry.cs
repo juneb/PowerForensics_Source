@@ -35,8 +35,6 @@ namespace InvokeIR.PowerForensics.NTFS
             internal uint TotalEntrySize;        // Total size of the index entries
             internal uint AllocEntrySize;        // Allocated size of index entries
             internal byte NotLeaf;               // 1 if not leaf node (has children)
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            internal byte[] Padding;             // Padding
 
             internal INDEX_BLOCK(byte[] bytes)
             {
@@ -49,7 +47,6 @@ namespace InvokeIR.PowerForensics.NTFS
                 TotalEntrySize = BitConverter.ToUInt32(bytes, 28);
                 AllocEntrySize = BitConverter.ToUInt32(bytes, 32);
                 NotLeaf = bytes[36];
-                Padding = bytes.Skip(37).Take(3).ToArray();
             }
         }
         
@@ -59,8 +56,6 @@ namespace InvokeIR.PowerForensics.NTFS
             internal ushort Size;            // Length of the index entry
             internal ushort StreamSize;      // Length of the stream
             internal byte Flags;             // Flags
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            internal byte[] Padding;         // Padding
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 1)]
             internal byte[] Stream;          // Stream
             // VCN of the sub node in Index Allocation, Offset = Size - 8
@@ -71,8 +66,9 @@ namespace InvokeIR.PowerForensics.NTFS
                 Size = BitConverter.ToUInt16(bytes, 8);
                 StreamSize = BitConverter.ToUInt16(bytes, 10);
                 Flags = bytes[12];
-                Padding = bytes.Skip(13).Take(3).ToArray();
-                Stream = bytes.Skip(16).Take(StreamSize).ToArray();
+                byte[] streamBytes = new byte[StreamSize];
+                Array.Copy(bytes, 16, streamBytes, 0, streamBytes.Length);
+                Stream = streamBytes;
             }
         }
 
@@ -154,7 +150,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 for (long offset = 0; offset < nonResBytes.Length; offset += 4096)
                 {
                     byte[] indxBytes = new byte[4096];
-                    Array.Copy(nonResBytes.ToArray(), offset, indxBytes, 0, indxBytes.Length);
+                    Array.Copy(nonResBytes, offset, indxBytes, 0, indxBytes.Length);
 
                     INDEX_BLOCK indxBlock = new INDEX_BLOCK(indxBytes.Take(40).ToArray());
 
@@ -240,13 +236,13 @@ namespace InvokeIR.PowerForensics.NTFS
             // Get entries from INDEX_ALLOCATION Attribute (0xA0)
             if (INDX != null)
             {
-                List<byte> nonResBytes = NonResident.GetContent(volume, INDX);
+                byte[] nonResBytes = NonResident.GetContent(volume, INDX);
 
-                for (long offset = 0; offset < nonResBytes.Count; offset += 4096)
+                for (long offset = 0; offset < nonResBytes.Length; offset += 4096)
                 //for (long offset = 880640; offset < nonResBytes.Count; offset += 4096)
                 {
                     byte[] indxBytes = new byte[4096];
-                    Array.Copy(nonResBytes.ToArray(), offset, indxBytes, 0, indxBytes.Length);
+                    Array.Copy(nonResBytes, offset, indxBytes, 0, indxBytes.Length);
 
                     INDEX_BLOCK indxBlock = new INDEX_BLOCK(indxBytes.Take(40).ToArray());
 

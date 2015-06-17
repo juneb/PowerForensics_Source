@@ -366,9 +366,8 @@ namespace InvokeIR.PowerForensics.NTFS
         // I think these belong elsewhere
         #region getFile
 
-        internal static List<byte> getFile(string volume, FileStream streamToRead, byte[] MFT, string fileName)
+        internal static byte[] getFile(string volume, FileStream streamToRead, byte[] MFT, string fileName)
         {
-
             string volLetter = volume.TrimStart('\\').TrimStart('.').TrimStart('\\') + '\\';
 
             int inode = IndexNumber.Get(streamToRead, MFT, fileName);
@@ -423,7 +422,7 @@ namespace InvokeIR.PowerForensics.NTFS
                         if (attr.NonResident == true)
                         {
                             NonResident nonResAttr = (NonResident)attr;
-                            return NonResident.GetContent(volume, nonResAttr).ToArray();
+                            return NonResident.GetContent(volume, nonResAttr);
                         }
                         else
                         {
@@ -453,7 +452,7 @@ namespace InvokeIR.PowerForensics.NTFS
                         if (attr.NonResident == true)
                         {
                             NonResident nonResAttr = (NonResident)attr;
-                            return NonResident.GetContent(volume, nonResAttr).ToArray();
+                            return NonResident.GetContent(volume, nonResAttr);
                         }
                         else
                         {

@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Linq;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
     class AttrHeader
     {
-
         private const byte RESIDENT = 0x00;
         private const byte NONRESIDENT = 0x01;
 
         internal struct ATTR_HEADER_COMMON
         {
-            
+
             internal uint ATTRType;			// Attribute Type
             internal uint TotalSize;		// Length (including this header)
             internal bool NonResident;	    // 0 - resident, 1 - non resident
@@ -22,7 +20,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
             internal ATTR_HEADER_COMMON(byte[] bytes)
             {
-        
+
                 ATTRType = BitConverter.ToUInt32(bytes, 0);
                 TotalSize = BitConverter.ToUInt32(bytes, 4);
                 NonResident = (bytes[8] == NONRESIDENT);
@@ -30,14 +28,14 @@ namespace InvokeIR.PowerForensics.NTFS
                 NameOffset = BitConverter.ToUInt16(bytes, 10);
                 Flags = BitConverter.ToUInt16(bytes, 12);
                 Id = BitConverter.ToUInt16(bytes, 14);
-            
+
             }
-        
+
         }
 
         internal struct ATTR_HEADER_RESIDENT
         {
-            
+
             internal ATTR_HEADER_COMMON commonHeader;	// Common data structure
             internal uint AttrSize;		                // Length of the attribute body
             internal ushort AttrOffset;		            // Offset to the Attribute
@@ -46,17 +44,16 @@ namespace InvokeIR.PowerForensics.NTFS
 
             internal ATTR_HEADER_RESIDENT(byte[] bytes)
             {
-            
-                commonHeader = new ATTR_HEADER_COMMON(bytes.Take(16).ToArray());
+                byte[] commonHeaderBytes = new byte[16];
+                Array.Copy(bytes, 0, commonHeaderBytes, 0, commonHeaderBytes.Length);
+                commonHeader = new ATTR_HEADER_COMMON(commonHeaderBytes);
                 AttrSize = BitConverter.ToUInt32(bytes, 16);
                 AttrOffset = BitConverter.ToUInt16(bytes, 20);
                 IndexedFlag = bytes[22];
                 Padding = bytes[23];
-        
-            }
-    
-        }
-    
-    }
 
+            }
+
+        }
+    }
 }

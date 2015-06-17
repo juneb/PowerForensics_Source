@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace InvokeIR.PowerForensics.NTFS
@@ -75,12 +74,16 @@ namespace InvokeIR.PowerForensics.NTFS
                     ER = BitConverter.ToUInt32(bytes, 60);
                     NameLength = bytes[64];
                     NameSpace = bytes[65];
-                    Name = bytes.Skip(66).Take(NameLength * 2).ToArray();
+                    byte[] nameBytes = new byte[NameLength * 2];
+                    Array.Copy(bytes, 66, nameBytes, 0, nameBytes.Length);
+                    Name = nameBytes;
                 }
 
                 else
                 {
-                    header = new AttrHeader.ATTR_HEADER_RESIDENT(bytes.Take(24).ToArray());
+                    byte[] headerBytes = new byte[24];
+                    Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
+                    header = new AttrHeader.ATTR_HEADER_RESIDENT(headerBytes);
                     ParentRef = BitConverter.ToUInt64(bytes, 24);
                     CreateTime = DateTime.FromFileTime(BitConverter.ToInt64(bytes, 32));
                     AlterTime = DateTime.FromFileTime(BitConverter.ToInt64(bytes, 40));
@@ -92,7 +95,9 @@ namespace InvokeIR.PowerForensics.NTFS
                     ER = BitConverter.ToUInt32(bytes, 84);
                     NameLength = bytes[88];
                     NameSpace = bytes[89];
-                    Name = bytes.Skip(90).Take(NameLength * 2).ToArray();
+                    byte[] nameBytes = new byte[NameLength * 2];
+                    Array.Copy(bytes, 90, nameBytes, 0, nameBytes.Length);
+                    Name = nameBytes;
                 }
             }
         }
@@ -116,7 +121,10 @@ namespace InvokeIR.PowerForensics.NTFS
         public FileName(byte[] bytes)
         {
             Name = "FILE_NAME";
-            Filename = Encoding.Unicode.GetString(bytes.Skip(66).Take(bytes[64] * 2).ToArray()).TrimEnd('\0');
+
+            byte[] filenameBytes = new byte[bytes[64] * 2];
+            Array.Copy(bytes, 66, filenameBytes, 0, filenameBytes.Length);
+            Filename = Encoding.Unicode.GetString(filenameBytes).TrimEnd('\0');
             ParentIndex = (BitConverter.ToUInt64(bytes, 0) & 0x000000000000FFFF);
             Namespace = Convert.ToInt32(bytes[65]);
             ModifiedTime = DateTime.FromFileTime(BitConverter.ToInt64(bytes, 24));

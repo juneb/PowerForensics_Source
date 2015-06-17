@@ -35,7 +35,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal IndexRoot(byte[] attrBytes, string attrName)
         {
-            AttrHeader.ATTR_HEADER_RESIDENT header = new AttrHeader.ATTR_HEADER_RESIDENT(attrBytes.Take(24).ToArray());
+            byte[] headerBytes = new byte[24];
+            Array.Copy(attrBytes, 0, headerBytes, 0, headerBytes.Length);
+            AttrHeader.ATTR_HEADER_RESIDENT header = new AttrHeader.ATTR_HEADER_RESIDENT(headerBytes);
             Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
@@ -47,6 +49,9 @@ namespace InvokeIR.PowerForensics.NTFS
             StartOffset = BitConverter.ToUInt32(attrBytes, 48);
             EndOffset = BitConverter.ToUInt32(attrBytes, 52);
             Flags = ((INDEX_ROOT_FLAGS)BitConverter.ToUInt32(attrBytes, 60)).ToString();
+            byte[] entryBytes = new byte[EndOffset];
+            //Array.Copy(attrBytes, (StartOffset + 48), entryBytes, 0, entryBytes.Length);
+            //EntryBytes = entryBytes;
             EntryBytes = attrBytes.Skip((int)StartOffset + 48).Take((int)EndOffset).ToArray();
         }
 

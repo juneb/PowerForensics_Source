@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
@@ -39,7 +38,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal AttrDef(byte[] bytes)
         {
-            Name = Encoding.Unicode.GetString(bytes.Take(0x80).ToArray()).TrimEnd('\0');
+            byte[] nameBytes = new byte[0x80];
+            Array.Copy(bytes, 0, nameBytes, 0, nameBytes.Length);
+            Name = Encoding.Unicode.GetString(nameBytes).TrimEnd('\0');
             Type = BitConverter.ToUInt32(bytes, 0x80);
             DisplayRule = BitConverter.ToUInt32(bytes, 0x84);
             #region CollationRuleSwitch

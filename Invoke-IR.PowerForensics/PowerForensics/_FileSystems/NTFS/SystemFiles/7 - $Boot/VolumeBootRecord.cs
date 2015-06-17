@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using InvokeIR.Win32;
@@ -29,10 +28,8 @@ namespace InvokeIR.PowerForensics.NTFS
             internal byte SectorsPerCluster;
             internal ushort ReservedSectors;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            internal byte[] Zeros1;
             internal ushort NotUsed1;
             internal byte MediaDescriptor;
-            internal ushort Zeros2;
             internal ushort SectorsPerTrack;
             internal ushort NumberOfHeads;
             internal uint HiddenSectors;
@@ -42,9 +39,7 @@ namespace InvokeIR.PowerForensics.NTFS
             internal ulong LCN_MFT;
             internal ulong LCN_MFTMirr;
             internal sbyte ClustersPerFileRecord;
-            internal byte[] NotUsed4;
             internal sbyte ClustersPerIndexBlock;
-            internal byte[] NotUsed5;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             internal string VolumeSN;
 
@@ -58,16 +53,17 @@ namespace InvokeIR.PowerForensics.NTFS
 
             internal NTFS_VOLUME_BOOT_RECORD(byte[] bytes)
             {
-
-                Jmp = bytes.Skip(0).Take(3).ToArray();
-                Signature = Encoding.ASCII.GetString(bytes.Skip(3).Take(8).ToArray());
+                byte[] jmpBytes = new byte[3];
+                Array.Copy(bytes, 0, jmpBytes, 0, jmpBytes.Length);
+                Jmp = jmpBytes;
+                byte[] sigBytes = new byte[8];
+                Array.Copy(bytes, 3, sigBytes, 0, sigBytes.Length);
+                Signature = Encoding.ASCII.GetString(sigBytes);
                 BytesPerSector = BitConverter.ToUInt16(bytes, 11);
                 SectorsPerCluster = bytes[13];
                 ReservedSectors = BitConverter.ToUInt16(bytes, 14);
-                Zeros1 = bytes.Skip(16).Take(3).ToArray();
                 NotUsed1 = BitConverter.ToUInt16(bytes, 19);
                 MediaDescriptor = bytes[21];
-                Zeros2 = BitConverter.ToUInt16(bytes, 22);
                 SectorsPerTrack = BitConverter.ToUInt16(bytes, 24);
                 NumberOfHeads = BitConverter.ToUInt16(bytes, 26);
                 HiddenSectors = BitConverter.ToUInt32(bytes, 28);
@@ -77,11 +73,13 @@ namespace InvokeIR.PowerForensics.NTFS
                 LCN_MFT = BitConverter.ToUInt64(bytes, 48);
                 LCN_MFTMirr = BitConverter.ToUInt64(bytes, 56);
                 ClustersPerFileRecord = (sbyte)bytes[64];
-                NotUsed4 = bytes.Skip(64).Take(3).ToArray();
                 ClustersPerIndexBlock = (sbyte)bytes[68];
-                NotUsed5 = bytes.Skip(68).Take(3).ToArray();
-                VolumeSN = BitConverter.ToString(bytes.Skip(72).Take(8).ToArray()).Replace("-", "");
-                Code = bytes.Skip(80).Take(430).ToArray();
+                byte[] snBytes = new byte[8];
+                Array.Copy(bytes, 72, snBytes, 0, snBytes.Length);
+                VolumeSN = BitConverter.ToString(snBytes).Replace("-", "");
+                byte[] codeBytes = new byte[430];
+                Array.Copy(bytes, 80, codeBytes, 0, codeBytes.Length);
+                Code = codeBytes;
                 _AA = bytes[510];
                 _55 = bytes[511];
 
