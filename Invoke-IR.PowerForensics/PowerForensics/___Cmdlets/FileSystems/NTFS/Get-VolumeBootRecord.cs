@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
 using InvokeIR.PowerForensics.NTFS;
@@ -61,15 +62,19 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             NativeMethods.getVolumeName(ref volume);
 
-            if (asbytes)
-            {
-                WriteObject(VolumeBootRecord.getBytes(volume));
-            }
-            else
-            {
-                WriteObject(new VolumeBootRecord(volume));
-            }
+            IntPtr hVolume = NativeMethods.getHandle(volume);
 
+            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+            {
+                if (asbytes)
+                {
+                    WriteObject(VolumeBootRecord.getBytes(streamToRead));
+                }
+                else
+                {
+                    WriteObject(new VolumeBootRecord(streamToRead));
+                }
+            }
         } // ProcessRecord 
 
         protected override void EndProcessing()
