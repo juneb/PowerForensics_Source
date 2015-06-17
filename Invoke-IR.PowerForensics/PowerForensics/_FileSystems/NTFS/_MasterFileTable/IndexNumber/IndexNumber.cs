@@ -18,7 +18,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 IndexEntry[] arrayEntry = IndexEntry.Get(volume, index);
                 foreach (IndexEntry entry in arrayEntry)
                 {
-                    if (entry.Name == paths[i])
+                    if (entry.Name.ToUpper() == paths[i].ToUpper())
                     {
                         index = (int)entry.FileIndex;
                     }

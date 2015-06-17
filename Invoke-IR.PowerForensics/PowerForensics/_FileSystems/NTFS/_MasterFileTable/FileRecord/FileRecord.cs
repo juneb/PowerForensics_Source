@@ -323,17 +323,25 @@ namespace InvokeIR.PowerForensics.NTFS
                 // If index and ParentIndex are not the same then get FullPath
                 if((ulong)index != ParentIndex)
                 {
-                    // Check if ParentIndex Record has already been constructed and added to array
-                    if (recordArray[ParentIndex] == null)
+                    if (!(Name == null))
                     {
-                        recordArray[ParentIndex] = new FileRecord(mftBytes, (int)ParentIndex, ref recordArray, volLetter);   
+                        // Check if ParentIndex Record has already been constructed and added to array
+                        if (recordArray[ParentIndex] == null)
+                        {
+                            recordArray[ParentIndex] = new FileRecord(mftBytes, (int)ParentIndex, ref recordArray, volLetter);
+                        }
+
+                        // FullPath equals the ParentIndex FullPath + the current Index Name
+                        // Make more efficient with String Builder
+                        FullPath = recordArray[ParentIndex].FullPath + Name;
+                        if (Directory)
+                        {
+                            FullPath += "\\";
+                        }
                     }
-                    // FullPath equals the ParentIndex FullPath + the current Index Name
-                    // Make more efficient with String Builder
-                    FullPath = recordArray[ParentIndex].FullPath + Name;
-                    if(Directory)
+                    else
                     {
-                        FullPath += "\\";
+                        FullPath = null;
                     }
                 }
                 else
