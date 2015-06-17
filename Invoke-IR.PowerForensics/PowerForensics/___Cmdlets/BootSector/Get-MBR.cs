@@ -53,11 +53,16 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void BeginProcessing()
         {
+            // Ensure cmdlet is being run as Administrator
             NativeMethods.checkAdmin();
-        }
+            // Check that drivePath is valid
+            NativeMethods.getDriveName(drivePath);
+        } // End BeginProcessing
 
         protected override void ProcessRecord()
         {
+            
+
             if (asBytes)
             {
                 WriteObject(MasterBootRecord.GetBytes(drivePath));
@@ -66,12 +71,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
             {
                 WriteObject(new MasterBootRecord(drivePath));
             }
-        } // ProcessRecord 
+        } // End ProcessRecord 
 
         protected override void EndProcessing()
         {
             GC.Collect();
-        }
+        } // End EndProcessing
 
         #endregion Cmdlet Overrides
 

@@ -57,6 +57,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            NativeMethods.getVolumeName(ref volume);
         }
 
         protected override void ProcessRecord()

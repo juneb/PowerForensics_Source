@@ -19,10 +19,10 @@ namespace InvokeIR.PowerForensics.NTFS
             ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);
 
             // Read bytes belonging to specified MFT Record and store in byte array
-            MFTRecord mftRecord = new MFTRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord));
+            FileRecord mftRecord = new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord));
 
             // Return byte array representing the Master File Table
-            return MFTRecord.getFile(streamToRead, mftRecord);
+            return FileRecord.getFileBytes(streamToRead, mftRecord);
         }
 
         // Get Master File Table Bytes for "Get" Methods
@@ -45,9 +45,9 @@ namespace InvokeIR.PowerForensics.NTFS
                 ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);
 
                 // Read bytes belonging to specified MFT Record and store in byte array
-                MFTRecord mftRecord = new MFTRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord));
+                FileRecord mftRecord = new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord));
 
-                mftBytes = MFTRecord.getFile(streamToRead, mftRecord);
+                mftBytes = FileRecord.getFileBytes(streamToRead, mftRecord);
             }
 
             //NativeMethods.CloseHandle(hVolume);

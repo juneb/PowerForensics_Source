@@ -21,14 +21,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// for the BootSector that will be returned.
         /// </summary> 
 
-        [Alias("DevicePath")]
+        [Alias("DrivePath")]
         [Parameter(Mandatory = true, Position = 0)]
         public string Path
         {
-            get { return devicePath; }
-            set { devicePath = value; }
+            get { return drivePath; }
+            set { drivePath = value; }
         }
-        private string devicePath;
+        private string drivePath;
 
         /// <summary> 
         /// This parameter causes Get-BootSector to return the MBR or GPT as a Byte array
@@ -52,43 +52,44 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void BeginProcessing()
         {
+            // Ensure cmdlet is being run as Administrator
             NativeMethods.checkAdmin();
-        }
+            // Check that drivePath is valid
+            NativeMethods.getDriveName(drivePath);
+        } // End BeginProcessing
 
         protected override void ProcessRecord()
         {
-            MasterBootRecord mbr = new MasterBootRecord(devicePath);
+            MasterBootRecord mbr = new MasterBootRecord(drivePath);
 
             if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
             {
                 if (asBytes)
                 {
-                    WriteObject(GuidPartitionTable.GetBytes(devicePath));
+                    WriteObject(GuidPartitionTable.GetBytes(drivePath));
                 }
                 else
                 {
-                    WriteObject(new GuidPartitionTable(devicePath));
+                    WriteObject(new GuidPartitionTable(drivePath));
                 }
             }
             else
             {
                 if (asBytes)
                 {
-                    WriteObject(MasterBootRecord.GetBytes(devicePath));
+                    WriteObject(MasterBootRecord.GetBytes(drivePath));
                 }
                 else
                 {
                     WriteObject(mbr);
                 }
             }
-
-
-        } // ProcessRecord 
+        } // End ProcessRecord 
 
         protected override void EndProcessing()
         {
             GC.Collect();
-        }
+        } // End EndProcessing
 
         #endregion Cmdlet Overrides
 

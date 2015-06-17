@@ -460,6 +460,129 @@ namespace InvokeIR.PowerForensics.NTFS
 
 
         #endregion GetInstancesMethods
+
+        internal static byte[] getFileBytes(FileStream streamToRead, FileRecord mftRecord)
+        {
+            if (!(mftRecord.Directory))
+            {
+                foreach (Attr attr in mftRecord.Attribute)
+                {
+                    if (attr.Name == "DATA")
+                    {
+                        if (attr.NonResident == true)
+                        {
+                            NonResident nonResAttr = attr as NonResident;
+                            return NonResident.GetContent(streamToRead, nonResAttr);
+                        }
+                        else
+                        {
+                            Data dataAttr = attr as Data;
+                            return dataAttr.RawData;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        internal static byte[] getFileBytes(string volume, FileStream streamToRead, byte[] mftBytes, string fileName)
+        {
+            string volLetter = volume.TrimStart('\\').TrimStart('.').TrimStart('\\') + '\\';
+
+            int inode = IndexNumber.Get(streamToRead, mftBytes, fileName);
+
+            Console.WriteLine("Inode: {0}", inode);
+
+            // Get the FileRecord (MFT Record Entry) for the given inode on the specified volume
+            FileRecord record = new FileRecord(FileRecord.GetBytes(mftBytes, inode));
+
+            if (!(record.Directory))
+            {
+                foreach (Attr attr in record.Attribute)
+                {
+                    if (attr.Name == "DATA")
+                    {
+                        if (attr.NonResident == true)
+                        {
+                            NonResident nonResAttr = (NonResident)attr;
+                            return NonResident.GetContent(volume, nonResAttr);
+                        }
+
+                        else
+                        {
+                            Data dataAttr = (Data)attr;
+                            return null;
+                            //return dataAttr.RawData;
+                        }
+                    }
+                }
+            }
+
+            return null;
+
+        }
+
+        public static byte[] getFileBytes(string volume, string fileName)
+        {
+
+            byte[] mftBytes = MasterFileTable.GetBytes(volume);
+
+            int inode = IndexNumber.Get(volume, fileName);
+
+            // Get the FileRecord (MFT Record Entry) for the given inode on the specified volume
+            FileRecord record = new FileRecord(FileRecord.GetBytes(mftBytes, inode));
+
+            if (!(record.Directory))
+            {
+                foreach (Attr attr in record.Attribute)
+                {
+                    if (attr.Name == "DATA")
+                    {
+                        if (attr.NonResident == true)
+                        {
+                            NonResident nonResAttr = (NonResident)attr;
+                            return NonResident.GetContent(volume, nonResAttr);
+                        }
+                        else
+                        {
+                            Data dataAttr = (Data)attr;
+                            return dataAttr.RawData;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        internal static byte[] getFileBytes(string volume, int index)
+        {
+
+            byte[] mftBytes = MasterFileTable.GetBytes(volume);
+
+            // Get the FileRecord (MFT Record Entry) for the given inode on the specified volume
+            FileRecord record = new FileRecord(FileRecord.GetBytes(mftBytes, index));
+
+            if (!(record.Directory))
+            {
+                foreach (Attr attr in record.Attribute)
+                {
+                    if (attr.Name == "DATA")
+                    {
+                        if (attr.NonResident == true)
+                        {
+                            NonResident nonResAttr = (NonResident)attr;
+                            return NonResident.GetContent(volume, nonResAttr);
+                        }
+                        else
+                        {
+                            Data dataAttr = (Data)attr;
+                            return dataAttr.RawData;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     #endregion FileRecordClass

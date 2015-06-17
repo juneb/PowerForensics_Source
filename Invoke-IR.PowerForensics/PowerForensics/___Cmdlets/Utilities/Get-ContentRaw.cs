@@ -142,7 +142,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 string volLetter = filePath.Split('\\')[0];
                 string volume = @"\\.\" + volLetter;
                 indexNo = NTFS.IndexNumber.Get(volume, filePath);
-                contentArray = MFTRecord.getFile(volume, indexNo);
+                contentArray = FileRecord.getFileBytes(volume, indexNo);
             }
 
             else if(this.MyInvocation.BoundParameters.ContainsKey("IndexNumber"))
@@ -153,7 +153,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                     volume = @"\\.\" + volume + ":";
                 }
                 indexNo = index;
-                contentArray = MFTRecord.getFile(volume, indexNo);
+                contentArray = FileRecord.getFileBytes(volume, indexNo);
             }
 
             if (asBytes)

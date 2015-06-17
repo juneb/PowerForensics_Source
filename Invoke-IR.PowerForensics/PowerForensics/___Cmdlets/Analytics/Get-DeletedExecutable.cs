@@ -57,11 +57,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            NativeMethods.getVolumeName(ref volume);
         }
 
         protected override void ProcessRecord()
         {
-            NativeMethods.getVolumeName(ref volume);
             byte[] mftBytes = MasterFileTable.GetBytes(volume);
             string volLetter = volume.TrimStart('\\').TrimStart('.').TrimStart('\\') + '\\';
             FileRecord[] records = FileRecord.GetInstances(mftBytes, volLetter);

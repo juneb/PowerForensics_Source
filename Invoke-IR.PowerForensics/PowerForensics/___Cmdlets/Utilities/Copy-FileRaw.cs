@@ -66,7 +66,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             string volume = @"\\.\" + path.Split('\\')[0];
 
             // 
-            byte[] fileBytes = MFTRecord.getFile(volume, path);
+            byte[] fileBytes = FileRecord.getFileBytes(volume, path);
 
             // Open file for writing
             FileStream streamToWrite = new FileStream(destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);

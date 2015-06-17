@@ -21,14 +21,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
             /// Partition Table that will be returned.
             /// </summary> 
 
-            [Alias("DevicePath")]
+            [Alias("DrivePath")]
             [Parameter(Mandatory = true, Position = 0)]
             public string Path
             {
-                get { return devicePath; }
-                set { devicePath = value; }
+                get { return drivePath; }
+                set { drivePath = value; }
             }
-            private string devicePath;
+            private string drivePath;
 
             #endregion Parameters
 
@@ -41,12 +41,15 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
             protected override void BeginProcessing()
             {
+                // Ensure cmdlet is being run as Administrator
                 NativeMethods.checkAdmin();
+                // Check that drivePath is valid
+                NativeMethods.getDriveName(drivePath);
             }
 
             protected override void ProcessRecord()
             {
-                MasterBootRecord mbr = new MasterBootRecord(devicePath);
+                MasterBootRecord mbr = new MasterBootRecord(drivePath);
 
                 if (mbr.PartitionTable[0].SystemID != "EFI_GPT_DISK")
                 {
@@ -66,7 +69,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 }
                 else
                 {
-                    GuidPartitionTable gpt = new GuidPartitionTable(devicePath);
+                    GuidPartitionTable gpt = new GuidPartitionTable(drivePath);
                     foreach (GuidPartitionTableEntry entry in gpt.PartitionTable)
                     {
                         WriteObject(entry);

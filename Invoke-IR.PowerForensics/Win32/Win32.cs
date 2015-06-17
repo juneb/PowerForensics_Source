@@ -106,6 +106,7 @@ namespace InvokeIR.Win32
                 volume = System.IO.Directory.GetCurrentDirectory().Split(':')[0];
             }
 
+            Regex physicalDrive = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");
             Regex lettersOnly = new Regex("^[a-zA-Z]{1}$");
             Regex volLetter = new Regex(@"[a-zA-Z]:\\");
             Regex uncPath = new Regex(@"\\\\\.\\[a-zA-Z]:");
@@ -125,7 +126,11 @@ namespace InvokeIR.Win32
             {
 
             }
-            else if (vsc.IsMatch(volume.ToUpper()))
+            else if(vsc.IsMatch(volume.ToUpper()))
+            {
+
+            }
+            else if(physicalDrive.IsMatch(volume.ToUpper()))
             {
 
             }

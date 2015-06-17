@@ -104,10 +104,10 @@ namespace InvokeIR.PowerForensics.NTFS
                 ulong attrDefOffset = ((VBR.MFTStartIndex * VBR.BytesPerCluster) + ((ulong)VBR.BytesPerFileRecord * 4));
 
                 // Get the MFTRecord for the file with a record index of 4 ($AttrDef)
-                MFTRecord record = new MFTRecord(NativeMethods.readDrive(streamToRead, attrDefOffset, (ulong)VBR.BytesPerFileRecord));
+                FileRecord record = new FileRecord(NativeMethods.readDrive(streamToRead, attrDefOffset, (ulong)VBR.BytesPerFileRecord));
 
                 // Get the content of the $AttrDef file in a byte array
-                byte[] bytes = MFTRecord.getFile(streamToRead, record);
+                byte[] bytes = FileRecord.getFileBytes(streamToRead, record);
 
                 // Iterate through 160 byte chunks (representing an AttrDef object)
                 for (int i = 0; (i < bytes.Length) && (bytes[i] != 0); i += 160)

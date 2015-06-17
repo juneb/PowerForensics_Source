@@ -61,7 +61,6 @@
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-Hash.cs" />
     <Compile Include="PowerForensics\Utilities\Hash\Hash.cs" />
     <Compile Include="PowerForensics\Artifacts\Browser\BrowserHistory.cs" />
-    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-DirectoryInodeSuccession.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Prefetch.cs" />
     <Compile Include="PowerForensics\Artifacts\Prefetch\Prefetch.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Timezone.cs" />
@@ -101,7 +100,6 @@
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ContentRaw.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\IndexNumber\IndexEntry.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MasterFileTable.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MFTRecord\MFTRecord.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\7 - %24Boot\VolumeBootRecord.cs" />
     <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

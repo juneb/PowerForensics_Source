@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
@@ -95,8 +96,15 @@ namespace InvokeIR.PowerForensics.NTFS
         {
 
             #region GetAttr
+            VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
 
-            MFTRecord fileRecord = MFTRecord.Get(MFT, index, null, null);
+            ulong recordOffset = (ulong)(VBR.MFTStartIndex * VBR.BytesPerCluster) + (ulong)(VBR.BytesPerFileRecord * index);
+
+            byte[] recordBytes = NativeMethods.readDrive(streamToRead, recordOffset, (ulong)VBR.BytesPerFileRecord);
+
+            FileRecord fileRecord = new FileRecord(recordBytes);
+
+            //MFTRecord fileRecord = MFTRecord.Get(MFT, index, null, null);
 
             IndexRoot indxRoot = null;
             NonResident INDX = null;
@@ -186,93 +194,106 @@ namespace InvokeIR.PowerForensics.NTFS
         public static IndexEntry[] Get(string volume, int index)
         {
             #region GetAttr
+            IntPtr hVolume = NativeMethods.getHandle(volume);
 
-            MFTRecord fileRecord = MFTRecord.Get(MasterFileTable.GetBytes(volume), index, null, null);
-
-            IndexRoot indxRoot = null;
-            NonResident INDX = null;
-
-            foreach (Attr attr in fileRecord.Attribute)
+            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
-                if (attr.Name == "INDEX_ROOT")
+                VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+
+                ulong recordOffset = (ulong)(VBR.MFTStartIndex * VBR.BytesPerCluster) + (ulong)(VBR.BytesPerFileRecord * index);
+
+                byte[] recordBytes = NativeMethods.readDrive(streamToRead, recordOffset, (ulong)VBR.BytesPerFileRecord);
+
+                FileRecord fileRecord = new FileRecord(recordBytes);
+
+                //MFTRecord fileRecord = MFTRecord.Get(MasterFileTable.GetBytes(volume), index, null, null);
+
+                IndexRoot indxRoot = null;
+                NonResident INDX = null;
+
+                foreach (Attr attr in fileRecord.Attribute)
                 {
-                    indxRoot = (IndexRoot)attr;
-                }
-                if (attr.Name == "INDEX_ALLOCATION")
-                {
-                    if (attr.NonResident)
+                    if (attr.Name == "INDEX_ROOT")
                     {
-                        INDX = (NonResident)attr;
+                        indxRoot = (IndexRoot)attr;
+                    }
+                    if (attr.Name == "INDEX_ALLOCATION")
+                    {
+                        if (attr.NonResident)
+                        {
+                            INDX = (NonResident)attr;
+                        }
                     }
                 }
-            }
 
             #endregion GetAttr
 
-            List<IndexEntry> indxEntryList = new List<IndexEntry>();
+                List<IndexEntry> indxEntryList = new List<IndexEntry>();
 
-            // Get entries from INDEX_ROOT Attribute (0x90)
+                // Get entries from INDEX_ROOT Attribute (0x90)
 
-            int indexrootOffset = 0;
+                int indexrootOffset = 0;
 
-            do{
-                INDEX_ENTRY indxEntryStruct = new INDEX_ENTRY(indxRoot.EntryBytes.Skip(indexrootOffset).ToArray());
-
-                if ((indxEntryStruct.Flags == 2) || (indxEntryStruct.Flags == 3))
+                do
                 {
-                    break;
-                }
+                    INDEX_ENTRY indxEntryStruct = new INDEX_ENTRY(indxRoot.EntryBytes.Skip(indexrootOffset).ToArray());
 
-                indexrootOffset += indxEntryStruct.Size;
-
-                FileName fN = new FileName(indxEntryStruct.Stream);
-            
-                IndexEntry indxEntry = new IndexEntry(indxEntryStruct, fN.Filename);
-                
-                indxEntryList.Add(indxEntry);
-
-            } while(indexrootOffset < (indxRoot.EntryBytes.Length - 40));
-
-            // Get entries from INDEX_ALLOCATION Attribute (0xA0)
-            if (INDX != null)
-            {
-                byte[] nonResBytes = NonResident.GetContent(volume, INDX);
-
-                for (long offset = 0; offset < nonResBytes.Length; offset += 4096)
-                //for (long offset = 880640; offset < nonResBytes.Count; offset += 4096)
-                {
-                    byte[] indxBytes = new byte[4096];
-                    Array.Copy(nonResBytes, offset, indxBytes, 0, indxBytes.Length);
-
-                    INDEX_BLOCK indxBlock = new INDEX_BLOCK(indxBytes.Take(40).ToArray());
-
-                    byte[] IndexAllocEntryBytes = new byte[indxBlock.TotalEntrySize];
-                    Array.Copy(indxBytes, (indxBlock.EntryOffset + 24), IndexAllocEntryBytes, 0, IndexAllocEntryBytes.Length);
-
-                    int indexallocOffset = 0;
-
-                    do
+                    if ((indxEntryStruct.Flags == 2) || (indxEntryStruct.Flags == 3))
                     {
-                        if (IndexAllocEntryBytes.Length == 0)
+                        break;
+                    }
+
+                    indexrootOffset += indxEntryStruct.Size;
+
+                    FileName fN = new FileName(indxEntryStruct.Stream);
+
+                    IndexEntry indxEntry = new IndexEntry(indxEntryStruct, fN.Filename);
+
+                    indxEntryList.Add(indxEntry);
+
+                } while (indexrootOffset < (indxRoot.EntryBytes.Length - 40));
+
+                // Get entries from INDEX_ALLOCATION Attribute (0xA0)
+                if (INDX != null)
+                {
+                    byte[] nonResBytes = NonResident.GetContent(volume, INDX);
+
+                    for (long offset = 0; offset < nonResBytes.Length; offset += 4096)
+                    //for (long offset = 880640; offset < nonResBytes.Count; offset += 4096)
+                    {
+                        byte[] indxBytes = new byte[4096];
+                        Array.Copy(nonResBytes, offset, indxBytes, 0, indxBytes.Length);
+
+                        INDEX_BLOCK indxBlock = new INDEX_BLOCK(indxBytes.Take(40).ToArray());
+
+                        byte[] IndexAllocEntryBytes = new byte[indxBlock.TotalEntrySize];
+                        Array.Copy(indxBytes, (indxBlock.EntryOffset + 24), IndexAllocEntryBytes, 0, IndexAllocEntryBytes.Length);
+
+                        int indexallocOffset = 0;
+
+                        do
                         {
-                            break;
-                        }
+                            if (IndexAllocEntryBytes.Length == 0)
+                            {
+                                break;
+                            }
 
-                        INDEX_ENTRY indxEntryStruct = new INDEX_ENTRY(IndexAllocEntryBytes.Skip(indexallocOffset).ToArray());
-                        indexallocOffset += indxEntryStruct.Size;
+                            INDEX_ENTRY indxEntryStruct = new INDEX_ENTRY(IndexAllocEntryBytes.Skip(indexallocOffset).ToArray());
+                            indexallocOffset += indxEntryStruct.Size;
 
-                        if ((indxEntryStruct.Flags == 2) || (indxEntryStruct.Flags == 3))
-                        {
-                            break;
-                        }
+                            if ((indxEntryStruct.Flags == 2) || (indxEntryStruct.Flags == 3))
+                            {
+                                break;
+                            }
 
-                        FileName fN = new FileName(indxEntryStruct.Stream);
-                        IndexEntry indxEntry = new IndexEntry(indxEntryStruct, fN.Filename);
-                        indxEntryList.Add(indxEntry);
-                    } while (indexallocOffset < IndexAllocEntryBytes.Length);                
+                            FileName fN = new FileName(indxEntryStruct.Stream);
+                            IndexEntry indxEntry = new IndexEntry(indxEntryStruct, fN.Filename);
+                            indxEntryList.Add(indxEntry);
+                        } while (indexallocOffset < IndexAllocEntryBytes.Length);
+                    }
                 }
+                return indxEntryList.ToArray();
             }
-            return indxEntryList.ToArray();
         }
     }
 }

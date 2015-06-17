@@ -36,7 +36,7 @@ namespace InvokeIR.PowerForensics.NTFS
         {
 
             // Instantiate a FILE_RECORD_HEADER struct from raw MFT Record bytes
-            MFTRecord.FILE_RECORD_HEADER RecordHeader = new MFTRecord.FILE_RECORD_HEADER(recordBytes);
+            FileRecord.FILE_RECORD_HEADER RecordHeader = new FileRecord.FILE_RECORD_HEADER(recordBytes);
 
             int offsetToATTR = RecordHeader.OffsetOfAttr;
 

@@ -206,7 +206,7 @@ namespace InvokeIR.PowerForensics.Artifacts
                 byte[] MFT = MasterFileTable.GetBytes(streamToRead);
 
                 // Get bytes for specific Prefetch file
-                byte[] fileBytes = MFTRecord.getFile(volume, streamToRead, MFT, filePath).ToArray();
+                byte[] fileBytes = FileRecord.getFileBytes(volume, streamToRead, MFT, filePath).ToArray();
                 try
                 {
                     // Return a Prefetch object for the Prefetch file stored at filePath
@@ -288,7 +288,7 @@ namespace InvokeIR.PowerForensics.Artifacts
                         try
                         {
                             // Get bytes for specific Prefetch file
-                            byte[] fileBytes = MFTRecord.getFile(volume, streamToRead, MFT, pfFiles[i]).ToArray();
+                            byte[] fileBytes = FileRecord.getFileBytes(volume, streamToRead, MFT, pfFiles[i]).ToArray();
 
                             // Output the Prefetch object for the corresponding file
                             pfArray[i] = (new Prefetch(fileBytes));

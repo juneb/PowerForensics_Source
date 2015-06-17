@@ -38,12 +38,9 @@ namespace InvokeIR.PowerForensics
 
         public GuidPartitionTable(string devicePath)
         {
-            NativeMethods.getDriveName(devicePath);
-
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
             if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
             {
-                NativeMethods.getDriveName(devicePath);
                 IntPtr hDevice = NativeMethods.getHandle(devicePath);
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
                 {
@@ -116,7 +113,6 @@ namespace InvokeIR.PowerForensics
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
             if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
             {
-                Win32.NativeMethods.getDriveName(devicePath);
                 IntPtr hDevice = Win32.NativeMethods.getHandle(devicePath);
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
                 {

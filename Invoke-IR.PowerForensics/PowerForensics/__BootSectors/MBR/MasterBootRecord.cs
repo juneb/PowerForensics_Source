@@ -42,9 +42,6 @@ namespace InvokeIR.PowerForensics
 
         public MasterBootRecord(string devicePath)
         {
-            // Check drivePath parameter
-            NativeMethods.getDriveName(devicePath);
-
             // Get Handle to Hard Drive
             IntPtr hDrive = NativeMethods.getHandle(devicePath);
             
@@ -138,19 +135,16 @@ namespace InvokeIR.PowerForensics
 
         #region PublicMethods
 
-        public static MasterBootRecord Get(string devicePath)
+        public static MasterBootRecord Get(string drivePath)
         {
             // Return a MasterBootRecord object for the given device path
-            return new MasterBootRecord(devicePath);
+            return new MasterBootRecord(drivePath);
         }
 
-        public static byte[] GetBytes(string devicePath)
+        public static byte[] GetBytes(string drivePath)
         {
-            // Check devicePath parameter
-            NativeMethods.getDriveName(devicePath);
-
             // Get Handle to Hard Drive
-            IntPtr hDrive = NativeMethods.getHandle(devicePath);
+            IntPtr hDrive = NativeMethods.getHandle(drivePath);
             
             // Create a FileStream to read from hDrive
             using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))
