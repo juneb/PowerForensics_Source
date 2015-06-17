@@ -167,6 +167,88 @@ namespace InvokeIR.PowerForensics.NTFS
             }
         }
 
+        public FileRecord(byte[] recordBytes, string path)
+        {
+            FullPath = path;
+
+            // Instantiate a FILE_RECORD_HEADER struct from raw MFT Record bytes
+            FILE_RECORD_HEADER RecordHeader = new FILE_RECORD_HEADER(recordBytes);
+
+            // Check MFT Signature (FILE) to ensure bytes actually represent an MFT Record
+            if (Encoding.ASCII.GetString(RecordHeader.Magic) == "FILE")
+            {
+                RecordNumber = RecordHeader.RecordNo;
+                Size = RecordHeader.RealSize;
+                SequenceNumber = RecordHeader.SeqNo;
+                LogFileSequenceNumber = RecordHeader.LSN;
+                Links = RecordHeader.Hardlinks;
+
+                // Unmask Header Flags
+                #region HeaderFlags
+
+                if ((RecordHeader.Flags & (ushort)FILE_RECORD_FLAG.INUSE) == (ushort)FILE_RECORD_FLAG.INUSE)
+                {
+                    Deleted = false;
+                }
+                else
+                {
+                    Deleted = true;
+                }
+                if ((RecordHeader.Flags & (ushort)FILE_RECORD_FLAG.DIR) == (ushort)FILE_RECORD_FLAG.DIR)
+                {
+                    Directory = true;
+                }
+                else
+                {
+                    Directory = false;
+                }
+
+                #endregion HeaderFlags
+
+                List<Attr> AttributeList = new List<Attr>();
+                int offsetToATTR = RecordHeader.OffsetOfAttr;
+
+                while (offsetToATTR < (RecordHeader.RealSize - 8))
+                {
+                    int offset = offsetToATTR;
+                    Attr attr = AttributeFactory.Get(recordBytes, offset, out offsetToATTR);
+
+                    if (attr != null)
+                    {
+                        if (attr.Name == "STANDARD_INFORMATION")
+                        {
+                            StandardInformation stdInfo = attr as StandardInformation;
+                            ModifiedTime = stdInfo.ModifiedTime;
+                            AccessedTime = stdInfo.AccessedTime;
+                            ChangedTime = stdInfo.ChangedTime;
+                            BornTime = stdInfo.BornTime;
+                            Permission = stdInfo.Permission;
+                        }
+                        else if (attr.Name == "FILE_NAME")
+                        {
+                            FileName fN = attr as FileName;
+                            if (!(fN.Namespace == 2))
+                            {
+                                Name = fN.Filename;
+                                ParentIndex = fN.ParentIndex;
+                            }
+
+                        }
+                        AttributeList.Add(attr);
+                    }
+                }
+
+                Attribute = AttributeList.ToArray();
+
+                byte[] usnBytes = new byte[2];
+                Array.Copy(recordBytes, RecordHeader.OffsetOfUS, usnBytes, 0, usnBytes.Length);
+                UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+
+                UpdateSequenceArray = new byte[(2 * RecordHeader.SizeOfUS) - 2];
+                Array.Copy(recordBytes, (RecordHeader.OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+            }
+        }
+
         internal FileRecord(byte[] mftBytes, int index, ref FileRecord[] recordArray, string volLetter)
         {
             // Get byte array representing current record

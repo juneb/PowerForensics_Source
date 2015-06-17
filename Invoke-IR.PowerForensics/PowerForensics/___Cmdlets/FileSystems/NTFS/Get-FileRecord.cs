@@ -139,7 +139,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
                 else
                 {
-                    WriteObject(new FileRecord(recordBytes));
+                    WriteObject(new FileRecord(recordBytes, filePath));
                 }
             }
 
