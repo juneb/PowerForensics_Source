@@ -96,13 +96,12 @@ namespace InvokeIR.Win32
         {
             Regex lettersOnly = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");
 
-            if (!(lettersOnly.IsMatch(drive)))
+            if (!(lettersOnly.IsMatch(drive.ToUpper())))
             {
                 throw new Exception("Provided Drive Name is not acceptable.");
             }
 
             return drive;
-
         }
         
         internal static string getVolumeName(ref string volume)
@@ -115,8 +114,9 @@ namespace InvokeIR.Win32
             Regex lettersOnly = new Regex("^[a-zA-Z]{1}$");
             Regex volLetter = new Regex(@"[a-zA-Z]:\\");
             Regex uncPath = new Regex(@"\\\\\.\\[a-zA-Z]:");
-            //\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1
-            Regex vsc = new Regex(@"\\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\d+$");
+            Regex vsc = new Regex(@"\\\\\?\\GLOBALROOT\\DEVICE\\HARDDISKVOLUMESHADOWCOPY\d+$");
+            //Regex vsc = new Regex(@"\\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\d+$");
+
 
             if (lettersOnly.IsMatch(volume))
             {
@@ -130,7 +130,7 @@ namespace InvokeIR.Win32
             {
 
             }
-            else if (vsc.IsMatch(volume))
+            else if (vsc.IsMatch(volume.ToUpper()))
             {
 
             }

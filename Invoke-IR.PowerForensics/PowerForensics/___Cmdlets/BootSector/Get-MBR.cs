@@ -59,9 +59,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void ProcessRecord()
         {
-
-            NativeMethods.getDriveName(drivePath);
-
             if (asBytes)
             {
                 WriteObject(MasterBootRecord.GetBytes(drivePath));
@@ -70,7 +67,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
             {
                 WriteObject(new MasterBootRecord(drivePath));
             }
-
         } // ProcessRecord 
 
         protected override void EndProcessing()

@@ -127,74 +127,12 @@ namespace InvokeIR.PowerForensics
             }
         }
 
-        internal MasterBootRecord(FileStream streamToRead)
-        {
-            // Read Master Boot Record (first 512 bytes) from disk
-            byte[] MBRBytes = NativeMethods.readDrive(streamToRead, 0, 512);
-
-            // Instantiate a byte array to hold 440 bytes (size of MBR Boot Code)
-            // Copy MBR sub-array into mbrCode
-            byte[] mbrCode = new byte[440];
-            Array.Copy(MBRBytes, 0, mbrCode, 0, mbrCode.Length);
-
-            // Check MBR Code Section against a list of known signatures
-            #region MD5Signature
-
-            string MD5Signature = null;
-
-            switch (Hash.Get(mbrCode, mbrCode.Length, "MD5"))
-            {
-                case WINDOWS5_X:
-                    MD5Signature = "Windows 5.X";
-                    break;
-                case WINDOWS6_0:
-                    MD5Signature = "Windows 6.0";
-                    break;
-                case WINDOWS6_1:
-                    MD5Signature = "Windows 6.1+";
-                    break;
-                case GRUB:
-                    MD5Signature = "GRUB";
-                    break;
-                case NYANCAT:
-                    MD5Signature = "BOOTKIT Nyan Cat";
-                    break;
-                case STONEDv2:
-                    MD5Signature = "BOOTKIT Stonedv2";
-                    break;
-                case STONEDv2_TRUE_CRYPT:
-                    MD5Signature = "BOOTKIT Stonedv2";
-                    break;
-                default:
-                    MD5Signature = "UNKNOWN";
-                    break;
-            }
-
-            #endregion MD5Signature
-
-            // Instantiate a blank Partition List
-            List<PartitionEntry> partitionList = new List<PartitionEntry>();
-
-            // Set object properties
-            BootCode = mbrCode;
-            DiskSignature = BitConverter.ToString(MBRBytes.Skip(440).Take(4).ToArray()).Replace("-", "");
-            MBRSignature = MD5Signature;
-            partitionList.Add(new PartitionEntry(MBRBytes.Skip(446).Take(16).ToArray()));
-            partitionList.Add(new PartitionEntry(MBRBytes.Skip(462).Take(16).ToArray()));
-            partitionList.Add(new PartitionEntry(MBRBytes.Skip(478).Take(16).ToArray()));
-            partitionList.Add(new PartitionEntry(MBRBytes.Skip(494).Take(16).ToArray()));
-            PartitionTable = partitionList.ToArray();
-        }
-
         #endregion Constructor
 
         #region PublicMethods
 
         public static MasterBootRecord Get(string devicePath)
         {
-            // Check devicePath parameter
-            NativeMethods.getDriveName(devicePath);
-
             // Return a MasterBootRecord object for the given device path
             return new MasterBootRecord(devicePath);
         }
