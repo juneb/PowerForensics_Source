@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
+using InvokeIR.Win32;
 using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.PowerForensics.Cmdlets
@@ -36,6 +37,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// <summary> 
         /// The ProcessRecord outputs the raw bytes of the specified File
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
 
         protected override void ProcessRecord()
         {

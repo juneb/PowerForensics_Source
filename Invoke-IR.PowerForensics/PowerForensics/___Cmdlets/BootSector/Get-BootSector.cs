@@ -50,6 +50,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord outputs a MasterBootRecord GuidPartitionTable object for the specified Device
         /// </summary> 
 
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+
         protected override void ProcessRecord()
         {
             MasterBootRecord mbr = new MasterBootRecord(devicePath);

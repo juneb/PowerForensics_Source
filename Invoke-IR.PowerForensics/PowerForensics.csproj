@@ -46,15 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PowerForensics\_FileSystems\FAT32\__VolumeBootRecord\VolumeBootRecord.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\3 - Volume\Volume.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\6 - Bitmap\Bitmap.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\PageHeader.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\Restart.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\RestartAreaHeader.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\8 - BadClus\BadClus.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\UsnJrnl\UsnJrnlDetail.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\NonResident\DataRun.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\3 - %24Volume\Volume.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\6 - %24Bitmap\Bitmap.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\8 - %24BadClus\BadClus.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\FileRecord\FileRecord.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-Timestomp.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-BadCluster.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-Bitmap.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-UsnJrnlInformation.cs" />
@@ -79,24 +75,21 @@
     <Compile Include="PowerForensics\Formats\HexDump.cs" />
     <Compile Include="PowerForensics\Formats\Mactime.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-GPT.cs" />
-    <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTableHeader.cs" />
-    <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTableEntry.cs" />
     <Compile Include="PowerForensics\__BootSectors\GPT\GuidPartitionTable.cs" />
-    <Compile Include="PowerForensics\__BootSectors\MBR\PartitionEntry.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\5 - AttrDef\AttrDef.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\4 - %24AttrDef\AttrDef.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\SystemFiles\Get-AttrDef.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ChildItemRaw.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\IndexNumber\IndexNumber.cs" />
     <Compile Include="SQLite\DatabaseHeader.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-VolumeBootRecord.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- LogFile\LogFile.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\2- %24LogFile\LogFile.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-MBR.cs" />
     <Compile Include="PowerForensics\__BootSectors\MBR\MasterBootRecord.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-FileRecordAttribute.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\IndexRoot.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Copy-FileRaw.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-FileRecordIndex.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\UsnJrnl\UsnJrnl.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\11 - %24Extend\UsnJrnl\UsnJrnl.cs" />
     <Compile Include="Win32\ExternDll.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Invoke-DD.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-PartitionTable.cs" />
@@ -105,21 +98,21 @@
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\AttributeHeader.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\Data.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\FileName.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\NonResident\NonResident.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\NonResident.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\ObjectId.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\StandardInformation.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\VolumeInformation.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\Attributes\VolumeName.cs" />
-    <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-MFTRecord.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ContentRaw.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\IndexNumber\IndexEntry.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MasterFileTable.cs" />
     <Compile Include="PowerForensics\_FileSystems\NTFS\_MasterFileTable\MFTRecord\MFTRecord.cs" />
-    <Compile Include="PowerForensics\_FileSystems\NTFS\__VolumeBootRecord\VolumeBootRecord.cs" />
+    <Compile Include="PowerForensics\_FileSystems\NTFS\SystemFiles\7 - %24Boot\VolumeBootRecord.cs" />
     <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="PowerForensics\Artifacts\RecycleBin\" />
+    <Folder Include="PowerForensics\_FileSystems\NTFS\SystemFiles\9 - %24Secure\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

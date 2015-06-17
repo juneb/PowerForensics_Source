@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
+using InvokeIR.Win32;
 using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.PowerForensics.Cmdlets
@@ -38,6 +39,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord method calls ManagementClass.GetInstances() 
         /// method to iterate through each BindingObject on each system specified.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
             string volume = @"\\.\" + filePath.Split('\\')[0];

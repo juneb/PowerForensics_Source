@@ -44,6 +44,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
             /// and outputs all Partitions that are not of the EMPTY type
             /// </summary> 
 
+            protected override void BeginProcessing()
+            {
+                NativeMethods.checkAdmin();
+            }
+
             protected override void ProcessRecord()
             {
                 MasterBootRecord mbr = new MasterBootRecord(devicePath);

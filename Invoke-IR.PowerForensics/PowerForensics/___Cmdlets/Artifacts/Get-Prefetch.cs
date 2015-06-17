@@ -57,6 +57,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// by the Path property, or iterates through all .pf files in the
         /// C:\Windows\Prefetch directory to output an array of Prefetch objects.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+
         protected override void ProcessRecord()
         {
             // If the FilePath parameter is used

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+using InvokeIR.Win32;
 using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.PowerForensics.Cmdlets
@@ -79,6 +80,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// <summary> 
 
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
             Win32.NativeMethods.getVolumeName(ref volume);

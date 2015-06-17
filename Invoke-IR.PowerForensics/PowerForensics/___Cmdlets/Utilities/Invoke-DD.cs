@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+using InvokeIR.Win32;
 using InvokeIR.PowerForensics;
 
 namespace InvokeIR.PowerForensics.Cmdlets
@@ -90,6 +91,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord Reads bytes from the InFile
         /// and outputs them to the OutFile.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
 
         protected override void ProcessRecord()
         {

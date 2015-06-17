@@ -7,10 +7,8 @@ using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
-
     public class Attr
     {
-
         internal enum ATTR_TYPE
         {
             STANDARD_INFORMATION = 0x10,
@@ -48,41 +46,30 @@ namespace InvokeIR.PowerForensics.NTFS
             int offsetToATTR = RecordHeader.OffsetOfAttr;
 
             while (offsetToATTR < (RecordHeader.RealSize - 8))
-            {
-                
+            { 
                 AttrHeader.ATTR_HEADER_COMMON commonAttributeHeader = new AttrHeader.ATTR_HEADER_COMMON(recordBytes.Skip(offsetToATTR).Take(16).ToArray());
                 if (commonAttributeHeader.ATTRType == attribute)
-                {
-                    
+                {       
                     // Return bytes for Attr
-                    return recordBytes.Skip(offsetToATTR).Take((int)commonAttributeHeader.TotalSize).ToArray();
-                     
+                    return recordBytes.Skip(offsetToATTR).Take((int)commonAttributeHeader.TotalSize).ToArray();    
                 }
 
                 else
                 {
-                    
                     // Change offsetToATTR to next Attr
                     offsetToATTR += (int)commonAttributeHeader.TotalSize;
-                
                 }
-
             }
             
             // Add some sort of exception handling here...
             return null;
-
         }
 
         public static Attr Get(byte[] recordBytes, uint attribute)
         {
-
             byte[] attrBytes = Attr.GetBytes(recordBytes, attribute);
             int offsetToAttr = 0;
-            return AttributeFactory.Get(attrBytes, 0, out offsetToAttr);
-            
+            return AttributeFactory.Get(attrBytes, 0, out offsetToAttr);   
         }
-
     }
-
 }

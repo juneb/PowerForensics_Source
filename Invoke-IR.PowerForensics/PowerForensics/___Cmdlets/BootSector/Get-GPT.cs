@@ -51,6 +51,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord outputs a GuidPartitionTable object for the specified Drive Path
         /// </summary> 
 
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+
         protected override void ProcessRecord()
         {
 

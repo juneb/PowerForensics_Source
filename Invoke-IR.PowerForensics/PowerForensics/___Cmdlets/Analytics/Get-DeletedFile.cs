@@ -59,6 +59,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// corresponds to the file(s) that is/are specified.
         /// </summary> 
 
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+
         protected override void ProcessRecord()
         {
             NativeMethods.getVolumeName(ref volume);

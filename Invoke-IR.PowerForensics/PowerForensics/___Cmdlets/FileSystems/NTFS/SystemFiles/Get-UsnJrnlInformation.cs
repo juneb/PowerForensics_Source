@@ -45,6 +45,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// <summary> 
         /// The ProcessRecord method returns.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
             // Check for valid Volume name

@@ -52,6 +52,11 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// specified Drive Path
         /// </summary> 
 
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+
         protected override void ProcessRecord()
         {
 

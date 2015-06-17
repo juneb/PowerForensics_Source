@@ -53,6 +53,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord method instantiates a VolumeBootRecord object based 
         /// on the volume name given as an argument.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
             NativeMethods.getVolumeName(ref volume);

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Security.Principal;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -80,6 +81,17 @@ namespace InvokeIR.Win32
         #endregion PInvoke
 
         #region Helper Functions
+
+        internal static void checkAdmin()
+        {
+            bool admin = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+             
+            if(!(admin))
+            {
+                throw new Exception("PowerForensics must be executed from an Administrator PowerShell");
+            }
+        }
+
         internal static string getDriveName(string drive)
         {
             Regex lettersOnly = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");

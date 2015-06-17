@@ -42,6 +42,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// The ProcessRecord method calls AttrDef.GetInstances() 
         /// method to iterate through each AttrDef object on the specified volume.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
             // Check for valid Volume name

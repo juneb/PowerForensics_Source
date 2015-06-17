@@ -45,16 +45,17 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// <summary> 
         /// The ProcessRecord method returns.
         /// </summary> 
+
+        protected override void BeginProcessing()
+        {
+            NativeMethods.checkAdmin();
+        }
+        
         protected override void ProcessRecord()
         {
 
             WriteObject(Bitmap.Get(volume, cluster));
 
-            /*Bitmap[] bitmap = Bitmap.GetInstances(volume);
-            foreach (Bitmap b in bitmap)
-            {
-                WriteObject(b);
-            }*/
         } // ProcessRecord 
 
         protected override void EndProcessing()
