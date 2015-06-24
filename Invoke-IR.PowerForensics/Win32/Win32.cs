@@ -106,13 +106,11 @@ namespace InvokeIR.Win32
                 volume = System.IO.Directory.GetCurrentDirectory().Split(':')[0];
             }
 
-            Regex physicalDrive = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");
             Regex lettersOnly = new Regex("^[a-zA-Z]{1}$");
             Regex volLetter = new Regex(@"[a-zA-Z]:\\");
             Regex uncPath = new Regex(@"\\\\\.\\[a-zA-Z]:");
             Regex vsc = new Regex(@"\\\\\?\\GLOBALROOT\\DEVICE\\HARDDISKVOLUMESHADOWCOPY\d+$");
-            //Regex vsc = new Regex(@"\\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\d+$");
-
+            Regex physicalDrive = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");
 
             if (lettersOnly.IsMatch(volume))
             {

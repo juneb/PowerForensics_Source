@@ -1,35 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
 
-namespace InvokeIR.PowerForensics.Cmdlets
+namespace InvokeIR.PowerForensics.NTFS
 {
 
-    #region GetFileRecordIndexCommand
+    #region GetChildItemRawCommand
     /// <summary> 
     /// This class implements the Get-FileRecordIndex cmdlet. 
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Get, "FileRecordIndex")]
-    public class GetFileRecordIndexCommand : Cmdlet
+    public class FileRecordIndexCommand : Cmdlet
     {
 
         #region Parameters
 
         /// <summary> 
-        /// This parameter provides the Path for the 
-        /// MFTRecordIndex that will be returned.
+        /// This parameter provides the Name of the Volume
+        /// for which the FileRecord object should be
+        /// returned.
         /// </summary> 
 
         [Alias("FilePath")]
         [Parameter(Mandatory = true, Position = 0)]
         public string Path
         {
-            get { return filePath; }
-            set { filePath = value; }
+            get { return path; }
+            set { path = value; }
         }
-        private string filePath;
+        private string path;
 
         #endregion Parameters
 
@@ -44,13 +45,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             NativeMethods.checkAdmin();
         }
-        
+
         protected override void ProcessRecord()
         {
-            string volume = @"\\.\" + filePath.Split('\\')[0];
-
-            WriteObject(IndexNumber.Get(volume, filePath));
-
+            WriteObject(IndexEntry.Get(path).FileIndex);
         } // ProcessRecord 
 
         protected override void EndProcessing()
@@ -60,7 +58,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         #endregion Cmdlet Overrides
 
-    } // End GetFileRecordCommand class. 
-    #endregion GetFileRecordIndexCommand
+    } // End GetChildItemRawCommand class. 
+    #endregion GetChildItemRawCommand
 
 }

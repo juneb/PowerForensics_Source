@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
 
-namespace InvokeIR.PowerForensics.Cmdlets
+namespace InvokeIR.PowerForensics.NTFS
 {
 
     #region GetChildItemRawCommand
@@ -48,43 +48,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void ProcessRecord()
         {
-
-            string[] paths = path.Split('\\');
-            
-            // Determine Volume Name
-            string volume = @"\\.\" + paths[0];
-
-            int index = -1;
-
-            IndexEntry[] arrayEntry = null;
-
-            for (int i = 0; i < paths.Length; i++)
+            foreach (IndexEntry index in IndexEntry.GetInstances(path))
             {
-                
-                if (index == -1)
-                {
-                    index = 5;
-                }
-                else
-                {
-                    foreach (IndexEntry entry in arrayEntry)
-                    {
-                        if (entry.Name == paths[i])
-                        {
-                            index = (int)entry.FileIndex;
-                        }
-                    }
-                }
-
-                arrayEntry = IndexEntry.Get(volume, index);
-               
+                WriteObject(index);
             }
-
-            foreach (IndexEntry entry in arrayEntry)
-            {
-                WriteObject(entry);
-            }
-
         } // ProcessRecord 
 
         protected override void EndProcessing()

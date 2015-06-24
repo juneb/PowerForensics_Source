@@ -65,8 +65,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
             // Determine Volume Name
             string volume = @"\\.\" + path.Split('\\')[0];
 
+            IndexEntry indexEntry = IndexEntry.Get(path);
+
             // 
-            byte[] fileBytes = FileRecord.getFileBytes(volume, path);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)indexEntry.FileIndex), volume);
+
+            byte[] fileBytes = record.GetBytes(volume);
 
             // Open file for writing
             FileStream streamToWrite = new FileStream(destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);

@@ -82,7 +82,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// <summary> 
         /// The ProcessRecord outputs the raw bytes of the specified File
         /// </summary> 
-         
+
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
@@ -141,19 +141,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
             {
                 string volLetter = filePath.Split('\\')[0];
                 string volume = @"\\.\" + volLetter;
-                indexNo = NTFS.IndexNumber.Get(volume, filePath);
-                contentArray = FileRecord.getFileBytes(volume, indexNo);
+                indexNo = (int)IndexEntry.Get(filePath).FileIndex;
+                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, indexNo), volume).GetBytes(volume);
             }
 
             else if(this.MyInvocation.BoundParameters.ContainsKey("IndexNumber"))
             {
-                Regex lettersOnly = new Regex("^[a-zA-Z]{1}$");
-                if (lettersOnly.IsMatch(volume))
-                {
-                    volume = @"\\.\" + volume + ":";
-                }
-                indexNo = index;
-                contentArray = FileRecord.getFileBytes(volume, indexNo);
+                NativeMethods.getVolumeName(ref volume);
+                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes(volume);
             }
 
             if (asBytes)

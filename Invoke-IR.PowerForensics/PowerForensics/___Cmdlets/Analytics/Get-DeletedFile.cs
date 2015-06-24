@@ -62,7 +62,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void ProcessRecord()
         {
-            NativeMethods.getVolumeName(ref volume);
+            /*NativeMethods.getVolumeName(ref volume);
             byte[] mftBytes = MasterFileTable.GetBytes(volume);
             string volLetter = volume.TrimStart('\\').TrimStart('.').TrimStart('\\') + '\\';
             FileRecord[] records = FileRecord.GetInstances(mftBytes, volLetter);
@@ -73,7 +73,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 {
                     WriteObject(record);
                 }
-            }
+            }*/
         } // ProcessRecord 
 
         protected override void EndProcessing()

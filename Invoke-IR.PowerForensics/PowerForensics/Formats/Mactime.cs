@@ -97,7 +97,7 @@ namespace InvokeIR.PowerForensics.Formats
             foreach (var time in dictionary)
             {
                 //macs.Add(new Mactime(time.Key, record.Size, (ushort)time.Value, record.RecordNumber, record.FullPath, record.Deleted));
-                macs.Add(new Mactime(time.Key, record.Size, (ushort)time.Value, record.RecordNumber, record.Name, record.Deleted));
+                macs.Add(new Mactime(time.Key, record.RealSize, (ushort)time.Value, record.RecordNumber, record.Name, record.Deleted));
             }
 
             return macs.ToArray();

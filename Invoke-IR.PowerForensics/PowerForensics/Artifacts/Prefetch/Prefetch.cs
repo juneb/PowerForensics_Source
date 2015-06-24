@@ -199,23 +199,20 @@ namespace InvokeIR.PowerForensics.Artifacts
             // Get a handle to the volume
             IntPtr hVolume = NativeMethods.getHandle(volume);
 
-            // Create a FileStream to read from the volume handle
-            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
-            {
-                // Get a byte array representing the Master File Table
-                byte[] MFT = MasterFileTable.GetBytes(streamToRead);
+            // Get MFT Index for specified file
+            int index = (int)(IndexEntry.Get(filePath)).FileIndex;
 
-                // Get bytes for specific Prefetch file
-                byte[] fileBytes = FileRecord.getFileBytes(volume, streamToRead, MFT, filePath).ToArray();
-                try
-                {
-                    // Return a Prefetch object for the Prefetch file stored at filePath
-                    return new Prefetch(fileBytes);
-                }
-                catch
-                {
-                    throw new Exception("Error parsing Prefetch file");
-                }
+            // Get bytes for specific Prefetch file
+            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes(volume);
+            
+            try
+            {
+                // Return a Prefetch object for the Prefetch file stored at filePath
+                return new Prefetch(fileBytes);
+            }
+            catch
+            {
+                throw new Exception("Error parsing Prefetch file");
             }
         }
 
@@ -253,7 +250,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             return new Prefetch(fileBytes);
         }
 
-        public static Prefetch[] GetInstances(string volume)
+        /*public static Prefetch[] GetInstances(string volume)
         {
             // Get current volume
             NativeMethods.getVolumeName(ref volume);
@@ -268,7 +265,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
                 // Get a byte array representing the Master File Table
-                byte[] MFT = MasterFileTable.GetBytes(streamToRead);
+                byte[] MFT = MasterFileTable.GetBytes(streamToRead, volume);
 
                 // Build Prefetch directory path
                 string prefetchPath = volLetter + @"\\Windows\\Prefetch";
@@ -307,7 +304,7 @@ namespace InvokeIR.PowerForensics.Artifacts
                     return null;
                 }
             }
-        }
+        }*/
 
         public static Prefetch[] GetInstances(string volume, bool fast)
         {

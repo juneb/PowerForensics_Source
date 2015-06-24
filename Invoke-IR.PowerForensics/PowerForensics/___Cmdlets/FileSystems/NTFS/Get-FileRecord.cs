@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
+using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
 
-namespace InvokeIR.PowerForensics.Cmdlets
+namespace InvokeIR.PowerForensics.NTFS
 {
 
     #region GetFileRecordCommand
@@ -11,7 +12,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
     /// This class implements the Get-FileRecord cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "FileRecord", DefaultParameterSetName = "None", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Get, "FileRecord", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
     public class GetFileRecordCommand : PSCmdlet
     {
 
@@ -23,8 +24,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// returned.
         /// </summary> 
 
-        [Parameter(ParameterSetName = "None")]
-        [Parameter(ParameterSetName = "Index")]
+        [Parameter()]
         public string VolumeName
         {
             get { return volume; }
@@ -37,8 +37,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// FileRecord object that will be returned.
         /// </summary> 
 
-        [Alias("IndexNumber")]
-        [Parameter(Mandatory = true, ParameterSetName = "Index")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Index")]
         public int Index
         {
             get { return indexNumber; }
@@ -46,33 +45,31 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private int indexNumber;
 
-        /// <summary> 
-        /// This parameter provides the FileName for the 
-        /// FileRecord object that will be returned.
+        /// <summary>
+        /// 
         /// </summary> 
 
-        [Alias("FilePath")]
-        [Parameter(Mandatory = true, ParameterSetName = "Path")]
+        [Parameter(Mandatory = false, Position = 0, ParameterSetName = "Path")]
         public string Path
         {
-            get { return filePath; }
-            set { filePath = value; }
+            get { return path; }
+            set { path = value; }
         }
-        private string filePath;
+        private string path;
 
-        /// <summary> 
-        /// This parameter provides the FileName for the 
-        /// FileRecord object that will be returned.
+        /// <summary>
+        /// 
         /// </summary> 
 
-        [Parameter(Mandatory = false, ParameterSetName = "Path")]
         [Parameter(Mandatory = false, ParameterSetName = "Index")]
+        [Parameter(Mandatory = false, ParameterSetName = "Path")]
         public SwitchParameter AsBytes
         {
             get { return asbytes; }
             set { asbytes = value; }
         }
         private SwitchParameter asbytes;
+
 
         #endregion Parameters
 
@@ -86,63 +83,88 @@ namespace InvokeIR.PowerForensics.Cmdlets
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            NativeMethods.getVolumeName(ref volume);
         }
 
         protected override void ProcessRecord()
         {
-            
-            if(!(this.MyInvocation.BoundParameters.ContainsKey("Path")))
+            if (this.MyInvocation.BoundParameters.ContainsKey("Index"))
             {
-                NativeMethods.getVolumeName(ref volume);
-                string volLetter = volume.TrimStart('\\').TrimStart('.').TrimStart('\\') + '\\';
-
-                if (this.MyInvocation.BoundParameters.ContainsKey("Index"))
-                {
-                    byte[] recordBytes = FileRecord.GetBytes(volume, indexNumber);
-
-                    if (asbytes)
-                    {
-                        WriteObject(recordBytes);
-                    }
-
-                    else
-                    {
-                        WriteObject(new FileRecord(recordBytes));
-                    }
-                }
-
-                else
-                {
-                    byte[] mftBytes = MasterFileTable.GetBytes(volume);
-                    FileRecord[] records = FileRecord.GetInstances(mftBytes, volLetter);
-                    foreach (FileRecord record in records)
-                    {
-                        WriteObject(record);
-                    }
-                }
-            }
-
-            else
-            {
-                // Derive volume path from the provided filePath
-                string volumePath = "\\\\" + "." + "\\" + filePath.Split('\\')[0];
-                NativeMethods.getVolumeName(ref volumePath);
-
-                int index = IndexNumber.Get(volumePath, filePath);
-                
-                byte[] recordBytes = FileRecord.GetBytes(volumePath, index);
-                
                 if (asbytes)
                 {
-                    WriteObject(recordBytes);
+                    WriteObject(FileRecord.GetRecordBytes(volume, indexNumber));
                 }
-
                 else
                 {
-                    WriteObject(new FileRecord(recordBytes, filePath));
+                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, indexNumber), volume));
                 }
             }
+            else if (this.MyInvocation.BoundParameters.ContainsKey("Path"))
+            {
+                IndexEntry entry = IndexEntry.Get(path);
 
+                string volume = NativeMethods.getVolumeName(ref path.Split(':')[0]);
+
+                if (asbytes)
+                {
+                    WriteObject(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex));
+                }
+                else
+                {
+                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex), volume));
+                }
+            }
+            else
+            {
+                List<FileRecord> recordList = new List<FileRecord>();
+
+                IntPtr hVolume = NativeMethods.getHandle(volume);
+                
+                using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+                {
+                    // Instantiate a null NonResident Object
+                    NonResident Data = null;
+
+                    // Get the FileRecord for the $MFT file
+                    FileRecord mftRecord = new FileRecord(FileRecord.GetRecordBytes(volume, 0), volume);
+
+                    byte[] mftBytes = MasterFileTable.GetBytes(streamToRead, volume);
+
+                    // Determine the size of an MFT File Record
+                    int bytesPerFileRecord = (int)(new NTFS.VolumeBootRecord(streamToRead)).BytesPerFileRecord;
+
+                    // Calulate the number of entries in the MFT
+                    int fileCount = mftBytes.Length / bytesPerFileRecord;
+
+                    byte[] recordBytes = new byte[bytesPerFileRecord];
+
+                    for (int index = 0; index < fileCount; index++)
+                    {
+                        Array.Copy(mftBytes, index * bytesPerFileRecord, recordBytes, 0, recordBytes.Length);
+
+                        // Take UpdateSequence into account
+                        ushort usoffset = BitConverter.ToUInt16(recordBytes, 4); ;
+                        ushort ussize = BitConverter.ToUInt16(recordBytes, 6);
+
+                        if (ussize != 0)
+                        {
+                            byte[] usnBytes = new byte[2];
+                            Array.Copy(recordBytes, usoffset, usnBytes, 0, usnBytes.Length);
+                            ushort UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+
+                            byte[] UpdateSequenceArray = new byte[(2 * ussize)];
+                            Array.Copy(recordBytes, (usoffset + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+
+                            recordBytes[0x1FE] = UpdateSequenceArray[0];
+                            recordBytes[0x1FF] = UpdateSequenceArray[1];
+                            recordBytes[0x3FE] = UpdateSequenceArray[2];
+                            recordBytes[0x3FF] = UpdateSequenceArray[3];
+                        }
+
+                        WriteObject(new FileRecord(recordBytes, volume));
+                    }
+                }
+            }
         } // ProcessRecord 
 
         protected override void EndProcessing()
