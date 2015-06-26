@@ -181,12 +181,19 @@ namespace InvokeIR.PowerForensics.NTFS
                     {
                         if (attr.Name == "INDEX_ROOT")
                         {
-                            foreach (IndexEntry entry in (attr as IndexRoot).Entries)
+                            try
                             {
-                                if (entry.Entry.Namespace != 0x02)
+                                foreach (IndexEntry entry in (attr as IndexRoot).Entries)
                                 {
-                                    indexEntryList.Add(entry);
+                                    if (entry.Entry.Namespace != 0x02)
+                                    {
+                                        indexEntryList.Add(entry);
+                                    }
                                 }
+                            }
+                            catch
+                            {
+                                return null;
                             }
                         }
                         else if (attr.Name == "INDEX_ALLOCATION")

@@ -111,7 +111,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 }
                 else
                 {
-                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex), volume));
+                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex), volume, path));
                 }
             }
             else

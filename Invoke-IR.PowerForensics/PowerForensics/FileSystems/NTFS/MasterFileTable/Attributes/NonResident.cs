@@ -84,11 +84,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #region PublicMethods
 
-        internal ulong GetSize()
-        {
-            return this.RealSize;
-        }
-
         public byte[] GetBytes(string volume)
         {
             byte[] fileBytes = new byte[this.RealSize];

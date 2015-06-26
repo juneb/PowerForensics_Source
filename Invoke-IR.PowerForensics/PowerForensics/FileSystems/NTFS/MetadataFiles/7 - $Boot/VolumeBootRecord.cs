@@ -35,7 +35,7 @@ namespace InvokeIR.PowerForensics.NTFS
         public readonly ulong TotalSectors;
         public readonly ulong MFTStartIndex;
         public readonly ulong MFTMirrStartIndex;
-        public readonly string VolumeSN;
+        public readonly string VolumeSerialNumber;
         public readonly byte[] CodeSection;
 
         #endregion Properties
@@ -86,9 +86,10 @@ namespace InvokeIR.PowerForensics.NTFS
                     BytesPerIndexBlock = clustersPerIndexBlock * BytesPerCluster;
                 }
 
-                byte[] snBytes = new byte[8];
+                byte[] snBytes = new byte[4];
                 Array.Copy(bytes, 72, snBytes, 0, snBytes.Length);
-                VolumeSN = BitConverter.ToString(snBytes).Replace("-", "");
+                Array.Reverse(snBytes);
+                VolumeSerialNumber = BitConverter.ToString(snBytes).Remove(2, 1).Remove(7, 1);
 
                 byte[] codeBytes = new byte[430];
                 Array.Copy(bytes, 80, codeBytes, 0, codeBytes.Length);

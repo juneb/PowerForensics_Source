@@ -48,9 +48,16 @@ namespace InvokeIR.PowerForensics.NTFS
 
         protected override void ProcessRecord()
         {
-            foreach (IndexEntry index in IndexEntry.GetInstances(path))
+            try
             {
-                WriteObject(index);
+                foreach (IndexEntry index in IndexEntry.GetInstances(path))
+                {
+                    WriteObject(index);
+                }
+            }
+            catch
+            {
+                WriteObject(null);
             }
         } // ProcessRecord 
 
