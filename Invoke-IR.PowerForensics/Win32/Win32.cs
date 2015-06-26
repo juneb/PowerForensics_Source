@@ -32,6 +32,8 @@ namespace InvokeIR.Win32
 
         internal const Int32 INVALID_HANDLE_VALUE = -1;
 
+        internal const Int32 BYTES_PER_SECTOR = 0x200;
+
         #endregion Constants
 
         #region structs
@@ -231,6 +233,12 @@ namespace InvokeIR.Win32
 
             return buf;
 
+        }
+
+        internal static DateTime FromUnixTime(uint unixTime)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return epoch.AddSeconds(unixTime);
         }
 
         #endregion Helper Functions

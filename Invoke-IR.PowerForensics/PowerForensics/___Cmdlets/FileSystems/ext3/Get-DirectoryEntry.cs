@@ -2,18 +2,18 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.ext4;
+using InvokeIR.PowerForensics.ext3;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
 
-    #region GetSuperblockCommand
+    #region GetDirectoryEntryCommand
     /// <summary> 
-    /// This class implements the Get-Superblock cmdlet. 
+    /// This class implements the Get-DirectoryEntry cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "Superblock")]
-    public class GetSuperblockCommand : Cmdlet
+    [Cmdlet(VerbsCommon.Get, "DirectoryEntry")]
+    public class GetDirectoryEntryCommand : PSCmdlet
     {
 
         #region Parameters
@@ -30,6 +30,19 @@ namespace InvokeIR.PowerForensics.Cmdlets
             set { devicePath = value; }
         }
         private string devicePath;
+
+        /// <summary> 
+        /// This parameter provides the path for the 
+        /// Superblock that will be returned.
+        /// </summary> 
+
+        [Parameter(Mandatory = false, Position = 1)]
+        public uint Inode
+        {
+            get { return inode; }
+            set { inode = value; }
+        }
+        private uint inode;
 
         /// <summary> 
         /// This parameter provides causes Get-Superblock
@@ -57,6 +70,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             // Ensure cmdlet is being run as Administrator
             NativeMethods.checkAdmin();
+
             // Check that drivePath is valid
             NativeMethods.getDriveName(devicePath);
         }
@@ -67,29 +81,32 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
 
-            uint offset = 0;
+            uint superblockOffset = 0;
 
             foreach (PartitionEntry partition in mbr.PartitionTable)
             {
-                if (partition.Bootable)
+                if (partition.Bootable && partition.SystemID == "LINUX")
                 {
-                    offset = partition.StartSector;
+                    superblockOffset = partition.StartSector;
                 }
             }
 
             #endregion MBR
-
+            // Obtain a handle to the device named "devicePath"
             IntPtr hDevice = NativeMethods.getHandle(devicePath);
+
             using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
             {
-                if (asbytes)
-                {
-                    WriteObject(Superblock.GetBytes(streamToRead, offset));
-                }
-                else
-                {
-                    WriteObject(new Superblock(Superblock.GetBytes(streamToRead, offset)));
-                }
+                // Get Superblock to understand File System Layout
+                Superblock superBlock = new Superblock(Superblock.GetBytes(streamToRead, superblockOffset));
+
+                // Derive the location and length of the Block Group Descriptor Table
+                uint bgdtOffset = (superblockOffset * NativeMethods.BYTES_PER_SECTOR) + ((superBlock.FirstDataBlock + 1) * superBlock.BlockSize);
+                uint bgdtEntries = (superBlock.TotalBlockCount / superBlock.BlocksPerGroup) + 1;
+                uint bgdtLength = bgdtEntries * BlockGroupDescriptor.BLOCK_GROUP_DESCRIPTOR_LENGTH;
+
+
+
             }
         } // ProcessRecord 
 
@@ -100,8 +117,9 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         #endregion Cmdlet Overrides
 
-    } // End GetSuperblockCommand class. 
+    } // End GetDirectoryEntryCommand class. 
 
-    #endregion GetSuperblockCommand
+    #endregion GetDirectoryEntryCommand
 
 }
+

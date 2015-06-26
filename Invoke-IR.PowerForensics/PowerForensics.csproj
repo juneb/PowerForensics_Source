@@ -43,14 +43,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PowerForensics\Artifacts\VolumeShadowCopy\VolumeShadowCopy.cs" />
-    <Compile Include="PowerForensics\FileSystems\ext3\BlockGroupDescriptor.cs" />
-    <Compile Include="PowerForensics\FileSystems\ext4\BlockGroupDescriptor.cs" />
-    <Compile Include="PowerForensics\FileSystems\ext4\Superblock.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\2_BlockGroupDescriptorTable\BlockGroupDescriptor.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\2_BlockGroupDescriptorTable\BlockGroupDescriptorTable.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\4_DirectoryEntry\DirectoryEntry.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\1_Superblock\SuperBlock.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\3_InodeTable\Inode.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\3_InodeTable\InodeTable.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext3\1_Superblock\Superblockext4.cs" />
     <Compile Include="PowerForensics\FileSystems\FAT32\VolumeBootRecord\VolumeBootRecord.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\3 - %24Volume\Volume.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\6 - %24Bitmap\Bitmap.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\8 - %24BadClus\BadClus.cs" />
-    <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext4\Get-Superblock.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext3\Get-BlockGroupDescriptor.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext3\Get-DirectoryEntry.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext3\Get-Inode.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext3\Get-Superblock.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-BadCluster.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-Bitmap.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-UsnJrnlInformation.cs" />
