@@ -200,7 +200,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             IntPtr hVolume = NativeMethods.getHandle(volume);
 
             // Get MFT Index for specified file
-            int index = (int)(IndexEntry.Get(filePath)).FileIndex;
+            int index = (int)(IndexEntry.Get(filePath)).RecordNumber;
 
             // Get bytes for specific Prefetch file
             byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes(volume);

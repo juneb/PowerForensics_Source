@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
@@ -12,7 +13,7 @@ namespace InvokeIR.PowerForensics.NTFS
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Get, "ChildItemRaw")]
-    public class GetChildItemRawCommand : Cmdlet
+    public class GetChildItemRawCommand : PSCmdlet
     {
 
         #region Parameters
@@ -24,7 +25,7 @@ namespace InvokeIR.PowerForensics.NTFS
         /// </summary> 
 
         [Alias("FilePath")]
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Position = 0)]
         public string Path
         {
             get { return path; }
@@ -44,6 +45,11 @@ namespace InvokeIR.PowerForensics.NTFS
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+
+            if (!(this.MyInvocation.BoundParameters.ContainsKey("Path")))
+            {
+                path = this.SessionState.PSVariable.GetValue("pwd").ToString();
+            }
         }
 
         protected override void ProcessRecord()

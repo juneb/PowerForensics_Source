@@ -107,62 +107,18 @@ namespace InvokeIR.PowerForensics.NTFS
 
                 if (asbytes)
                 {
-                    WriteObject(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex));
+                    WriteObject(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber));
                 }
                 else
                 {
-                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.FileIndex), volume, path));
+                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, path));
                 }
             }
             else
             {
-                List<FileRecord> recordList = new List<FileRecord>();
-
-                IntPtr hVolume = NativeMethods.getHandle(volume);
-                
-                using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+                foreach (FileRecord record in FileRecord.GetInstances(volume))
                 {
-                    // Instantiate a null NonResident Object
-                    NonResident Data = null;
-
-                    // Get the FileRecord for the $MFT file
-                    FileRecord mftRecord = new FileRecord(FileRecord.GetRecordBytes(volume, 0), volume);
-
-                    byte[] mftBytes = MasterFileTable.GetBytes(streamToRead, volume);
-
-                    // Determine the size of an MFT File Record
-                    int bytesPerFileRecord = (int)(new NTFS.VolumeBootRecord(streamToRead)).BytesPerFileRecord;
-
-                    // Calulate the number of entries in the MFT
-                    int fileCount = mftBytes.Length / bytesPerFileRecord;
-
-                    byte[] recordBytes = new byte[bytesPerFileRecord];
-
-                    for (int index = 0; index < fileCount; index++)
-                    {
-                        Array.Copy(mftBytes, index * bytesPerFileRecord, recordBytes, 0, recordBytes.Length);
-
-                        // Take UpdateSequence into account
-                        ushort usoffset = BitConverter.ToUInt16(recordBytes, 4); ;
-                        ushort ussize = BitConverter.ToUInt16(recordBytes, 6);
-
-                        if (ussize != 0)
-                        {
-                            byte[] usnBytes = new byte[2];
-                            Array.Copy(recordBytes, usoffset, usnBytes, 0, usnBytes.Length);
-                            ushort UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
-
-                            byte[] UpdateSequenceArray = new byte[(2 * ussize)];
-                            Array.Copy(recordBytes, (usoffset + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
-
-                            recordBytes[0x1FE] = UpdateSequenceArray[0];
-                            recordBytes[0x1FF] = UpdateSequenceArray[1];
-                            recordBytes[0x3FE] = UpdateSequenceArray[2];
-                            recordBytes[0x3FF] = UpdateSequenceArray[3];
-                        }
-
-                        WriteObject(new FileRecord(recordBytes, volume));
-                    }
+                    WriteObject(record);
                 }
             }
         } // ProcessRecord 

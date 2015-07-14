@@ -52,9 +52,9 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Properties
 
         public readonly Version Version;
-        public readonly ulong FileReferenceNumber;
+        public readonly ulong RecordNumber;
         //public readonly ushort FileSequenceNumber;
-        public readonly ulong ParentFileReferenceNumber;
+        public readonly ulong ParentFileRecordNumber;
         //public readonly ushort ParentFileSequenceNumber;
         public readonly ulong Usn;
         public readonly DateTime TimeStamp;
@@ -74,9 +74,9 @@ namespace InvokeIR.PowerForensics.NTFS
             ushort MajorVersion = BitConverter.ToUInt16(bytes, (0x04 + offset));
             ushort MinorVersion = BitConverter.ToUInt16(bytes, (0x06 + offset));
             Version = new System.Version(MajorVersion, MinorVersion);
-            FileReferenceNumber = (BitConverter.ToUInt64(bytes, (0x08 + offset)) & 0x0000FFFFFFFFFFFF);
+            RecordNumber = (BitConverter.ToUInt64(bytes, (0x08 + offset)) & 0x0000FFFFFFFFFFFF);
             //FileSequenceNumber = (ushort)(BitConverter.ToUInt64(bytes, (0x08 + offset)) & 0xFFFF000000000000);
-            ParentFileReferenceNumber = (BitConverter.ToUInt64(bytes, (0x10 + offset)) & 0x0000FFFFFFFFFFFF);
+            ParentFileRecordNumber = (BitConverter.ToUInt64(bytes, (0x10 + offset)) & 0x0000FFFFFFFFFFFF);
             //ParentFileSequenceNumber = (ushort)(BitConverter.ToUInt64(bytes, (0x10 + offset)) & 0xFFFF000000000000);
             Usn = BitConverter.ToUInt64(bytes, (0x18 + offset));
             TimeStamp = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, (0x20 + offset)));
@@ -224,7 +224,7 @@ namespace InvokeIR.PowerForensics.NTFS
         internal static FileRecord GetFileRecord(string volume)
         {
             string volLetter = volume.Split('\\')[3];
-            ulong index = IndexEntry.Get(volLetter + "\\$Extend\\$UsnJrnl").FileIndex;
+            ulong index = IndexEntry.Get(volLetter + "\\$Extend\\$UsnJrnl").RecordNumber;
             return new FileRecord(FileRecord.GetRecordBytes(volume, (int)index), volume);
         }
 

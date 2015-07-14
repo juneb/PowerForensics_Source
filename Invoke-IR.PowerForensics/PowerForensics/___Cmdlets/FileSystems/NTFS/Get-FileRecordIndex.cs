@@ -5,8 +5,7 @@ using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
-
-    #region GetChildItemRawCommand
+    #region GetFileRecordIndexCommand
     /// <summary> 
     /// This class implements the Get-FileRecordIndex cmdlet. 
     /// </summary> 
@@ -48,7 +47,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         protected override void ProcessRecord()
         {
-            WriteObject(IndexEntry.Get(path).FileIndex);
+            WriteObject(IndexEntry.Get(path).RecordNumber);
         } // ProcessRecord 
 
         protected override void EndProcessing()
@@ -58,7 +57,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Cmdlet Overrides
 
-    } // End GetChildItemRawCommand class. 
-    #endregion GetChildItemRawCommand
-
+    } // End GetFileRecordIndexCommand class. 
+    #endregion GetFileRecordIndexCommand
 }

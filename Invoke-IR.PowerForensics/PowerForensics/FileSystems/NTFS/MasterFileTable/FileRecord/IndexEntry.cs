@@ -10,7 +10,7 @@ namespace InvokeIR.PowerForensics.NTFS
     {
         #region Properties
 
-        public ulong FileIndex;          // Low 6B: MFT record index, High 2B: MFT record sequence number
+        public ulong RecordNumber;       // Low 6B: MFT record index, High 2B: MFT record sequence number
         internal ushort Size;            // Length of the index entry
         internal ushort StreamSize;      // Length of the stream
         internal byte Flags;             // Flags
@@ -25,7 +25,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal IndexEntry(byte[] bytes)
         {
-            FileIndex = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
+            RecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
             Size = BitConverter.ToUInt16(bytes, 0x08);
             StreamSize = BitConverter.ToUInt16(bytes, 0x0A);
             Flags = bytes[0x0C];
@@ -44,7 +44,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         private IndexEntry(FileRecord record)
         {
-            FileIndex = record.RecordNumber;
+            RecordNumber = record.RecordNumber;
             Filename = record.Name;
         }
 
@@ -79,7 +79,7 @@ namespace InvokeIR.PowerForensics.NTFS
                     {
                         if (entry.Entry.Filename.ToUpper() == paths[i].ToUpper())
                         {
-                            index = (int)entry.FileIndex;
+                            index = (int)entry.RecordNumber;
                             match = true;
                         }
                     }
@@ -161,7 +161,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
                         if (entry.Entry.Filename.ToUpper() == paths[i].ToUpper())
                         {
-                            index = (int)entry.FileIndex;
+                            index = (int)entry.RecordNumber;
                             match = true;
                         }
                     }

@@ -141,7 +141,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             {
                 string volLetter = filePath.Split('\\')[0];
                 string volume = @"\\.\" + volLetter;
-                indexNo = (int)IndexEntry.Get(filePath).FileIndex;
+                indexNo = (int)IndexEntry.Get(filePath).RecordNumber;
                 contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, indexNo), volume).GetBytes(volume);
             }
 

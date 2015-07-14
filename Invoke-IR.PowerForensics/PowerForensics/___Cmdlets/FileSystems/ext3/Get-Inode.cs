@@ -122,7 +122,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
                         byte[] inodeBytes = new byte[(uint)superBlock.InodeSize];
                         Array.Copy(SectorBytes, sectorOffset, inodeBytes, 0, inodeBytes.Length);
-                        WriteObject(new Inode(inodeBytes, inode));
+                        if (asbytes)
+                        {
+                            WriteObject(inodeBytes);
+                        }
+                        else
+                        {
+                            WriteObject(new Inode(inodeBytes, inode));
+                        }
                     }
                 }
                 else

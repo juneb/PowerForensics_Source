@@ -260,7 +260,7 @@ namespace InvokeIR.PowerForensics
             // Get the name of the Partition
             byte[] nameBytes = new byte[72];
             Array.Copy(bytes, 56, nameBytes, 0, nameBytes.Length);
-            PartitionName = Encoding.Unicode.GetString(nameBytes).TrimEnd('\0');
+            PartitionName = Encoding.Unicode.GetString(nameBytes).Split('\0')[0];
         }
 
         #endregion Constructors
