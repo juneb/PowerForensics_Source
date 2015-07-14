@@ -8,7 +8,7 @@ namespace InvokeIR.PowerForensics.NTFS
 {
     #region AttrDefClass
 
-    class AttrDef
+    public class AttrDef
     {
         #region Constants
 

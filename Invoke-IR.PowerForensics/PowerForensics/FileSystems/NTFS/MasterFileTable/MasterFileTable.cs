@@ -8,9 +8,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
     public class MasterFileTable
     {
-        public static byte[] GetBytes(FileStream streamToRead, string volume)
+        public static FileRecord GetRecord(FileStream streamToRead, string volume)
         {
-
             // Instantiate VolumeBootRecord object
             VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
 
@@ -18,7 +17,12 @@ namespace InvokeIR.PowerForensics.NTFS
             ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);
 
             // Read bytes belonging to specified MFT Record and store in byte array
-            FileRecord mftRecord = new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord), volume);
+            return new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord), volume);
+        }
+
+        public static byte[] GetBytes(FileStream streamToRead, string volume)
+        {
+            FileRecord mftRecord = GetRecord(streamToRead, volume);
 
             foreach (Attr attr in mftRecord.Attribute)
             {
