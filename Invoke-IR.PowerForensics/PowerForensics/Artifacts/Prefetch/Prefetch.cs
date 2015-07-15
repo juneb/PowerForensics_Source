@@ -207,7 +207,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             int index = (int)(IndexEntry.Get(filePath)).RecordNumber;
 
             // Get bytes for specific Prefetch file
-            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes(volume);
+            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes(volume);
             
             try
             {
