@@ -45,7 +45,6 @@ namespace InvokeIR.PowerForensics.NTFS
         #endregion Properties
 
         #region Constructors
-
         internal IndexRoot(ResidentHeader header, byte[] attrBytes, string attrName)
         {
             #region ResidentHeader
