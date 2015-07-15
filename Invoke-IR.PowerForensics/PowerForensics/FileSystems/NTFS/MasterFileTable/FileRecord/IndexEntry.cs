@@ -188,7 +188,7 @@ namespace InvokeIR.PowerForensics.NTFS
                                     if (entry.Entry.Namespace != 0x02)
                                     {
                                         StringBuilder sb = new StringBuilder();
-                                        sb.Append(path);
+                                        sb.Append(path.TrimEnd('\\'));
                                         sb.Append("\\");
                                         sb.Append(entry.Filename);
                                         entry.FullName = sb.ToString();
@@ -211,7 +211,7 @@ namespace InvokeIR.PowerForensics.NTFS
                                 if (entry.Entry.Namespace != 0x02)
                                 {
                                     StringBuilder sb = new StringBuilder();
-                                    sb.Append(path);
+                                    sb.Append(path.TrimEnd('\\'));
                                     sb.Append("\\");
                                     sb.Append(entry.Filename);
                                     entry.FullName = sb.ToString();
