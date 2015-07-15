@@ -203,6 +203,125 @@ namespace InvokeIR.PowerForensics.NTFS
             }
         }
 
+        public FileRecord(byte[] recordBytes, string volume, bool fast)
+        {
+            #region Signature
+            // Get File Record Signature
+            byte[] sigBytes = new byte[4];
+            Array.Copy(recordBytes, 0, sigBytes, 0, sigBytes.Length);
+            Signature = Encoding.ASCII.GetString(sigBytes);
+            #endregion Signature
+
+            if (Signature == "FILE")
+            {
+
+                // Parse File Record Header
+                OffsetOfUS = BitConverter.ToUInt16(recordBytes, 4);
+                SizeOfUS = BitConverter.ToUInt16(recordBytes, 6);
+
+                #region UpdateSequenceNumber
+                byte[] usnBytes = new byte[2];
+                Array.Copy(recordBytes, OffsetOfUS, usnBytes, 0, usnBytes.Length);
+                UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+                #endregion UpdateSequenceNumber
+
+                #region UpdateSequenceArray
+                UpdateSequenceArray = new byte[(2 * SizeOfUS) - 2];
+                Array.Copy(recordBytes, (OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+                #endregion UpdateSequenceArray
+
+                LogFileSequenceNumber = BitConverter.ToUInt64(recordBytes, 8);
+                SequenceNumber = BitConverter.ToUInt16(recordBytes, 16);
+                Hardlinks = BitConverter.ToUInt16(recordBytes, 18);
+                OffsetOfAttribute = BitConverter.ToUInt16(recordBytes, 20);
+                Flags = BitConverter.ToUInt16(recordBytes, 22);
+
+                #region Deleted
+                if ((Flags & (ushort)FILE_RECORD_FLAG.INUSE) == (ushort)FILE_RECORD_FLAG.INUSE)
+                {
+                    Deleted = false;
+                }
+                else
+                {
+                    Deleted = true;
+                }
+                #endregion Deleted
+
+                #region Directory
+                if ((Flags & (ushort)FILE_RECORD_FLAG.DIR) == (ushort)FILE_RECORD_FLAG.DIR)
+                {
+                    Directory = true;
+                }
+                else
+                {
+                    Directory = false;
+                }
+                #endregion Directory
+
+                RealSize = BitConverter.ToUInt32(recordBytes, 24);
+                AllocatedSize = BitConverter.ToUInt32(recordBytes, 28);
+                ReferenceToBase = BitConverter.ToUInt64(recordBytes, 32);
+                NextAttrId = BitConverter.ToUInt16(recordBytes, 40);
+                RecordNumber = BitConverter.ToUInt32(recordBytes, 44);
+
+                #region Attribute
+                // Create a byte array representing the attribute array
+                byte[] attrArrayBytes = new byte[RealSize - OffsetOfAttribute];
+                Array.Copy(recordBytes, OffsetOfAttribute, attrArrayBytes, 0, attrArrayBytes.Length);
+
+                // Instantiate an empty list of Attr Objects (We don't know how many attributes the record contains)
+                List<Attr> AttributeList = new List<Attr>();
+
+                // Initialize the offset value to 0
+                int currentOffset = 0;
+
+                do
+                {
+                    // Get attribute size
+                    int attrSizeOffset = currentOffset + 4;
+                    int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
+
+                    // Create new byte array with just current attribute's bytes
+                    byte[] currentAttrBytes = new byte[attrSize];
+                    Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
+
+                    // Increment currentOffset
+                    currentOffset += attrSize;
+
+                    Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
+
+                    if (attr != null)
+                    {
+                        if (attr.Name == "STANDARD_INFORMATION")
+                        {
+                            StandardInformation stdInfo = attr as StandardInformation;
+                            ModifiedTime = stdInfo.ModifiedTime;
+                            AccessedTime = stdInfo.AccessedTime;
+                            ChangedTime = stdInfo.ChangedTime;
+                            BornTime = stdInfo.BornTime;
+                            Permission = stdInfo.Permission;
+                        }
+                        else if (attr.Name == "FILE_NAME")
+                        {
+                            FileName fN = attr as FileName;
+                            if (!(fN.Namespace == 2))
+                            {
+                                Name = fN.Filename;
+                                ParentRecordNumber = fN.ParentRecordNumber;
+                            }
+                        }
+
+                        AttributeList.Add(attr);
+                    }
+                } while (currentOffset < (attrArrayBytes.Length - 8));
+
+                Attribute = AttributeList.ToArray();
+                #endregion Attribute
+
+                FullName = Name;
+            }
+        }
+
         public FileRecord(ref FileRecord[] array, byte[] recordBytes, string volume)
         {
             #region Signature

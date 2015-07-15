@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
@@ -115,26 +114,31 @@ namespace InvokeIR.PowerForensics.Artifacts
                     pfAccessTimeList.Add(dt);
                 }
 
-
                 ////
-                string appName = System.Text.Encoding.Unicode.GetString((fileBytes.Skip(0x10).Take(0x3C).ToArray())).TrimEnd('\0');
-
+                byte[] appNameBytes = new byte[0x3C];
+                Array.Copy(fileBytes, 0x10, appNameBytes, 0, appNameBytes.Length);
+                string appName = System.Text.Encoding.Unicode.GetString(appNameBytes).TrimEnd('\0');
 
                 //// Get Dependency Files Section ////
-                int dependencyOffsetValue = BitConverter.ToInt32((fileBytes.Skip(0x64).Take(0x04).ToArray()), 0);
-                int dependencyLengthValue = BitConverter.ToInt32((fileBytes.Skip(0x68).Take(0x04).ToArray()), 0);
-                byte[] pfDependencyBytes = fileBytes.Skip(dependencyOffsetValue).Take(dependencyLengthValue).ToArray();
+                byte[] dependencyOffsetBytes = new byte[0x04];
+                Array.Copy(fileBytes, 0x64, dependencyOffsetBytes, 0, dependencyOffsetBytes.Length);
+                int dependencyOffsetValue = BitConverter.ToInt32(dependencyOffsetBytes, 0);
 
+                byte[] dependencyLengthBytes = new byte[0x04];
+                Array.Copy(fileBytes, 0x68, dependencyLengthBytes, 0, dependencyLengthBytes.Length);
+                int dependencyLengthValue = BitConverter.ToInt32(dependencyLengthBytes, 0);
+
+                byte[] pfDependencyBytes = new byte[dependencyLengthValue];
+                Array.Copy(fileBytes, dependencyOffsetValue, pfDependencyBytes, 0, pfDependencyBytes.Length);
 
                 ////
                 string pfPath = null;
 
-
                 ////
                 var dependencyString = Encoding.Unicode.GetString(pfDependencyBytes);
                 string[] dependencyArraySplit = dependencyString.Split(new string[] { "\\DEVICE\\" }, StringSplitOptions.RemoveEmptyEntries);
-                string[] dependencyArray = new string[dependencyArraySplit.Count()];
-                for (int i = 0; i < dependencyArraySplit.Count(); i++)
+                string[] dependencyArray = new string[dependencyArraySplit.Length];
+                for (int i = 0; i < dependencyArraySplit.Length; i++)
                 {
                     string dependency = dependencyArraySplit[i].Replace("HARDDISKVOLUME1", "\\DEVICE\\HARDDISKVOLUME1").Replace("\0", string.Empty);
                     if(dependency.Contains(appName))
@@ -250,7 +254,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             return new Prefetch(fileBytes);
         }
 
-        /*public static Prefetch[] GetInstances(string volume)
+        public static Prefetch[] GetInstances(string volume)
         {
             // Get current volume
             NativeMethods.getVolumeName(ref volume);
@@ -268,43 +272,37 @@ namespace InvokeIR.PowerForensics.Artifacts
                 byte[] MFT = MasterFileTable.GetBytes(streamToRead, volume);
 
                 // Build Prefetch directory path
-                string prefetchPath = volLetter + @"\\Windows\\Prefetch";
+                string pfPath = volLetter + @"\Windows\Prefetch";
 
-                // Check prefetchPath exists
-                if (Directory.Exists(prefetchPath))
+                if (Directory.Exists(pfPath))
                 {
-                    // Get list of file in the Prefetch directory that end in the .pf extension
-                    var pfFiles = System.IO.Directory.GetFiles(prefetchPath, "*.pf");
-                    
-                    // Instantiate an array of Prefetch objects
+                    var pfFiles = System.IO.Directory.GetFiles(pfPath, "*.pf");
                     Prefetch[] pfArray = new Prefetch[pfFiles.Length];
-                    
-                    // Iterate through Prefetch Files
-                    for (int i = 0; i < pfFiles.Length; i++)
-                    {
-                        try
-                        {
-                            // Get bytes for specific Prefetch file
-                            byte[] fileBytes = FileRecord.getFileBytes(volume, streamToRead, MFT, pfFiles[i]).ToArray();
 
-                            // Output the Prefetch object for the corresponding file
-                            pfArray[i] = (new Prefetch(fileBytes));
-                        }
-                        catch
+                    // Get IndexEntry 
+                    IndexEntry[] pfEntries = IndexEntry.GetInstances(pfPath);
+
+                    int i = 0;
+
+                    foreach (IndexEntry entry in pfEntries)
+                    {
+                        if (entry.Filename.Contains(".pf"))
                         {
-                            pfArray[i] = null;
+                            byte[] recordBytes = new byte[1024];
+                            Array.Copy(MFT, ((long)entry.RecordNumber * 1024), recordBytes, 0, recordBytes.Length);
+                            pfArray[i] = new Prefetch(new FileRecord(recordBytes, volume, true).GetBytes(volume));
+                            i++;
                         }
                     }
 
-                    // Return array or Prefetch objects
                     return pfArray;
                 }
                 else
                 {
-                    return null;
+                    throw new Exception("Prefetch Directory does not exist. Check registry to ensure Prefetching is enabled.");
                 }
             }
-        }*/
+        }
 
         public static Prefetch[] GetInstances(string volume, bool fast)
         {

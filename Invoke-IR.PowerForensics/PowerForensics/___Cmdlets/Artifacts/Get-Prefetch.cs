@@ -99,7 +99,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 }
                 else
                 {
-                    //WriteObject(Prefetch.GetInstances(volume));
+                    WriteObject(Prefetch.GetInstances(volume));
                 }
             }
         } // ProcessRecord 

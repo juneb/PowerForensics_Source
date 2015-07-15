@@ -149,7 +149,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
                 byte[] UpdateSequenceArray = new byte[(2 * ussize)];
                 Array.Copy(bytes, (usoffset + 2 + offset), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
-                Console.WriteLine("offset: {0}", offset);
 
                 bytes[0x1FE + offset] = UpdateSequenceArray[0];
                 bytes[0x1FF + offset] = UpdateSequenceArray[1];
