@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.PowerForensics.Formats;
 
@@ -22,13 +23,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
 
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
-        public byte[] Bytes
+        public byte Bytes
         {
             get { return bytes; }
             set { bytes = value; }
         }
-        private byte[] bytes;
+        private byte bytes;
 
+        private List<byte> byteList;
         #endregion Parameters
 
         #region Cmdlet Overrides
@@ -39,17 +41,23 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// for the inputted byte[] object.
         /// </summary> 
 
+        protected override void BeginProcessing()
+        {
+            byteList = new List<byte>();
+        }
+
         protected override void ProcessRecord()
         {
-            HexDump[] dump = HexDump.Get(bytes);
-            foreach (HexDump d in dump)
-            {
-                WriteObject(d);
-            }
+            byteList.Add(bytes);
         }
 
         protected override void EndProcessing()
         {
+            HexDump[] dump = HexDump.Get(byteList.ToArray());
+            foreach (HexDump d in dump)
+            {
+                WriteObject(d);
+            }
             GC.Collect();
         }
 
