@@ -41,6 +41,8 @@ namespace InvokeIR.PowerForensics.NTFS
                     break;
                 }
 
+                IndexBlock.ApplyFixup(ref bytes, offset);
+
                 // Instantiate IndexBlock Object (Header)
                 byte[] indexBlockBytes = new byte[indexBlockSize];
                 Array.Copy(bytes, offset, indexBlockBytes, 0, indexBlockBytes.Length);
@@ -132,5 +134,40 @@ namespace InvokeIR.PowerForensics.NTFS
         }
 
         #endregion Constructors
+
+        internal static void ApplyFixup(ref byte[] bytes, int offset)
+        {
+            // Take UpdateSequence into account
+            ushort usoffset = BitConverter.ToUInt16(bytes, 4);
+            ushort ussize = BitConverter.ToUInt16(bytes, 6);
+
+            if (ussize != 0)
+            {
+                byte[] usnBytes = new byte[2];
+                Array.Copy(bytes, usoffset + offset, usnBytes, 0, usnBytes.Length);
+                ushort UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+
+                byte[] UpdateSequenceArray = new byte[(2 * ussize)];
+                Array.Copy(bytes, (usoffset + 2 + offset), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+                Console.WriteLine("offset: {0}", offset);
+
+                bytes[0x1FE + offset] = UpdateSequenceArray[0];
+                bytes[0x1FF + offset] = UpdateSequenceArray[1];
+                bytes[0x3FE + offset] = UpdateSequenceArray[2];
+                bytes[0x3FF + offset] = UpdateSequenceArray[3];
+                bytes[0x5FE + offset] = UpdateSequenceArray[4];
+                bytes[0x5FF + offset] = UpdateSequenceArray[5];
+                bytes[0x7FE + offset] = UpdateSequenceArray[6];
+                bytes[0x7FF + offset] = UpdateSequenceArray[7];
+                bytes[0x9FE + offset] = UpdateSequenceArray[8];
+                bytes[0x9FF + offset] = UpdateSequenceArray[9];
+                bytes[0xBFE + offset] = UpdateSequenceArray[10];
+                bytes[0xBFF + offset] = UpdateSequenceArray[11];
+                bytes[0xDFE + offset] = UpdateSequenceArray[12];
+                bytes[0xDFF + offset] = UpdateSequenceArray[13];
+                bytes[0xFFE + offset] = UpdateSequenceArray[14];
+                bytes[0xFFF + offset] = UpdateSequenceArray[15];
+            }
+        }
     }
 }
