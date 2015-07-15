@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
@@ -9,7 +10,6 @@ namespace InvokeIR.PowerForensics.NTFS
     public class IndexEntry
     {
         #region Properties
-
         public ulong RecordNumber;       // Low 6B: MFT record index, High 2B: MFT record sequence number
         internal ushort Size;            // Length of the index entry
         internal ushort StreamSize;      // Length of the stream
@@ -18,11 +18,10 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal FileName Entry;
         public string Filename;
-
+        public string FullName;
         #endregion Properties
 
         #region Constructors
-
         internal IndexEntry(byte[] bytes)
         {
             RecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
@@ -46,10 +45,11 @@ namespace InvokeIR.PowerForensics.NTFS
         {
             RecordNumber = record.RecordNumber;
             Filename = record.Name;
+            FullName = record.FullName;
         }
-
         #endregion Constructors
 
+        #region Methods
         internal static IndexEntry Get(string path)
         {
             string[] paths = path.TrimEnd('\\').Split('\\');
@@ -130,7 +130,7 @@ namespace InvokeIR.PowerForensics.NTFS
             throw new Exception("The IndexEntry object for the specified path could not be found.");
         }
 
-        internal static IndexEntry[] GetInstances(string path)
+        public static IndexEntry[] GetInstances(string path)
         {
             string[] paths = path.TrimEnd('\\').Split('\\');
 
@@ -187,6 +187,11 @@ namespace InvokeIR.PowerForensics.NTFS
                                 {
                                     if (entry.Entry.Namespace != 0x02)
                                     {
+                                        StringBuilder sb = new StringBuilder();
+                                        sb.Append(path);
+                                        sb.Append("\\");
+                                        sb.Append(entry.Filename);
+                                        entry.FullName = sb.ToString();
                                         indexEntryList.Add(entry);
                                     }
                                 }
@@ -205,6 +210,11 @@ namespace InvokeIR.PowerForensics.NTFS
                             {
                                 if (entry.Entry.Namespace != 0x02)
                                 {
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.Append(path);
+                                    sb.Append("\\");
+                                    sb.Append(entry.Filename);
+                                    entry.FullName = sb.ToString();
                                     indexEntryList.Add(entry);
                                 }
                             }
@@ -213,7 +223,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 }
                 else
                 {
-                    IndexEntry[] indexArray = new IndexEntry[1]; 
+                    IndexEntry[] indexArray = new IndexEntry[1];
                     indexArray[0] = new IndexEntry(record);
                     return indexArray;
                 }
@@ -221,7 +231,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
             return indexEntryList.ToArray();
         }
-
+        #endregion Methods
     }
 
     #endregion IndexEntryClass
