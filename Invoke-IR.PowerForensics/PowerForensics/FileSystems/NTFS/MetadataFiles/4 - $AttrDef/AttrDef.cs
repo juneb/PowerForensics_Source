@@ -91,7 +91,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal static AttrDef[] Get(string volume)
         {
-            byte[] bytes = (new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume)).GetBytes(volume);
+            byte[] bytes = (new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume, true)).GetBytes(volume);
 
             // Instantiate a List of AttrDef objects for output
             List<AttrDef> adList = new List<AttrDef>();

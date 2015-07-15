@@ -11,7 +11,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal static FileRecord GetFileRecord(string volume)
         {
-            return new FileRecord(FileRecord.GetRecordBytes(volume, LOGFILE_INDEX), volume);
+            return new FileRecord(FileRecord.GetRecordBytes(volume, LOGFILE_INDEX), volume, true);
         }
 
         internal static NonResident GetDataAttr(FileRecord fileRecord)

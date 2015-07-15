@@ -225,7 +225,7 @@ namespace InvokeIR.PowerForensics.NTFS
         {
             string volLetter = volume.Split('\\')[3];
             ulong index = IndexEntry.Get(volLetter + "\\$Extend\\$UsnJrnl").RecordNumber;
-            return new FileRecord(FileRecord.GetRecordBytes(volume, (int)index), volume);
+            return new FileRecord(FileRecord.GetRecordBytes(volume, (int)index), volume, true);
         }
 
         internal static NonResident GetJStream(FileRecord fileRecord)

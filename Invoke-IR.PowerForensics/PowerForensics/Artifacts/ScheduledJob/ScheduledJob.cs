@@ -207,13 +207,13 @@ namespace InvokeIR.PowerForensics.Artifacts
         {
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry index = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)index.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)index.RecordNumber), volume, true);
             return new ScheduledJob(record.GetBytes(volume));
         }
 
         internal static ScheduledJob Get(string volume, int recordNumber)
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume, true);
             return new ScheduledJob(record.GetBytes(volume));
         }
     }

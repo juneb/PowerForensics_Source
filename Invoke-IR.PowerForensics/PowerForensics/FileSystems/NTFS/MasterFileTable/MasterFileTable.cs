@@ -17,7 +17,7 @@ namespace InvokeIR.PowerForensics.NTFS
             ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);
 
             // Read bytes belonging to specified MFT Record and store in byte array
-            return new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord), volume);
+            return new FileRecord(NativeMethods.readDrive(streamToRead, mftOffset, (ulong)VBR.BytesPerFileRecord), volume, true);
         }
 
         public static byte[] GetBytes(FileStream streamToRead, string volume)
