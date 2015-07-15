@@ -141,7 +141,7 @@ namespace InvokeIR.PowerForensics.Artifacts
                 for (int i = 0; i < dependencyArraySplit.Length; i++)
                 {
                     string dependency = dependencyArraySplit[i].Replace("HARDDISKVOLUME1", "\\DEVICE\\HARDDISKVOLUME1").Replace("\0", string.Empty);
-                    if(dependency.Contains(appName))
+                    if((dependency.Contains(appName)) && (!(dependency.Contains(".MUI"))))
                     {
                         pfPath = dependency;
                     }
