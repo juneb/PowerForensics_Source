@@ -526,7 +526,7 @@ namespace InvokeIR.PowerForensics.NTFS
             }
         }
 
-        internal static void ApplyFixup(ref byte[] bytes)
+        private static void ApplyFixup(ref byte[] bytes)
         {
             // Take UpdateSequence into account
             ushort usoffset = BitConverter.ToUInt16(bytes, 4);
