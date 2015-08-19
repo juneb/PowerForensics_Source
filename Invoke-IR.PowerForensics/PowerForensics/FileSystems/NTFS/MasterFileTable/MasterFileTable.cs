@@ -34,5 +34,6 @@ namespace InvokeIR.PowerForensics.NTFS
             throw new Exception("Error reading MFT bytes.");
         }
     }
+
     #endregion MasterFileTableClass
 }
