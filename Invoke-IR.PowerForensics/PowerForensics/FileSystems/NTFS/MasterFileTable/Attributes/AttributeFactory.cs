@@ -111,6 +111,11 @@ namespace InvokeIR.PowerForensics.NTFS
         {
             #region CommonHeader
 
+            if (bytes.Length == 0)
+            {
+                return null;
+            }
+
             // Instantiate a Common Header Object
             byte[] commonHeaderBytes = new byte[COMMONHEADERSIZE];
             Array.Copy(bytes, 0, commonHeaderBytes, 0, commonHeaderBytes.Length);

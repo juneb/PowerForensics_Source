@@ -134,45 +134,48 @@ namespace InvokeIR.PowerForensics.NTFS
                 // Initialize the offset value to 0
                 int currentOffset = 0;
 
-                do
+                if (currentOffset < (attrArrayBytes.Length - 8))
                 {
-                    // Get attribute size
-                    int attrSizeOffset = currentOffset + 4;
-                    int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
-
-                    // Create new byte array with just current attribute's bytes
-                    byte[] currentAttrBytes = new byte[attrSize];
-                    Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
-
-                    // Increment currentOffset
-                    currentOffset += attrSize;
-
-                    Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
-
-                    if (attr != null)
+                    do
                     {
-                        if (attr.Name == "STANDARD_INFORMATION")
-                        {
-                            StandardInformation stdInfo = attr as StandardInformation;
-                            ModifiedTime = stdInfo.ModifiedTime;
-                            AccessedTime = stdInfo.AccessedTime;
-                            ChangedTime = stdInfo.ChangedTime;
-                            BornTime = stdInfo.BornTime;
-                            Permission = stdInfo.Permission;
-                        }
-                        else if (attr.Name == "FILE_NAME")
-                        {
-                            FileName fN = attr as FileName;
-                            if (!(fN.Namespace == 2))
-                            {
-                                Name = fN.Filename;
-                                ParentRecordNumber = fN.ParentRecordNumber;
-                            }
-                        }
+                        // Get attribute size
+                        int attrSizeOffset = currentOffset + 4;
+                        int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
 
-                        AttributeList.Add(attr);
-                    }
-                } while (currentOffset < (attrArrayBytes.Length - 8));
+                        // Create new byte array with just current attribute's bytes
+                        byte[] currentAttrBytes = new byte[attrSize];
+                        Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
+
+                        // Increment currentOffset
+                        currentOffset += attrSize;
+
+                        Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
+
+                        if (attr != null)
+                        {
+                            if (attr.Name == "STANDARD_INFORMATION")
+                            {
+                                StandardInformation stdInfo = attr as StandardInformation;
+                                ModifiedTime = stdInfo.ModifiedTime;
+                                AccessedTime = stdInfo.AccessedTime;
+                                ChangedTime = stdInfo.ChangedTime;
+                                BornTime = stdInfo.BornTime;
+                                Permission = stdInfo.Permission;
+                            }
+                            else if (attr.Name == "FILE_NAME")
+                            {
+                                FileName fN = attr as FileName;
+                                if (!(fN.Namespace == 2))
+                                {
+                                    Name = fN.Filename;
+                                    ParentRecordNumber = fN.ParentRecordNumber;
+                                }
+                            }
+
+                            AttributeList.Add(attr);
+                        }
+                    } while (currentOffset < (attrArrayBytes.Length - 8));
+                }
 
                 Attribute = AttributeList.ToArray();
                 #endregion Attribute
@@ -393,45 +396,48 @@ namespace InvokeIR.PowerForensics.NTFS
                 // Initialize the offset value to 0
                 int currentOffset = 0;
 
-                do
+                if (currentOffset < (attrArrayBytes.Length - 8))
                 {
-                    // Get attribute size
-                    int attrSizeOffset = currentOffset + 4;
-                    int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
-
-                    // Create new byte array with just current attribute's bytes
-                    byte[] currentAttrBytes = new byte[attrSize];
-                    Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
-
-                    // Increment currentOffset
-                    currentOffset += attrSize;
-
-                    Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
-
-                    if (attr != null)
+                    do
                     {
-                        if (attr.Name == "STANDARD_INFORMATION")
-                        {
-                            StandardInformation stdInfo = attr as StandardInformation;
-                            ModifiedTime = stdInfo.ModifiedTime;
-                            AccessedTime = stdInfo.AccessedTime;
-                            ChangedTime = stdInfo.ChangedTime;
-                            BornTime = stdInfo.BornTime;
-                            Permission = stdInfo.Permission;
-                        }
-                        else if (attr.Name == "FILE_NAME")
-                        {
-                            FileName fN = attr as FileName;
-                            if (!(fN.Namespace == 2))
-                            {
-                                Name = fN.Filename;
-                                ParentRecordNumber = fN.ParentRecordNumber;
-                            }
-                        }
+                        // Get attribute size
+                        int attrSizeOffset = currentOffset + 4;
+                        int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
 
-                        AttributeList.Add(attr);
-                    }
-                } while (currentOffset < (attrArrayBytes.Length - 8));
+                        // Create new byte array with just current attribute's bytes
+                        byte[] currentAttrBytes = new byte[attrSize];
+                        Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
+
+                        // Increment currentOffset
+                        currentOffset += attrSize;
+
+                        Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
+
+                        if (attr != null)
+                        {
+                            if (attr.Name == "STANDARD_INFORMATION")
+                            {
+                                StandardInformation stdInfo = attr as StandardInformation;
+                                ModifiedTime = stdInfo.ModifiedTime;
+                                AccessedTime = stdInfo.AccessedTime;
+                                ChangedTime = stdInfo.ChangedTime;
+                                BornTime = stdInfo.BornTime;
+                                Permission = stdInfo.Permission;
+                            }
+                            else if (attr.Name == "FILE_NAME")
+                            {
+                                FileName fN = attr as FileName;
+                                if (!(fN.Namespace == 2))
+                                {
+                                    Name = fN.Filename;
+                                    ParentRecordNumber = fN.ParentRecordNumber;
+                                }
+                            }
+
+                            AttributeList.Add(attr);
+                        }
+                    } while (currentOffset < (attrArrayBytes.Length - 8));
+                }
 
                 Attribute = AttributeList.ToArray();
                 #endregion Attribute
@@ -551,45 +557,48 @@ namespace InvokeIR.PowerForensics.NTFS
                 // Initialize the offset value to 0
                 int currentOffset = 0;
 
-                do
+                if (currentOffset < (attrArrayBytes.Length - 8))
                 {
-                    // Get attribute size
-                    int attrSizeOffset = currentOffset + 4;
-                    int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
-
-                    // Create new byte array with just current attribute's bytes
-                    byte[] currentAttrBytes = new byte[attrSize];
-                    Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
-
-                    // Increment currentOffset
-                    currentOffset += attrSize;
-
-                    Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
-
-                    if (attr != null)
+                    do
                     {
-                        if (attr.Name == "STANDARD_INFORMATION")
-                        {
-                            StandardInformation stdInfo = attr as StandardInformation;
-                            ModifiedTime = stdInfo.ModifiedTime;
-                            AccessedTime = stdInfo.AccessedTime;
-                            ChangedTime = stdInfo.ChangedTime;
-                            BornTime = stdInfo.BornTime;
-                            Permission = stdInfo.Permission;
-                        }
-                        else if (attr.Name == "FILE_NAME")
-                        {
-                            FileName fN = attr as FileName;
-                            if (!(fN.Namespace == 2))
-                            {
-                                Name = fN.Filename;
-                                ParentRecordNumber = fN.ParentRecordNumber;
-                            }
-                        }
+                        // Get attribute size
+                        int attrSizeOffset = currentOffset + 4;
+                        int attrSize = BitConverter.ToInt32(attrArrayBytes, attrSizeOffset);
 
-                        AttributeList.Add(attr);
-                    }
-                } while (currentOffset < (attrArrayBytes.Length - 8));
+                        // Create new byte array with just current attribute's bytes
+                        byte[] currentAttrBytes = new byte[attrSize];
+                        Array.Copy(attrArrayBytes, currentOffset, currentAttrBytes, 0, currentAttrBytes.Length);
+
+                        // Increment currentOffset
+                        currentOffset += attrSize;
+
+                        Attr attr = AttributeFactory.Get(currentAttrBytes, volume);
+
+                        if (attr != null)
+                        {
+                            if (attr.Name == "STANDARD_INFORMATION")
+                            {
+                                StandardInformation stdInfo = attr as StandardInformation;
+                                ModifiedTime = stdInfo.ModifiedTime;
+                                AccessedTime = stdInfo.AccessedTime;
+                                ChangedTime = stdInfo.ChangedTime;
+                                BornTime = stdInfo.BornTime;
+                                Permission = stdInfo.Permission;
+                            }
+                            else if (attr.Name == "FILE_NAME")
+                            {
+                                FileName fN = attr as FileName;
+                                if (!(fN.Namespace == 2))
+                                {
+                                    Name = fN.Filename;
+                                    ParentRecordNumber = fN.ParentRecordNumber;
+                                }
+                            }
+
+                            AttributeList.Add(attr);
+                        }
+                    } while (currentOffset < (attrArrayBytes.Length - 8));
+                }
 
                 Attribute = AttributeList.ToArray();
                 #endregion Attribute

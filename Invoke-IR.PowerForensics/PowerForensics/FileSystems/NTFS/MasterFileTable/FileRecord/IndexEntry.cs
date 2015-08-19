@@ -206,6 +206,8 @@ namespace InvokeIR.PowerForensics.NTFS
                             // Get INDEX_ALLOCATION bytes
                             IndexAllocation IA = new IndexAllocation(attr as NonResident, volume);
 
+                            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+
                             foreach (IndexEntry entry in IA.Entries)
                             {
                                 if (entry.Entry.Namespace != 0x02)
