@@ -60,11 +60,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
             else
             {
                 NativeMethods.getVolumeName(ref volume);
-                foreach (IndexEntry entry in IndexEntry.GetInstances("C:\\Windows\\Tasks"))
+                string taskPath = volume.Split('\\')[3] + @"\Windows\Tasks";
+
+                foreach (IndexEntry entry in IndexEntry.GetInstances(taskPath))
                 {
                     if (entry.Filename.Contains(".job"))
                     {
-                        string path = "C:\\Windows\\Tasks\\" + entry.Filename;
                         WriteObject(ScheduledJob.Get(volume, (int)entry.RecordNumber));
                     }
                 }

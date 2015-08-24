@@ -145,7 +145,6 @@ namespace InvokeIR.Win32
 
         internal static IntPtr getHandle(string FileName)
         {
-
             // Get Handle to specified Volume/File/Directory
             IntPtr hDrive = CreateFile(
                 fileName: FileName,
