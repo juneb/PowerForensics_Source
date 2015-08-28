@@ -221,7 +221,7 @@ namespace InvokeIR.PowerForensics.NTFS
             else
             {
                 #region NonResidentHeader
-                
+
                 // Instantiate a Resident Header Object
                 byte[] nonresidentHeaderBytes = new byte[NONRESIDENTHEADERSIZE];
                 try 

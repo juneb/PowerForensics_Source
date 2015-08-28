@@ -5,7 +5,7 @@ namespace InvokeIR.PowerForensics.NTFS
 {
     public class Volume
     {
-        public const int VOLUME_INDEX = 2;
+        public const int VOLUME_INDEX = 3;
 
         internal static FileRecord GetFileRecord(string volume)
         {
