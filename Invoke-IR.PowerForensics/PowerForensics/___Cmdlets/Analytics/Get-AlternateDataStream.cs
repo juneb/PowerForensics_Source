@@ -64,10 +64,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
         protected override void ProcessRecord()
         {
-            FileRecord[] records = FileRecord.GetInstances(volume);
-
-            foreach (FileRecord record in records)
+            if (ParameterSetName == "Path")
             {
+                IndexEntry entry = IndexEntry.Get(filePath);
+
+                FileRecord record =  new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+
                 if (record.Attribute != null)
                 {
                     foreach (Attr attr in record.Attribute)
@@ -80,7 +82,28 @@ namespace InvokeIR.PowerForensics.Cmdlets
                             }
                         }
                     }
+                }
+            }
+            else
+            {
+                FileRecord[] records = FileRecord.GetInstances(volume);
 
+                foreach (FileRecord record in records)
+                {
+                    if (record.Attribute != null)
+                    {
+                        foreach (Attr attr in record.Attribute)
+                        {
+                            if (attr.Name == "DATA")
+                            {
+                                if (attr.NameString != "")
+                                {
+                                    WriteObject(new AlternateDataStream(record.FullName, record.Name, attr.NameString));
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         } // ProcessRecord 

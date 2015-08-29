@@ -132,7 +132,15 @@ namespace InvokeIR.PowerForensics.Artifacts
             short minute = BitConverter.ToInt16(bytes, 0x3E);
             short second = BitConverter.ToInt16(bytes, 0x40);
             short milliseconds = BitConverter.ToInt16(bytes, 0x42);
-            RunTime = new DateTime(year, month, day, hour, minute, second, milliseconds, DateTimeKind.Utc);
+            if (year != 0)
+            {
+                RunTime = new DateTime(year, month, day, hour, minute, second, milliseconds, DateTimeKind.Utc);
+            }
+            else
+            {
+                RunTime = new DateTime(0);
+            }
+            
 
             #endregion RunTime
             
