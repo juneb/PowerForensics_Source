@@ -48,6 +48,7 @@
     <Compile Include="PowerForensics\Artifacts\VolumeShadowCopy\VolumeShadowCopy.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\2_BlockGroupDescriptorTable\BlockGroupDescriptor.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\2_BlockGroupDescriptorTable\BlockGroupDescriptorTable.cs" />
+    <Compile Include="PowerForensics\FileSystems\ext4\3_InodeTable\Extents.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\4_DirectoryEntry\DirectoryEntry.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\1_Superblock\SuperBlock.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\3_InodeTable\Inode.cs" />

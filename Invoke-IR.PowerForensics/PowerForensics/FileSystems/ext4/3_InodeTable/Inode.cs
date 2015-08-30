@@ -92,8 +92,7 @@ namespace InvokeIR.PowerForensics.ext3
         public readonly ushort LinksCount;
         public readonly uint BlockCount;
         public readonly string Flags;
-        //public readonly uint[] Blocks;
-        public readonly byte[] Blocks;
+        public readonly Extent Blocks;
         public readonly uint Generation;
         public readonly uint FileACL;
         public readonly uint DirectoryACL;
@@ -130,18 +129,10 @@ namespace InvokeIR.PowerForensics.ext3
             Flags = ((I_FLAGS)BitConverter.ToUInt32(bytes, 0x20)).ToString();
 
             #region Blocks
-            /*uint[] blockArray = new uint[0x0F];
-            byte[] blockBytes = new byte[0x3C];
-            Array.Copy(bytes, 0x28, blockBytes, 0, blockBytes.Length);
-            for (int i = 0; i < blockArray.Length; i++)
-            {
-                blockArray[i] = BitConverter.ToUInt32(blockBytes, (i * 0x04));
-            }
-            Blocks = blockArray;*/
 
             byte[] blockBytes = new byte[0x3C];
             Array.Copy(bytes, 0x28, blockBytes, 0, blockBytes.Length);
-            Blocks = blockBytes;
+            Blocks = new Extent(blockBytes);
 
             #endregion Blocks
 
@@ -346,6 +337,17 @@ namespace InvokeIR.PowerForensics.ext3
             #endregion Global
 
             return sb.ToString();
+        }
+
+        public byte[] GetBytes(string volume)
+        {
+            IntPtr hDevice = NativeMethods.getHandle(volume);
+
+            using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
+            {
+                Superblock sb = new Superblock(Superblock.GetBytes(streamToRead, 0));
+                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.Blocks.StartBlock), (sb.BlockSize * this.Blocks.BlockCount));
+            }
         }
 
         /*internal static byte[] GetBytes(FileStream streamToRead, Superblock superBlock, uint inode)
