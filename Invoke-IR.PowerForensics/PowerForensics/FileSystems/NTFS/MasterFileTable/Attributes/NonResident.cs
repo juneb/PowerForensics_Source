@@ -71,9 +71,16 @@ namespace InvokeIR.PowerForensics.NTFS
                     // Increment offset
                     offset = offset + 1 + DataRunLengthByteCount + DataRunOffsetByteCount;
 
-                    DataRunLengthByteCount = bytes[offset] & 0x0F;
-                    DataRunOffsetByteCount = ((bytes[offset] & 0xF0) >> 4);
-
+                    if (offset <= (bytes.Length - 1))
+                    {
+                        DataRunLengthByteCount = bytes[offset] & 0x0F;
+                        DataRunOffsetByteCount = ((bytes[offset] & 0xF0) >> 4);    
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    
                 } while (((offset + DataRunLengthByteCount + DataRunOffsetByteCount + 1) < bytes.Length) && (DataRunOffsetByteCount <= 3) && (DataRunLengthByteCount != 0));
                 
                 DataRun = dataRunList.ToArray();
