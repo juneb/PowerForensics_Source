@@ -5,7 +5,11 @@ namespace InvokeIR.PowerForensics.NTFS
 {
     public class Volume
     {
+        #region Constants
+        
         public const int VOLUME_INDEX = 3;
+        
+        #endregion Constants
 
         internal static FileRecord GetFileRecord(string volume)
         {

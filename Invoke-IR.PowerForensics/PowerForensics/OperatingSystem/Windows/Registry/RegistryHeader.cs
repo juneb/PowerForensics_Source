@@ -2,10 +2,16 @@
 using System.Text;
 using InvokeIR.PowerForensics.NTFS;
 
-namespace InvokeIR.PowerForensics.OS.Windows.Registry
+namespace InvokeIR.PowerForensics.Registry
 {
     public class RegistryHeader
     {
+        #region Constants
+
+        internal const int HBINOFFSET = 0x1000;
+
+        #endregion Constants
+
         #region Enums
 
         enum FILE_TYPE
@@ -42,7 +48,7 @@ namespace InvokeIR.PowerForensics.OS.Windows.Registry
 
             if(Signature != "regf")
             {
-                throw new Exception("Invalid Registry Header Signature");
+                throw new Exception("Invalid Registry Header");
             }
             
             #endregion Signature
@@ -59,9 +65,27 @@ namespace InvokeIR.PowerForensics.OS.Windows.Registry
 
         #endregion Constructors
 
-        public static RegistryHeader Get(byte[] bytes)
+        #region PublicMethods
+        
+        public static byte[] GetBytes(string path)
         {
-            return new RegistryHeader(bytes);
+            // Get bytes for the specific record
+            string volume = "\\\\.\\" + path.Split('\\')[0];
+            IndexEntry entry = IndexEntry.Get(path);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            byte[] bytes = record.GetBytes(volume);
+
+            // Registry Header
+            byte[] headerBytes = new byte[0x200];
+            Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
+            return headerBytes;
         }
+
+        public static RegistryHeader Get(string path)
+        {
+            return new RegistryHeader(RegistryHeader.GetBytes(path));
+        }
+
+        #endregion PublicMethods
     }
 }

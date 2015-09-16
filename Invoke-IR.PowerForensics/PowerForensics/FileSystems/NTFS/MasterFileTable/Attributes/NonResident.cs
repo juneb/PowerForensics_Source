@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using InvokeIR.Win32;
+using InvokeIR.PowerForensics.NTFS;
 
 namespace InvokeIR.PowerForensics.NTFS
 {
@@ -102,7 +103,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
             using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
-                InvokeIR.PowerForensics.NTFS.VolumeBootRecord VBR = new InvokeIR.PowerForensics.NTFS.VolumeBootRecord(streamToRead);
+                VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
                 foreach (DataRun dr in this.DataRun)
                 {

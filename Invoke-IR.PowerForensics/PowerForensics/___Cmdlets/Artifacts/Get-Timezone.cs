@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
+using InvokeIR.PowerForensics.Registry;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -20,8 +21,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-            // Output the current TimeZone object
-            WriteObject(TimeZone.CurrentTimeZone);
+            ValueKey vk = ValueKey.Get(@"C:\Windows\system32\config\SYSTEM", @"ControlSet001\Control\TimeZoneInformation", "TimeZoneKeyName");
+            TimeZone tz = TimeZone.CurrentTimeZone;
+
+            WriteObject(new InvokeIR.PowerForensics.Artifacts.Timezone(System.Text.Encoding.Unicode.GetString(vk.GetData()), tz.StandardName, tz.DaylightName, tz.IsDaylightSavingTime(DateTime.Now)));
         } // ProcessRecord 
 
         protected override void EndProcessing()

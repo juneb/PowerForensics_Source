@@ -11,7 +11,7 @@ namespace InvokeIR.PowerForensics.NTFS
         public static FileRecord GetRecord(FileStream streamToRead, string volume)
         {
             // Instantiate VolumeBootRecord object
-            VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
             // Calculate byte offset to the Master File Table (MFT)
             ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);

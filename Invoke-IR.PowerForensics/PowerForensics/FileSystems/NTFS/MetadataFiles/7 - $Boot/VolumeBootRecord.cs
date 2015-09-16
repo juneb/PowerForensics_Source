@@ -9,7 +9,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
     public class VolumeBootRecord
     {
-
         #region Enums
 
         enum MEDIA_DESCRIPTOR
@@ -42,11 +41,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #region Constructors
 
-        internal VolumeBootRecord(FileStream streamToRead)
+        internal VolumeBootRecord(byte[] bytes)
         {
-            // Get VolumeBootRecord Bytes
-            byte[] bytes = getBytes(streamToRead);
-
             // Get VolumeBootRecord Signature to determine File System Type
             byte[] sigBytes = new byte[8];
             Array.Copy(bytes, 3, sigBytes, 0, sigBytes.Length);
@@ -101,6 +97,7 @@ namespace InvokeIR.PowerForensics.NTFS
             }
         }
 
+
         #endregion Constructors
 
         #region InternalMethods
@@ -110,8 +107,34 @@ namespace InvokeIR.PowerForensics.NTFS
             return NativeMethods.readDrive(streamToRead, 0, 512);
         }
 
+        internal static VolumeBootRecord get(FileStream streamToRead)
+        {
+            return new VolumeBootRecord(VolumeBootRecord.getBytes(streamToRead));
+        }
+
         #endregion InternalMethods
 
+        #region PublicMethods
+
+        public static byte[] GetBytes(string path)
+        {
+            // Get Handle to Hard Drive
+            IntPtr hDrive = NativeMethods.getHandle(path);
+
+            // Create a FileStream to read from hDrive
+            using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))
+            {
+                return NativeMethods.readDrive(streamToRead, 0, 512);
+            }
+        }
+
+
+        public static VolumeBootRecord Get(string path)
+        {
+            return new VolumeBootRecord(VolumeBootRecord.GetBytes(path));
+        }
+
+        #endregion PublicMethods
     }
 
     #endregion VolumeBootRecordClass

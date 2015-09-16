@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Artifacts;
 
 namespace InvokeIR.PowerForensics.Formats
 {
@@ -101,6 +102,12 @@ namespace InvokeIR.PowerForensics.Formats
             }
 
             return macs.ToArray();
+        }
+
+        public static Mactime[] Get(Prefetch pf)
+        {
+            
+            return null;
         }
 
     }

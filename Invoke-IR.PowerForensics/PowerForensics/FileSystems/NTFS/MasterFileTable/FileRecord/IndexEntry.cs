@@ -11,6 +11,7 @@ namespace InvokeIR.PowerForensics.NTFS
     {
         #region Properties
         public ulong RecordNumber;       // Low 6B: MFT record index, High 2B: MFT record sequence number
+        public bool Directory;
         internal ushort Size;            // Length of the index entry
         internal ushort StreamSize;      // Length of the stream
         internal byte Flags;             // Flags

@@ -41,6 +41,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Properties
 
         public readonly string Filename;
+        public readonly ushort ParentSequenceNumber;
         public readonly ulong ParentRecordNumber;
         public readonly int Namespace;
         public readonly ulong AllocatedSize;
@@ -64,6 +65,7 @@ namespace InvokeIR.PowerForensics.NTFS
             try
             {
                 // FILE_NAME Attribute
+                ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06));
                 ParentRecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
                 BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08));
                 ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10));
@@ -103,6 +105,7 @@ namespace InvokeIR.PowerForensics.NTFS
             AttributeId = header.commonHeader.Id;
             
             // FILE_NAME Attribute
+            ParentSequenceNumber = (BitConverter.ToUInt16(attrBytes, 0x06));
             ParentRecordNumber = (BitConverter.ToUInt64(attrBytes, 0x00) & 0x0000FFFFFFFFFFFF);
             BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x08));
             ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x10));

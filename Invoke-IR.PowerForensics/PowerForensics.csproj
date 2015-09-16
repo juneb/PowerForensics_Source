@@ -45,6 +45,7 @@
     <Compile Include="PowerForensics\Artifacts\AlternateDataStream.cs" />
     <Compile Include="PowerForensics\Artifacts\AppCompat\AppCompat.cs" />
     <Compile Include="PowerForensics\Artifacts\ScheduledJob\ScheduledJob.cs" />
+    <Compile Include="PowerForensics\Artifacts\Timezone\Timezone.cs" />
     <Compile Include="PowerForensics\Artifacts\VolumeShadowCopy\VolumeShadowCopy.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\2_BlockGroupDescriptorTable\BlockGroupDescriptor.cs" />
     <Compile Include="PowerForensics\FileSystems\ext4\2_BlockGroupDescriptorTable\BlockGroupDescriptorTable.cs" />
@@ -59,10 +60,21 @@
     <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\6 - %24Bitmap\Bitmap.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\8 - %24BadClus\BadClus.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\Cell.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityDescriptor.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityKey.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\ValueKey.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\HiveBin.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Helper.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\HashedLeaf.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\Leaf.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\LeafItem.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\List.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\OffsetRecord.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ReferenceItem.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ValuesList.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-AlternateDataStream.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-UnallocatedSpace.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-AppCompatCache.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-ScheduledJobRaw.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext4\Get-BlockGroupDescriptor.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\ext4\Get-DirectoryEntry.cs" />
@@ -75,9 +87,10 @@
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-UsnJrnl.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-VolumeInformation.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-VolumeName.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\CellFactory.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\NamedKey.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\RegistryHeader.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\OperatingSystem\Windows\Registry\Get-RegistryKey.cs" />
+    <Compile Include="PowerForensics\___Cmdlets\OperatingSystem\Windows\Registry\Get-RegistryValue.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-VolumeShadowCopy.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-Hash.cs" />
     <Compile Include="PowerForensics\Utilities\Hash\Hash.cs" />
@@ -127,7 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PowerForensics\FileSystems\NTFS\MetadataFiles\9 - %24Secure\" />
-    <Folder Include="PowerForensics\___Cmdlets\OperatingSystem\Windows\Registry\" />
+    <Folder Include="PowerForensics\OperatingSystem\Windows\ESEDB\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

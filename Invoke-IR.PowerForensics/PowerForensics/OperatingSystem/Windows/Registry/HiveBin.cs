@@ -2,7 +2,7 @@
 using System.Text;
 using InvokeIR.PowerForensics.NTFS;
 
-namespace InvokeIR.PowerForensics.OS.Windows.Registry
+namespace InvokeIR.PowerForensics.Registry
 {
     public class HiveBinHeader
     {
@@ -37,6 +37,8 @@ namespace InvokeIR.PowerForensics.OS.Windows.Registry
 
         #endregion Constructors
 
+        #region PublicMethods
+        
         public static HiveBinHeader[] GetInstances(string path)
         {
             // Get bytes for the specific record
@@ -64,5 +66,7 @@ namespace InvokeIR.PowerForensics.OS.Windows.Registry
 
             return headerArray;
         }
+
+        #endregion PublicMethods
     }
 }

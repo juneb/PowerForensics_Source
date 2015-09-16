@@ -35,13 +35,13 @@ namespace InvokeIR.PowerForensics.NTFS
             // Get filestream based on hVolume
             using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
-                VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+                VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
                 FileRecord logFileRecord = GetFileRecord(volume);
 
                 NonResident data = GetDataAttr(logFileRecord);
 
-                return NativeMethods.readDrive(streamToRead, (((ulong)data.DataRun[0].StartCluster * VBR.BytesPerCluster) + 0x4000), 0x1000);
+                return data.GetBytes(volume);
             }
         }
 

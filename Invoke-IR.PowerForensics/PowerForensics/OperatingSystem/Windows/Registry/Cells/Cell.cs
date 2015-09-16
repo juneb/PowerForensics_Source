@@ -1,13 +1,12 @@
-﻿using System;
-using System.Text;
-
-namespace InvokeIR.PowerForensics.OS.Windows.Registry
+﻿namespace InvokeIR.PowerForensics.Registry
 {
     public class Cell
     {
         #region Properties
 
-        public readonly uint CellSize;
+        internal int Size;
+        public bool Allocated;
+        internal string Signature;
 
         #endregion Properties
     }
