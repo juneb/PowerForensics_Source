@@ -104,7 +104,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));
@@ -170,7 +170,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));

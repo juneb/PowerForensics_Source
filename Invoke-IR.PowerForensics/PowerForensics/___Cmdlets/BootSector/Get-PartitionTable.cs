@@ -49,7 +49,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
 
             protected override void ProcessRecord()
             {
-                MasterBootRecord mbr = new MasterBootRecord(drivePath);
+                MasterBootRecord mbr = MasterBootRecord.Get(drivePath);
 
                 if (mbr.PartitionTable[0].SystemID != "EFI_GPT_DISK")
                 {

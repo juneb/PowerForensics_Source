@@ -92,7 +92,7 @@ namespace InvokeIR.PowerForensics.ext3
         public readonly ushort LinksCount;
         public readonly uint BlockCount;
         public readonly string Flags;
-        public readonly Extent Blocks;
+        public readonly Extent[] Blocks;
         public readonly uint Generation;
         public readonly uint FileACL;
         public readonly uint DirectoryACL;
@@ -132,7 +132,7 @@ namespace InvokeIR.PowerForensics.ext3
 
             byte[] blockBytes = new byte[0x3C];
             Array.Copy(bytes, 0x28, blockBytes, 0, blockBytes.Length);
-            Blocks = new Extent(blockBytes);
+            Blocks = Extent.GetInstances(blockBytes);
 
             #endregion Blocks
 
@@ -346,34 +346,9 @@ namespace InvokeIR.PowerForensics.ext3
             using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
             {
                 Superblock sb = new Superblock(Superblock.GetBytes(streamToRead, 0));
-                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.Blocks.StartBlock), (sb.BlockSize * this.Blocks.BlockCount));
+                //put this in a foreach block in this.Blocks loop
+                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.Blocks[0].StartBlock), (sb.BlockSize * this.Blocks[0].BlockCount));
             }
         }
-
-        /*internal static byte[] GetBytes(FileStream streamToRead, Superblock superBlock, uint inode)
-        {
-            uint group = (inode - 1) / superBlock.InodesPerGroup;
-            ext3.BlockGroupDescriptor bgd = new ext3.BlockGroupDescriptor(BlockGroupDescriptor.GetBytes(streamToRead, bgdtOffset, group));
-
-            uint inodeTableOffset = (superblockOffset * NativeMethods.BYTES_PER_SECTOR) + (bgd.InodeTableOffset * superBlock.BlockSize);
-            uint inodeSectorOffset = (inode - 1) % superBlock.InodesPerGroup;
-
-            // Determine the offset from the beginning of the BGDT to the desired group
-            uint groupOffset = group * BLOCK_GROUP_DESCRIPTOR_LENGTH;
-
-            // Determine what Sector contains the raw bytes
-            uint groupSectorOffset = groupOffset / NativeMethods.BYTES_PER_SECTOR;
-
-            // Read the sector that the desired block resides within
-            byte[] SectorBytes = NativeMethods.readDrive(streamToRead, bgdtOffset + (groupSectorOffset * NativeMethods.BYTES_PER_SECTOR), NativeMethods.BYTES_PER_SECTOR);
-
-            // Get Block Group Descriptor offset into Sector
-            uint sectorOffset = (group % BLOCK_GROUPS_PER_SECTOR) * BLOCK_GROUP_DESCRIPTOR_LENGTH;
-
-            // Create byte[] containing only bytes for the requested Block Group Descriptor
-            byte[] bgdBytes = new byte[BLOCK_GROUP_DESCRIPTOR_LENGTH];
-            Array.Copy(SectorBytes, sectorOffset, bgdBytes, 0, bgdBytes.Length);
-            return bgdBytes;
-        }*/
     }
 }

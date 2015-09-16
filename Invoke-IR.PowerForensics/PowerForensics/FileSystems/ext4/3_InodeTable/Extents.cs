@@ -40,7 +40,6 @@ namespace InvokeIR.PowerForensics.ext3
     {
         #region Properties
 
-        private readonly ExtentHeader header;
         public readonly uint LogicalBlockOffset;
         public readonly ushort BlockCount;
         public readonly ulong StartBlock;
@@ -51,14 +50,47 @@ namespace InvokeIR.PowerForensics.ext3
 
         internal Extent(byte[] bytes)
         {
-            byte[] headerBytes = new byte[0x0C];
-            Array.Copy(bytes, 0x00, headerBytes, 0x00, headerBytes.Length);
-            header = new ExtentHeader(headerBytes);
-            LogicalBlockOffset = BitConverter.ToUInt32(bytes, 0x0C);
-            BlockCount = BitConverter.ToUInt16(bytes, 0x10);
-            StartBlock = BitConverter.ToUInt32(bytes, 0x14);
+            LogicalBlockOffset = BitConverter.ToUInt32(bytes, 0x00);
+            BlockCount = BitConverter.ToUInt16(bytes, 0x04);
+            // Need to add upper bytes (0x06 & 0x07)
+            StartBlock = BitConverter.ToUInt32(bytes, 0x08);
         }
 
         #endregion Constructors
+
+        public static Extent[] GetInstances(byte[] bytes)
+        {
+            byte[] headerBytes = new byte[0x0C];
+            Array.Copy(bytes, 0x00, headerBytes, 0x00, headerBytes.Length);
+            ExtentHeader header = new ExtentHeader(headerBytes);
+
+            Extent[] extentArray = new Extent[header.NumberOfExtents];
+
+            int offset = 0x0C;
+            int size = 0x0C;
+            
+            for (int i = 0; (i < header.NumberOfExtents) && (i < 4); i++)
+            {
+                byte[] extentBytes = new byte[0x0C];
+                Array.Copy(bytes, offset, extentBytes, 0, extentBytes.Length);
+
+                extentArray[i] = new Extent(extentBytes);
+                
+                offset += size;
+            }
+                
+            return extentArray;
+        }
+
+        public byte[] GetBytes(string volume)
+        {
+            IntPtr hDevice = NativeMethods.getHandle(volume);
+
+            using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
+            {
+                Superblock sb = new Superblock(Superblock.GetBytes(streamToRead, 0));
+                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.StartBlock), (sb.BlockSize * this.BlockCount));
+            }
+        }
     }
 }

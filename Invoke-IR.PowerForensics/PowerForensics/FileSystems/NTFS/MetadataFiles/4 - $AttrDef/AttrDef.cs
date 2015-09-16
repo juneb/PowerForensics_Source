@@ -87,9 +87,9 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Constructors
 
-        #region GetMethod
+        #region PublicMethods
 
-        internal static AttrDef[] Get(string volume)
+        public static AttrDef[] GetInstances(string volume)
         {
             byte[] bytes = (new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume, true)).GetBytes(volume);
 
@@ -109,7 +109,7 @@ namespace InvokeIR.PowerForensics.NTFS
             return adList.ToArray();
         }
 
-        #endregion GetMethod
+        #endregion PublicMethods
     }
 
     #endregion AttrDefClass

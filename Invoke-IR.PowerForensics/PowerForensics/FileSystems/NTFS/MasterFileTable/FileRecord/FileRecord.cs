@@ -28,8 +28,8 @@ namespace InvokeIR.PowerForensics.NTFS
         // File Record Header
         private readonly ushort OffsetOfUS;             // Offset of Update Sequence
         private readonly  ushort SizeOfUS;		        // Size in words of Update Sequence Number & Array
-        public readonly ushort UpdateSequenceNumber;
-        public readonly byte[] UpdateSequenceArray;
+        private readonly ushort UpdateSequenceNumber;
+        private readonly byte[] UpdateSequenceArray;
         public readonly ulong LogFileSequenceNumber;    // $LogFile Sequence Number
         public readonly ushort SequenceNumber;          // Sequence number
         public readonly ushort Hardlinks;               // Hard link count
@@ -56,7 +56,12 @@ namespace InvokeIR.PowerForensics.NTFS
         // $FILE_NAME
         public readonly string FullName;
         public readonly string Name;
+        public readonly ushort ParentSequenceNumber;
         public readonly ulong ParentRecordNumber;
+        public readonly DateTime FNModifiedTime;
+        public readonly DateTime FNAccessedTime;
+        public readonly DateTime FNChangedTime;
+        public readonly DateTime FNBornTime;
 
         #endregion Properties
 
@@ -168,7 +173,12 @@ namespace InvokeIR.PowerForensics.NTFS
                                 if (!(fN.Namespace == 2))
                                 {
                                     Name = fN.Filename;
+                                    ParentSequenceNumber = fN.ParentSequenceNumber;
                                     ParentRecordNumber = fN.ParentRecordNumber;
+                                    FNModifiedTime = fN.ModifiedTime;
+                                    FNAccessedTime = fN.AccessedTime;
+                                    FNChangedTime = fN.ChangedTime;
+                                    FNBornTime = fN.BornTime;
                                 }
                             }
 
@@ -310,7 +320,12 @@ namespace InvokeIR.PowerForensics.NTFS
                             if (!(fN.Namespace == 2))
                             {
                                 Name = fN.Filename;
+                                ParentSequenceNumber = fN.ParentSequenceNumber;
                                 ParentRecordNumber = fN.ParentRecordNumber;
+                                FNModifiedTime = fN.ModifiedTime;
+                                FNAccessedTime = fN.AccessedTime;
+                                FNChangedTime = fN.ChangedTime;
+                                FNBornTime = fN.BornTime;
                             }
                         }
 
@@ -430,7 +445,12 @@ namespace InvokeIR.PowerForensics.NTFS
                                 if (!(fN.Namespace == 2))
                                 {
                                     Name = fN.Filename;
+                                    ParentSequenceNumber = fN.ParentSequenceNumber;
                                     ParentRecordNumber = fN.ParentRecordNumber;
+                                    FNModifiedTime = fN.ModifiedTime;
+                                    FNAccessedTime = fN.AccessedTime;
+                                    FNChangedTime = fN.ChangedTime;
+                                    FNBornTime = fN.BornTime;
                                 }
                             }
 
@@ -461,10 +481,10 @@ namespace InvokeIR.PowerForensics.NTFS
                     // If record for Parent does not already exist then instantiate it and add it to the array
                     else
                     {
-                        //Console.WriteLine("RecordIndex: {0}, ParentIndex: {1}", RecordNumber, ParentRecordNumber);
+                        // Console.WriteLine("RecordIndex: {0}, ParentIndex: {1}", RecordNumber, ParentRecordNumber);
                         // This is where the recursive call should live...
-                        //array[(int)ParentRecordNumber] = new FileRecord(ref array, FileRecord.GetRecordBytes(volume, (int)ParentRecordNumber), volume);
-                        //sb.Append(array[(int)ParentRecordNumber].FullName);
+                        // array[(int)ParentRecordNumber] = new FileRecord(ref array, FileRecord.GetRecordBytes(volume, (int)ParentRecordNumber), volume);
+                        // sb.Append(array[(int)ParentRecordNumber].FullName);
                     }
                     // Add file name to end of path
                     sb.Append(Name);
@@ -591,7 +611,12 @@ namespace InvokeIR.PowerForensics.NTFS
                                 if (!(fN.Namespace == 2))
                                 {
                                     Name = fN.Filename;
+                                    ParentSequenceNumber = fN.ParentSequenceNumber;
                                     ParentRecordNumber = fN.ParentRecordNumber;
+                                    FNModifiedTime = fN.ModifiedTime;
+                                    FNAccessedTime = fN.AccessedTime;
+                                    FNChangedTime = fN.ChangedTime;
+                                    FNBornTime = fN.BornTime;
                                 }
                             }
 
@@ -623,7 +648,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 byte[] mftBytes = MasterFileTable.GetBytes(streamToRead, volume);
 
                 // Determine the size of an MFT File Record
-                int bytesPerFileRecord = (int)(new NTFS.VolumeBootRecord(streamToRead)).BytesPerFileRecord;
+                int bytesPerFileRecord = (int)(VolumeBootRecord.get(streamToRead)).BytesPerFileRecord;
 
                 // Calulate the number of entries in the MFT
                 int fileCount = mftBytes.Length / bytesPerFileRecord;
@@ -685,7 +710,7 @@ namespace InvokeIR.PowerForensics.NTFS
             using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
                 // Get Volume Boot Record
-                NTFS.VolumeBootRecord VBR = new NTFS.VolumeBootRecord(streamToRead);
+                NTFS.VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
                 // Determine start of MFT
                 ulong mftStartOffset = VBR.MFTStartIndex * VBR.BytesPerCluster;

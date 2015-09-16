@@ -62,18 +62,13 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             NativeMethods.getVolumeName(ref volume);
 
-            IntPtr hVolume = NativeMethods.getHandle(volume);
-
-            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+            if (asbytes)
             {
-                if (asbytes)
-                {
-                    WriteObject(VolumeBootRecord.getBytes(streamToRead));
-                }
-                else
-                {
-                    WriteObject(new VolumeBootRecord(streamToRead));
-                }
+                WriteObject(VolumeBootRecord.GetBytes(volume));
+            }
+            else
+            {
+                WriteObject(VolumeBootRecord.Get(volume));
             }
         } // ProcessRecord 
 

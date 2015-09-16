@@ -234,6 +234,70 @@ namespace InvokeIR.Win32
 
         }
 
+        internal static byte[] readDrive(string remoteHost, int port, ulong offset, ulong sizeToRead)
+        {
+
+            // Bytes must be read by sector
+            if ((sizeToRead < 1)) throw new System.ArgumentException("Size parameter cannot be null or 0 or less than 0!");
+            if (((sizeToRead % 512) != 0)) throw new System.ArgumentException("Size parameter must be divisible by 512");
+            if (((offset % 512) != 0)) throw new System.ArgumentException("Offset parameter must be divisible by 512");
+
+            // Create a byte array to read into
+            byte[] buf = new byte[sizeToRead];
+
+            // Read buf.Length bytes (sizeToRead) from offset 
+            try
+            {
+                byte[] request = new byte[12];
+
+                // Request Signature
+                request[0] = 0x54;
+                request[1] = 0x46; 
+                request[2] = 0x31;
+                request[3] = 0x32;
+
+                // Request Offset
+                byte[] offsetBytes = new byte[4];
+                offsetBytes = BitConverter.GetBytes(offset);
+
+                request[4] = offsetBytes[0];
+                request[5] = offsetBytes[1];
+                request[6] = offsetBytes[2];
+                request[7] = offsetBytes[3];
+
+                // Request Length
+                byte[] lengthBytes = new byte[4];
+                lengthBytes = BitConverter.GetBytes(sizeToRead);
+
+                request[8] = lengthBytes[0];
+                request[9] = lengthBytes[1];
+                request[10] = lengthBytes[2];
+                request[11] = lengthBytes[3];
+
+                System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(remoteHost, port);
+                
+                System.Net.Sockets.NetworkStream stream = client.GetStream();
+                stream.Write(request, 0, request.Length);
+
+                int byteCount = stream.Read(buf, 0, buf.Length);
+        
+                if(byteCount != buf.Length)
+                {
+                    throw new Exception("Error reading from NBD");
+                }
+                
+                stream.Close();         
+                client.Close();
+
+            }
+            catch
+            {
+                throw new Exception("Error setting up NBD network request");
+            }
+
+            return buf;
+        }
+
         internal static DateTime FromUnixTime(uint unixTime)
         {
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

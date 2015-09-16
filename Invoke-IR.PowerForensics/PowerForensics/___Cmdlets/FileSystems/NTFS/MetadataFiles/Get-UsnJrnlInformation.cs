@@ -61,7 +61,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = new VolumeBootRecord(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
 
             // Get the $Max Data attribute (contains UsnJrnl details)
             Data Max = UsnJrnl.GetMaxStream(UsnJrnl.GetFileRecord(volume));

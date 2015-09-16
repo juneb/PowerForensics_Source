@@ -13,7 +13,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Copy, "FileRaw")]
-    public class CopyFileRawCommand : Cmdlet
+    public class CopyFileRawCommand : PSCmdlet
     {
 
         #region Parameters
@@ -25,13 +25,26 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
 
         [Alias("FilePath")]
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Path")]
         public string Path
         {
             get { return path; }
             set { path = value; }
         }
         private string path;
+
+        /// <summary> 
+        /// This parameter provides the MFTIndexNumber for the 
+        /// FileRecord object that will be returned.
+        /// </summary> 
+
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Index")]
+        public int Index
+        {
+            get { return index; }
+            set { index = value; }
+        }
+        private int index;
 
         /// <summary> 
         /// This parameter provides the MFTIndexNumber for the 
@@ -65,10 +78,20 @@ namespace InvokeIR.PowerForensics.Cmdlets
             // Determine Volume Name
             string volume = @"\\.\" + path.Split('\\')[0];
 
-            IndexEntry indexEntry = IndexEntry.Get(path);
+            int indexNumber = 0;
+
+            if (ParameterSetName == "Path")
+            {
+                IndexEntry indexEntry = IndexEntry.Get(path);
+                indexNumber = (int)indexEntry.RecordNumber;
+            }
+            else
+            {
+                indexNumber = index;
+            }
 
             // 
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)indexEntry.RecordNumber), volume, true);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, indexNumber), volume, true);
 
             byte[] fileBytes = record.GetBytes(volume);
 

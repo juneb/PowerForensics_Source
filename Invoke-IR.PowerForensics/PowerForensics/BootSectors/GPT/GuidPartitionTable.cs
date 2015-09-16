@@ -104,9 +104,52 @@ namespace InvokeIR.PowerForensics
             }
         }
 
+        public GuidPartitionTable(byte[] bytes)
+        {
+            #region Header
+            
+            byte[] headerBytes = new byte[SECTOR_SIZE];
+            Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
+
+            GuidPartitionTableHeader GPTHeader = new GuidPartitionTableHeader(headerBytes);
+            Revision = GPTHeader.Revision;
+            HeaderSize = GPTHeader.HeaderSize;
+            MyLBA = GPTHeader.MyLBA;
+            AlternateLBA = GPTHeader.AlternateLBA;
+            FirstUsableLBA = GPTHeader.FirstUsableLBA;
+            LastUsableLBA = GPTHeader.LastUsableLBA;
+            DiskGUID = GPTHeader.DiskGUID;
+            PartitionEntryLBA = GPTHeader.PartitionEntryLBA;
+            NumberOfPartitionEntries = GPTHeader.NumberOfPartitionEntries;
+            SizeOfPartitionEntry = GPTHeader.SizeOfPartitionEntry;
+            
+            #endregion Header
+
+            // Get PartitionTable
+            List<GuidPartitionTableEntry> partitionList = new List<GuidPartitionTableEntry>();
+
+            for (long i = 0; i < (bytes.Length - (int)SECTOR_SIZE); i += GPTHeader.SizeOfPartitionEntry)
+            {
+                // Instantiate byte array of size GPTHeader.SizeOfPartitionEntry (typically 128 bytes)
+                byte[] partitionBytes = new byte[GPTHeader.SizeOfPartitionEntry];
+                // Copy appropriate sector bytes to partitionBytes array
+                Array.Copy(bytes, (i + (int)SECTOR_SIZE), partitionBytes, 0, partitionBytes.Length);
+                // Instantiate a GuidPartitionTableEntry object
+                GuidPartitionTableEntry entry = new GuidPartitionTableEntry(partitionBytes);
+                // If entry's PartitionTypeGUID is 00000000-0000-0000-0000-000000000000 then it is not a partition
+                if (entry.PartitionTypeGUID == new Guid("00000000-0000-0000-0000-000000000000"))
+                {
+                    break;
+                }
+                partitionList.Add(entry);
+            }
+
+            PartitionTable = partitionList.ToArray();
+        }
+
         #endregion Constructors
 
-        #region Methods
+        #region PublicMethods
 
         public static byte[] GetBytes(string devicePath)
         {
@@ -125,11 +168,16 @@ namespace InvokeIR.PowerForensics
             }
         }
 
-        #endregion Methods
+        public static GuidPartitionTable Get(string devicePath)
+        {
+            return new GuidPartitionTable(GuidPartitionTable.GetBytes(devicePath));
+        }
+
+        #endregion PublicMethods
 
     }
 
-    public class GuidPartitionTableHeader
+    internal class GuidPartitionTableHeader
     {
         #region Constants
 

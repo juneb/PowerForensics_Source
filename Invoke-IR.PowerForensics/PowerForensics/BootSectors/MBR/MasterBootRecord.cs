@@ -40,124 +40,104 @@ namespace InvokeIR.PowerForensics
 
         #region Constructor
 
-        public MasterBootRecord(string devicePath)
+        internal MasterBootRecord(byte[] MBRBytes)
         {
-            // Get Handle to Hard Drive
-            IntPtr hDrive = NativeMethods.getHandle(devicePath);
-            
-            // Create a FileStream to read from hDrive
-            using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))
+            // Instantiate a byte array to hold 440 bytes (size of MBR Boot Code)
+            // Copy MBR sub-array into mbrCode
+            byte[] mbrCode = new byte[440];
+            Array.Copy(MBRBytes, 0, mbrCode, 0, mbrCode.Length);
+
+            // Check MBR Code Section against a list of known signatures
+            #region MD5Signature
+
+            string MD5Signature = null;
+
+            switch (Hash.Get(mbrCode, mbrCode.Length, "MD5"))
             {
-                // Read Master Boot Record (first 512 bytes) from disk
-                byte[] MBRBytes = NativeMethods.readDrive(streamToRead, 0, 512);
-
-                // Instantiate a byte array to hold 440 bytes (size of MBR Boot Code)
-                // Copy MBR sub-array into mbrCode
-                byte[] mbrCode = new byte[440];
-                Array.Copy(MBRBytes, 0, mbrCode, 0, mbrCode.Length);
-
-                // Check MBR Code Section against a list of known signatures
-                #region MD5Signature
-
-                string MD5Signature = null;
-
-                switch (Hash.Get(mbrCode, mbrCode.Length, "MD5"))
-                {
-                    case WINDOWS5_X:
-                        MD5Signature = "Windows 5.X";
-                        break;
-                    case WINDOWS6_0:
-                        MD5Signature = "Windows 6.0";
-                        break;
-                    case WINDOWS6_1:
-                        MD5Signature = "Windows 6.1+";
-                        break;
-                    case GRUB:
-                        MD5Signature = "GRUB";
-                        break;
-                    case NYANCAT:
-                        MD5Signature = "BOOTKIT Nyan Cat";
-                        break;
-                    case STONEDv2:
-                        MD5Signature = "BOOTKIT Stonedv2";
-                        break;
-                    case STONEDv2_TRUE_CRYPT:
-                        MD5Signature = "BOOTKIT Stonedv2";
-                        break;
-                    default:
-                        MD5Signature = "UNKNOWN";
-                        break;
-                }
-
-                #endregion MD5Signature
-
-                // Instantiate a blank Partition List
-                List<PartitionEntry> partitionList = new List<PartitionEntry>();
-
-                // Set object properties
-                BootCode = mbrCode;
-                byte[] sigBytes = new byte[4];
-                Array.Copy(MBRBytes, 440, sigBytes, 0, sigBytes.Length);
-                DiskSignature = BitConverter.ToString(sigBytes).Replace("-", "");
-                MBRSignature = MD5Signature;
-
-                for (int i = 446; i <= 478; i += PARTITION_ENTRY_SIZE)
-                {
-                    byte[] partitionBytes = new byte[PARTITION_ENTRY_SIZE];
-                    Array.Copy(MBRBytes, i, partitionBytes, 0, partitionBytes.Length);
-                    PartitionEntry entry = new PartitionEntry(partitionBytes);
-
-                    if (entry.SystemID != "EMPTY")
-                    {
-                        partitionList.Add(entry);
-                    }
-                }
-
-                byte[] entry4Bytes = new byte[PARTITION_ENTRY_SIZE];
-                Array.Copy(MBRBytes, 494, entry4Bytes, 0, entry4Bytes.Length);
-                PartitionEntry entry4 = new PartitionEntry(entry4Bytes);
-
-                if (entry4.SystemID == "MS_EXTENDED_LBA")
-                {
-                    List<PartitionEntry> pList = GetExtended(streamToRead, entry4.StartSector);
-                    partitionList.AddRange(pList);
-                }
-                else if (entry4.SystemID != "EMPTY")
-                {
-                    partitionList.Add(entry4);
-                }
-
-                PartitionTable = partitionList.ToArray();
+                case WINDOWS5_X:
+                    MD5Signature = "Windows 5.X";
+                    break;
+                case WINDOWS6_0:
+                    MD5Signature = "Windows 6.0";
+                    break;
+                case WINDOWS6_1:
+                    MD5Signature = "Windows 6.1+";
+                    break;
+                case GRUB:
+                    MD5Signature = "GRUB";
+                    break;
+                case NYANCAT:
+                    MD5Signature = "BOOTKIT Nyan Cat";
+                    break;
+                case STONEDv2:
+                    MD5Signature = "BOOTKIT Stonedv2";
+                    break;
+                case STONEDv2_TRUE_CRYPT:
+                    MD5Signature = "BOOTKIT Stonedv2";
+                    break;
+                default:
+                    MD5Signature = "UNKNOWN";
+                    break;
             }
+
+            #endregion MD5Signature
+
+            // Instantiate a blank Partition List
+            List<PartitionEntry> partitionList = new List<PartitionEntry>();
+
+            // Set object properties
+            BootCode = mbrCode;
+            byte[] sigBytes = new byte[4];
+            Array.Copy(MBRBytes, 440, sigBytes, 0, sigBytes.Length);
+            DiskSignature = BitConverter.ToString(sigBytes).Replace("-", "");
+            MBRSignature = MD5Signature;
+
+            for (int i = 446; i <= 478; i += PARTITION_ENTRY_SIZE)
+            {
+                byte[] partitionBytes = new byte[PARTITION_ENTRY_SIZE];
+                Array.Copy(MBRBytes, i, partitionBytes, 0, partitionBytes.Length);
+                PartitionEntry entry = new PartitionEntry(partitionBytes);
+
+                if (entry.SystemID != "EMPTY")
+                {
+                    partitionList.Add(entry);
+                }
+            }
+
+            PartitionTable = partitionList.ToArray();
         }
 
         #endregion Constructor
 
         #region PublicMethods
 
-        public static MasterBootRecord Get(string drivePath)
-        {
-            // Return a MasterBootRecord object for the given device path
-            return new MasterBootRecord(drivePath);
-        }
-
         public static byte[] GetBytes(string drivePath)
         {
             // Get Handle to Hard Drive
             IntPtr hDrive = NativeMethods.getHandle(drivePath);
-            
+
             // Create a FileStream to read from hDrive
             using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))
             {
                 // Read Master Boot Record (first 512 bytes) from disk
-                 return NativeMethods.readDrive(streamToRead, 0, 512);
+                return NativeMethods.readDrive(streamToRead, 0, 512);
             }
         }
+
+        public static MasterBootRecord Get(string drivePath)
+        {
+            // Read Master Boot Record (first 512 bytes) from disk
+            return new MasterBootRecord(MasterBootRecord.GetBytes(drivePath));
+        }
+
+        #endregion PublicMethods
+
+        #region PrivateMethods
 
         private static List<PartitionEntry> GetExtended(FileStream streamToRead, uint startSector)
         {
             List<PartitionEntry> pList = new List<PartitionEntry>();
-            
+
             ulong offset = 512 * (ulong)startSector;
 
             byte[] extendedMBR = NativeMethods.readDrive(streamToRead, offset, 512);
@@ -171,15 +151,15 @@ namespace InvokeIR.PowerForensics
             PartitionEntry secondEntry = new PartitionEntry(secondEntryBytes, startSector);
             pList.Add(secondEntry);
 
-            if(secondEntry.SystemID == "MS_EXTENDED")
+            if (secondEntry.SystemID == "MS_EXTENDED")
             {
                 pList.AddRange(GetExtended(streamToRead, secondEntry.StartSector));
             }
-            
+
             return pList;
         }
 
-        #endregion PublicMethods
+        #endregion PrivateMethods
 
     }
 

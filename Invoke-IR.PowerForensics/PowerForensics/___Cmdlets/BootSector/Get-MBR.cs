@@ -13,7 +13,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
     [Cmdlet(VerbsCommon.Get, "MBR", SupportsShouldProcess = true)]
     public class GetMBRCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
@@ -21,8 +20,21 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// for the MBR that will be returned.
         /// </summary> 
 
+        [Parameter(Mandatory = false, Position = 0, ParameterSetName = "Remote")]
+        public string ComputerName
+        {
+            get { return computerName; }
+            set { computerName = value; }
+        }
+        private string computerName;
+
+        /// <summary> 
+        /// This parameter provides the Path of the Drive  
+        /// for the MBR that will be returned.
+        /// </summary> 
+
         [Alias("DrivePath")]
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Mandatory = true, Position = 0,  ParameterSetName = "Local")]
         public string Path
         {
             get { return drivePath; }
@@ -55,21 +67,37 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             // Ensure cmdlet is being run as Administrator
             NativeMethods.checkAdmin();
-            // Check that drivePath is valid
-            NativeMethods.getDriveName(drivePath);
         } // End BeginProcessing
 
         protected override void ProcessRecord()
         {
-            
+            byte[] bytes = new byte[0x200];
 
-            if (asBytes)
+            if (this.MyInvocation.BoundParameters.ContainsKey("ComputerName"))
             {
-                WriteObject(MasterBootRecord.GetBytes(drivePath));
+                bytes = NativeMethods.readDrive(computerName, 60000, 0, 0x200);
+                if (asBytes)
+                {
+                    WriteObject(bytes);
+                }
+                else
+                {
+                    WriteObject(new MasterBootRecord(bytes));
+                }
             }
             else
             {
-                WriteObject(new MasterBootRecord(drivePath));
+                // Check that drivePath is valid
+                NativeMethods.getDriveName(drivePath);
+
+                if (asBytes)
+                {
+                    WriteObject(MasterBootRecord.GetBytes(drivePath));
+                }
+                else
+                {
+                    WriteObject(new MasterBootRecord(MasterBootRecord.GetBytes(drivePath)));
+                }
             }
         } // End ProcessRecord 
 

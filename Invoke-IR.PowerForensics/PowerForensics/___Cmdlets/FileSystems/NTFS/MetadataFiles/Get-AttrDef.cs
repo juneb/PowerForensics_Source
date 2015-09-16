@@ -47,7 +47,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         
         protected override void ProcessRecord()
         {
-            WriteObject(AttrDef.Get(volume));
+            WriteObject(AttrDef.GetInstances(volume));
         } // ProcessRecord 
 
         #endregion Cmdlet Overrides
