@@ -40,19 +40,18 @@ namespace InvokeIR.PowerForensics
 
         #region Constructor
 
-        internal MasterBootRecord(byte[] MBRBytes)
+        internal MasterBootRecord(byte[] bytes)
         {
             // Instantiate a byte array to hold 440 bytes (size of MBR Boot Code)
             // Copy MBR sub-array into mbrCode
-            byte[] mbrCode = new byte[440];
-            Array.Copy(MBRBytes, 0, mbrCode, 0, mbrCode.Length);
+            BootCode = NativeMethods.GetSubArray(bytes, 0x00, 0x1B8);
 
             // Check MBR Code Section against a list of known signatures
             #region MD5Signature
 
             string MD5Signature = null;
 
-            switch (Hash.Get(mbrCode, mbrCode.Length, "MD5"))
+            switch (Hash.Get(BootCode, BootCode.Length, "MD5"))
             {
                 case WINDOWS5_X:
                     MD5Signature = "Windows 5.X";
@@ -86,17 +85,12 @@ namespace InvokeIR.PowerForensics
             List<PartitionEntry> partitionList = new List<PartitionEntry>();
 
             // Set object properties
-            BootCode = mbrCode;
-            byte[] sigBytes = new byte[4];
-            Array.Copy(MBRBytes, 440, sigBytes, 0, sigBytes.Length);
-            DiskSignature = BitConverter.ToString(sigBytes).Replace("-", "");
+            DiskSignature = BitConverter.ToString(NativeMethods.GetSubArray(bytes, 0x1B8, 0x04)).Replace("-", "");
             MBRSignature = MD5Signature;
 
-            for (int i = 446; i <= 478; i += PARTITION_ENTRY_SIZE)
+            for (uint i = 0x1BE; i <= 0x1DE; i += PARTITION_ENTRY_SIZE)
             {
-                byte[] partitionBytes = new byte[PARTITION_ENTRY_SIZE];
-                Array.Copy(MBRBytes, i, partitionBytes, 0, partitionBytes.Length);
-                PartitionEntry entry = new PartitionEntry(partitionBytes);
+                PartitionEntry entry = new PartitionEntry(NativeMethods.GetSubArray(bytes, i, PARTITION_ENTRY_SIZE));
 
                 if (entry.SystemID != "EMPTY")
                 {
@@ -140,15 +134,11 @@ namespace InvokeIR.PowerForensics
 
             ulong offset = 512 * (ulong)startSector;
 
-            byte[] extendedMBR = NativeMethods.readDrive(streamToRead, offset, 512);
+            byte[] extendedMBR = NativeMethods.readDrive(streamToRead, offset, 0x200);
 
-            byte[] extendedPartitionBytes = new byte[PARTITION_ENTRY_SIZE];
-            Array.Copy(extendedMBR, 446, extendedPartitionBytes, 0, extendedPartitionBytes.Length);
-            pList.Add(new PartitionEntry(extendedPartitionBytes, startSector));
+            pList.Add(new PartitionEntry(NativeMethods.GetSubArray(extendedMBR, 0x1BE, PARTITION_ENTRY_SIZE), startSector));
 
-            byte[] secondEntryBytes = new byte[PARTITION_ENTRY_SIZE];
-            Array.Copy(extendedMBR, 462, secondEntryBytes, 0, secondEntryBytes.Length);
-            PartitionEntry secondEntry = new PartitionEntry(secondEntryBytes, startSector);
+            PartitionEntry secondEntry = new PartitionEntry(NativeMethods.GetSubArray(extendedMBR, 0x1CE, PARTITION_ENTRY_SIZE), startSector);
             pList.Add(secondEntry);
 
             if (secondEntry.SystemID == "MS_EXTENDED")

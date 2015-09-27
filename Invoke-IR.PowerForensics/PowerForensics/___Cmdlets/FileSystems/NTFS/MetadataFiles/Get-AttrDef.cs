@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -12,7 +12,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Get, "AttrDef")]
-    public class GetAttrDefCommand : Cmdlet
+    public class GetAttrDefCommand : PSCmdlet
     {
 
         #region Parameters
@@ -22,13 +22,25 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// AttrDef objects that will be returned.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(ParameterSetName = "Volume", Position = 0)]
         public string VolumeName
         {
             get { return volume; }
             set { volume = value; }
         }
         private string volume;
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Parameter(ParameterSetName = "Path")]
+        public string Path
+        {
+            get { return path; }
+            set { path = value; }
+        }
+        private string path;
 
         #endregion Parameters
 
@@ -47,7 +59,14 @@ namespace InvokeIR.PowerForensics.Cmdlets
         
         protected override void ProcessRecord()
         {
-            WriteObject(AttrDef.GetInstances(volume));
+            if (ParameterSetName == "Volume")
+            {
+                WriteObject(AttrDef.GetInstances(volume, AttrDef.ATTRDEF_INDEX));
+            }
+            else
+            {
+                WriteObject(AttrDef.GetInstances(path));
+            }
         } // ProcessRecord 
 
         #endregion Cmdlet Overrides

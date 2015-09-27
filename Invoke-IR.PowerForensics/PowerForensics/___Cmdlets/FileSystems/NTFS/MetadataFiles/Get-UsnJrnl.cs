@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetUsnJrnlCommand
     /// <summary> 
     /// This class implements the Get-UsnJrnl cmdlet. 
@@ -69,17 +68,15 @@ namespace InvokeIR.PowerForensics.Cmdlets
             else
             {
                 UsnJrnl[] usn = UsnJrnl.GetInstances(volume);
-                foreach (UsnJrnl u in usn)
-                {
-                    WriteObject(u);
-                }
+
+                WriteObject(usn, true);
             }
 
         } // ProcessRecord 
 
         protected override void EndProcessing()
         {
-            GC.Collect();
+            
         }
 
         #endregion Cmdlet Overrides
@@ -87,5 +84,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetUsnJrnlCommand class.
 
     #endregion GetUsnJrnlCommand
-
 }

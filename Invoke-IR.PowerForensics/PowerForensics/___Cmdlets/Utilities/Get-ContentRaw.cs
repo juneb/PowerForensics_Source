@@ -3,7 +3,7 @@ using System.Text;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -142,13 +142,13 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 string volLetter = filePath.Split('\\')[0];
                 string volume = @"\\.\" + volLetter;
                 indexNo = (int)IndexEntry.Get(filePath).RecordNumber;
-                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, indexNo), volume, true).GetBytes(volume);
+                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, indexNo), volume, true).GetBytes();
             }
 
             else if(this.MyInvocation.BoundParameters.ContainsKey("IndexNumber"))
             {
                 NativeMethods.getVolumeName(ref volume);
-                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes(volume);
+                contentArray = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes();
             }
 
             if (asBytes)

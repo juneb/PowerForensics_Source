@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
+using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     class CommonHeader
     {
@@ -107,6 +108,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Constants
 
+        #region StaticMethods
+
         internal static Attr Get(byte[] bytes, string volume)
         {
             #region CommonHeader
@@ -117,31 +120,16 @@ namespace InvokeIR.PowerForensics.NTFS
             }
 
             // Instantiate a Common Header Object
-            byte[] commonHeaderBytes = new byte[COMMONHEADERSIZE];
-            Array.Copy(bytes, 0, commonHeaderBytes, 0, commonHeaderBytes.Length);
-            CommonHeader commonHeader = new CommonHeader(commonHeaderBytes);
+            CommonHeader commonHeader = new CommonHeader(bytes);
 
             #endregion CommonHeader
 
-            #region AttributeName
-            
-            // Get byte[] representing the Attribute Name
-            int nameLength = commonHeader.NameLength * 2;
-            byte[] attributeNameBytes = new byte[nameLength];
-            try
-            {
-                Array.Copy(bytes, commonHeader.NameOffset, attributeNameBytes, 0, attributeNameBytes.Length);
-            }
-            catch
-            {
-                throw new Exception("Error creating attributeNameBytes array");
-            }
+            uint NameLength = (uint)commonHeader.NameLength * 2;
 
             // Decode Name byte[] into Unicode String
-            string attributeName = Encoding.Unicode.GetString(attributeNameBytes);
-
-            #endregion AttributeName
-
+            string attributeName = Encoding.Unicode.GetString(bytes, (int)commonHeader.NameOffset, (int)NameLength);
+            
+            // Determine if Attribute is Resident or NonResident
             bool resident = (bytes[8] == 0x00);
 
             #region ResidentAttribute
@@ -152,33 +140,15 @@ namespace InvokeIR.PowerForensics.NTFS
                 #region ResidentHeader
                 
                 // Instantiate a Resident Header Object
-                byte[] residentHeaderBytes = new byte[RESIDENTHEADERSIZE];
-                try 
-                {
-                    Array.Copy(bytes, COMMONHEADERSIZE, residentHeaderBytes, 0, residentHeaderBytes.Length);
-                }
-                catch
-                {
-                    throw new Exception("Error creating residentHeaderBytes array");
-                }
-                ResidentHeader residentHeader = new ResidentHeader(residentHeaderBytes, commonHeader);
+                ResidentHeader residentHeader = new ResidentHeader(NativeMethods.GetSubArray(bytes, COMMONHEADERSIZE, RESIDENTHEADERSIZE), commonHeader);
 
                 #endregion ResidentHeader
 
                 #region AttributeBytes
 
                 // Create a byte[] representing the attribute itself
-                int headerSize = COMMONHEADERSIZE + RESIDENTHEADERSIZE + nameLength;
-
-                byte[] attributeBytes = new byte[commonHeader.TotalSize - headerSize];
-                try 
-                {
-                    Array.Copy(bytes, headerSize, attributeBytes, 0, attributeBytes.Length);
-                }
-                catch
-                {
-                    throw new Exception("Problem creating attributeBytes array");
-                }
+                int headerSize = COMMONHEADERSIZE + RESIDENTHEADERSIZE + (int)NameLength;
+                byte[] attributeBytes = NativeMethods.GetSubArray(bytes, (uint)headerSize, commonHeader.TotalSize - (uint)headerSize);
 
                 #endregion AttributeBytes
                 
@@ -188,6 +158,9 @@ namespace InvokeIR.PowerForensics.NTFS
                 {
                     case (Int32)Attr.ATTR_TYPE.STANDARD_INFORMATION:
                         return new StandardInformation(residentHeader, attributeBytes, attributeName);
+
+                    case (Int32)Attr.ATTR_TYPE.ATTRIBUTE_LIST:
+                        return new AttributeList(residentHeader, attributeBytes, attributeName);
 
                     case (Int32)Attr.ATTR_TYPE.FILE_NAME:
                         return new FileName(residentHeader, attributeBytes, attributeName);
@@ -223,48 +196,30 @@ namespace InvokeIR.PowerForensics.NTFS
                 #region NonResidentHeader
 
                 // Instantiate a Resident Header Object
-                byte[] nonresidentHeaderBytes = new byte[NONRESIDENTHEADERSIZE];
-                try 
-                {
-                    Array.Copy(bytes, COMMONHEADERSIZE, nonresidentHeaderBytes, 0, nonresidentHeaderBytes.Length);
-                }
-                catch
-                {
-                    throw new Exception("Error creating nonresidentHeaderBytes array");
-                }
-                NonResidentHeader nonresidentHeader = new NonResidentHeader(nonresidentHeaderBytes, commonHeader);
+                NonResidentHeader nonresidentHeader = new NonResidentHeader(NativeMethods.GetSubArray(bytes, COMMONHEADERSIZE, NONRESIDENTHEADERSIZE), commonHeader);
 
                 #endregion NonResidentHeader
 
-                #region DataRunBytes
+                #region DataRun
 
                 int headerSize = 0;
 
                 if (commonHeader.NameOffset != 0) 
                 {
-                    headerSize = commonHeader.NameOffset + nameLength + (nameLength % 8);
+                    headerSize = commonHeader.NameOffset + (int)NameLength + ((int)NameLength % 8);
                 }
                 else
                 {
                     headerSize = COMMONHEADERSIZE + NONRESIDENTHEADERSIZE;
                 }
 
-                byte[] dataRunBytes = new byte[commonHeader.TotalSize - headerSize];
-                
-                try
-                {
-                    Array.Copy(bytes, headerSize, dataRunBytes, 0, dataRunBytes.Length);
-                }
-                catch
-                {
-                    throw new Exception("Error creating dataRunBytes array");
-                }
+                return new NonResident(nonresidentHeader, NativeMethods.GetSubArray(bytes, (uint)headerSize, commonHeader.TotalSize - (uint)headerSize), attributeName);
 
-                #endregion DataRunBytes
-
-                return new NonResident(nonresidentHeader, dataRunBytes, attributeName);
+                #endregion DataRun
             }
             #endregion NonResidentAttribute
         }
+
+        #endregion StaticMethods
     }
 }

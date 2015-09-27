@@ -2,7 +2,7 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -93,7 +93,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             // 
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, indexNumber), volume, true);
 
-            byte[] fileBytes = record.GetBytes(volume);
+            byte[] fileBytes = record.GetBytes();
 
             // Open file for writing
             FileStream streamToWrite = new FileStream(destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);

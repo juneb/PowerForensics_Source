@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.ext3
+namespace InvokeIR.PowerForensics.Ext3
 {
     public class Inode
     {
@@ -16,7 +16,7 @@ namespace InvokeIR.PowerForensics.ext3
         #region Enums
 
         [FlagsAttribute]
-        internal enum I_MODE
+        public enum I_MODE
         {
             // Access Rights
             EXT2_S_IXOTH = 0x0001, //Others Execute
@@ -45,7 +45,7 @@ namespace InvokeIR.PowerForensics.ext3
         }
 
         [FlagsAttribute]
-        internal enum I_FLAGS : uint
+        public enum I_FLAGS : uint
         {
             EXT4_SECRM_FL = 0x00000001, //Secure Deletion
             EXT4_UNRM_FL = 0x00000002, //Record for Undelete
@@ -91,7 +91,7 @@ namespace InvokeIR.PowerForensics.ext3
         public readonly ushort GroupId;
         public readonly ushort LinksCount;
         public readonly uint BlockCount;
-        public readonly string Flags;
+        public readonly I_FLAGS Flags;
         public readonly Extent[] Blocks;
         public readonly uint Generation;
         public readonly uint FileACL;
@@ -122,31 +122,14 @@ namespace InvokeIR.PowerForensics.ext3
             DeletedTime = NativeMethods.FromUnixTime(BitConverter.ToUInt32(bytes, 0x14));
             GroupId = BitConverter.ToUInt16(bytes, 0x18);
             LinksCount = BitConverter.ToUInt16(bytes, 0x1A);
-            
-            // Work out based on descritpion
             BlockCount = BitConverter.ToUInt32(bytes, 0x1C);
-            
-            Flags = ((I_FLAGS)BitConverter.ToUInt32(bytes, 0x20)).ToString();
-
-            #region Blocks
-
-            byte[] blockBytes = new byte[0x3C];
-            Array.Copy(bytes, 0x28, blockBytes, 0, blockBytes.Length);
-            Blocks = Extent.GetInstances(blockBytes);
-
-            #endregion Blocks
-
+            Flags = (I_FLAGS)BitConverter.ToUInt32(bytes, 0x20);
+            Blocks = Extent.GetInstances(NativeMethods.GetSubArray(bytes, 0x28, 0x3C));
             Generation = BitConverter.ToUInt32(bytes, 0x64);
             FileACL = BitConverter.ToUInt32(bytes, 0x68);
             DirectoryACL = BitConverter.ToUInt32(bytes, 0x6C);
-            
             // Need to work on this
-            #region OSD2
-            byte[] osd2Bytes = new byte[12];
-            Array.Copy(bytes, 0x74, osd2Bytes, 0, osd2Bytes.Length);
-            OSD2 = osd2Bytes;
-            #endregion OSD2
-
+            OSD2 = NativeMethods.GetSubArray(bytes, 0x74, 0x0C);
             ExtraSize = BitConverter.ToUInt16(bytes, 0x80);
             Checksum = BitConverter.ToUInt16(bytes, 0x82);
             ChangeTimeExtra = BitConverter.ToUInt32(bytes, 0x84);

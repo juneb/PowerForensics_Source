@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Text;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Registry
 {
+    #region HiveBinHeaderClass
+
     public class HiveBinHeader
     {
         #region Properties
@@ -18,26 +21,22 @@ namespace InvokeIR.PowerForensics.Registry
 
         internal HiveBinHeader(byte[] bytes)
         {
-            #region Signature
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x04);
 
-            byte[] sigBytes = new byte[4];
-            Array.Copy(bytes, 0, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes);
-
-            if (Signature != "hbin")
+            if (Signature == "hbin")
+            {
+                hBinOffset = BitConverter.ToUInt32(bytes, 0x04);
+                hBinSize = BitConverter.ToUInt32(bytes, 0x08);
+            }
+            else
             {
                 throw new Exception("Invalid HiveBinHeader found.");
             }
-
-            #endregion Signature
-
-            hBinOffset = BitConverter.ToUInt32(bytes, 0x04);
-            hBinSize = BitConverter.ToUInt32(bytes, 0x08);
         }
 
         #endregion Constructors
 
-        #region PublicMethods
+        #region StaticMethods
         
         public static HiveBinHeader[] GetInstances(string path)
         {
@@ -45,12 +44,10 @@ namespace InvokeIR.PowerForensics.Registry
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry entry = IndexEntry.Get(path);
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
-            byte[] bytes = record.GetBytes(volume);
+            byte[] bytes = record.GetBytes();
 
             // Registry Header
-            byte[] headerBytes = new byte[0x200];
-            Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
-            RegistryHeader header = new RegistryHeader(headerBytes);
+            RegistryHeader header = new RegistryHeader(NativeMethods.GetSubArray(bytes, 0x00, 0x200));
 
             // Hive Bin Headers
             HiveBinHeader[] headerArray = new HiveBinHeader[header.HiveBinsDataSize / 0x1000];
@@ -58,8 +55,7 @@ namespace InvokeIR.PowerForensics.Registry
             uint i = 0x1000;
             while (i < header.HiveBinsDataSize + 0x1000)
             {
-                Array.Copy(bytes, i, hbinHeaderBytes, 0, hbinHeaderBytes.Length);
-                HiveBinHeader hbinHeader = new HiveBinHeader(hbinHeaderBytes);
+                HiveBinHeader hbinHeader = new HiveBinHeader(NativeMethods.GetSubArray(bytes, i, 0x20));
                 headerArray[((i / 0x1000) - 1)] = hbinHeader;
                 i += hbinHeader.hBinSize;
             }
@@ -67,6 +63,8 @@ namespace InvokeIR.PowerForensics.Registry
             return headerArray;
         }
 
-        #endregion PublicMethods
+        #endregion StaticMethods
     }
+
+    #endregion HiveBinHeaderClass
 }

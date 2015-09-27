@@ -2,20 +2,18 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetBadClusterCommand
     /// <summary> 
     /// This class implements the Get-BadCluster cmdlet. 
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Get, "BadCluster")]
-    public class GetBadClusterCommand : Cmdlet
+    public class GetBadClusterCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
@@ -23,7 +21,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// AttrDef objects that will be returned.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "None")]
         public string VolumeName
         {
             get { return volume; }
@@ -31,6 +29,20 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private string volume;
 
+        /// <summary> 
+        /// This parameter provides the the path of the Registry Hive to parse.
+        /// </summary> 
+
+        /*[Alias("FilePath")]
+        [Parameter(Mandatory = false, Position = 0)]
+        public string Path
+        {
+            get { return filePath; }
+            set { filePath = value; }
+        }
+        private string filePath;
+        */
+        
         #endregion Parameters
 
         #region Cmdlet Overrides
@@ -54,10 +66,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             IntPtr hVolume = NativeMethods.getHandle(volume);
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
-            // Get the $J Data attribute (contains UsnJrnl details
             NonResident Bad = BadClus.GetBadStream(BadClus.GetFileRecord(volume));
-
-            ulong cluster = 0;
 
             foreach (DataRun d in Bad.DataRun)
             {
@@ -80,5 +89,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetBadClusterCommand class. 
 
     #endregion GetBadClusterCommand
-
 }

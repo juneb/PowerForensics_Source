@@ -2,7 +2,7 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -61,7 +61,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the $Max Data attribute (contains UsnJrnl details)
             Data Max = UsnJrnl.GetMaxStream(UsnJrnl.GetFileRecord(volume));

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region IndexRootClass
 
@@ -16,7 +17,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Enums
 
         [FlagsAttribute]
-        enum INDEX_ROOT_FLAGS
+        public enum INDEX_ROOT_FLAGS
         {
             INDEX_ROOT_ONLY = 0x00,
             INDEX_ALLOCATION = 0x01
@@ -27,7 +28,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Properties
 
         // Index Root
-        public readonly string AttributeType;
+        public readonly ATTR_TYPE AttributeType;
         public readonly uint CollationSortingRule;
         public readonly uint IndexSize;
         public readonly byte ClustersPerIndexRecord;
@@ -36,7 +37,7 @@ namespace InvokeIR.PowerForensics.NTFS
         private readonly uint StartOffset;
         private readonly uint TotalSize;
         private readonly uint AllocatedSize;
-        public readonly string Flags;
+        public readonly INDEX_ROOT_FLAGS Flags;
         
         // IndexEntry[]
         private readonly byte[] EntryBytes;
@@ -45,12 +46,13 @@ namespace InvokeIR.PowerForensics.NTFS
         #endregion Properties
 
         #region Constructors
+        
         internal IndexRoot(ResidentHeader header, byte[] attrBytes, string attrName)
         {
             #region ResidentHeader
 
             // Get ResidentHeader (includes Common Header)
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
@@ -60,7 +62,7 @@ namespace InvokeIR.PowerForensics.NTFS
             #region IndexRoot
 
             // IndexRoot
-            AttributeType = Enum.GetName(typeof(ATTR_TYPE), BitConverter.ToUInt32(attrBytes, 0x00));
+            AttributeType = (ATTR_TYPE)BitConverter.ToUInt32(attrBytes, 0x00);
             CollationSortingRule = BitConverter.ToUInt32(attrBytes, 0x04);
             IndexSize = BitConverter.ToUInt32(attrBytes, 0x08);
             ClustersPerIndexRecord = attrBytes[0x0C];
@@ -73,7 +75,7 @@ namespace InvokeIR.PowerForensics.NTFS
             StartOffset = (BitConverter.ToUInt32(attrBytes, 0x10) + 0x10);  // Add 0x10 bytes to start offset to account for its offset
             TotalSize = BitConverter.ToUInt32(attrBytes, 0x14);
             AllocatedSize = BitConverter.ToUInt32(attrBytes, 0x18);
-            Flags = ((INDEX_ROOT_FLAGS)BitConverter.ToUInt32(attrBytes, 0x1C)).ToString();
+            Flags = ((INDEX_ROOT_FLAGS)BitConverter.ToUInt32(attrBytes, 0x1C));
             
             #endregion IndexHeader
 
@@ -81,20 +83,13 @@ namespace InvokeIR.PowerForensics.NTFS
 
             if(TotalSize > StartOffset){
                 // IndexEntry[]
-                byte[] EntryBytes = new byte[TotalSize - StartOffset];
-                try
-                {
-                    Array.Copy(attrBytes, StartOffset, EntryBytes, 0, EntryBytes.Length);
-                }
-                catch
-                {   
-                    throw new Exception("Error copying EntryBytes");
-                }
+                byte[] EntryBytes = NativeMethods.GetSubArray(attrBytes, StartOffset, TotalSize - StartOffset);
+
 
                 // Iterate through IndexEntry object
                 int indexEntryOffset = 0;
 
-                if (AttributeType == "FILE_NAME")
+                if (AttributeType == ATTR_TYPE.FILE_NAME)
                 {
                     // Instantiate empty IndexEntry List
                     List<IndexEntry> entryList = new List<IndexEntry>();
@@ -104,12 +99,8 @@ namespace InvokeIR.PowerForensics.NTFS
                         // Creat byte array representing IndexEntry Object
                         int indexEntrySizeOffset = indexEntryOffset + 0x08;
 
-                        ushort indexEntrySize = BitConverter.ToUInt16(EntryBytes, indexEntrySizeOffset);
-                        byte[] indexEntryBytes = new byte[indexEntrySize];
-                        Array.Copy(EntryBytes, indexEntryOffset, indexEntryBytes, 0, indexEntryBytes.Length);
-                
                         // Instantiate an IndexEntry Object
-                        IndexEntry indexEntry = new IndexEntry(indexEntryBytes);
+                        IndexEntry indexEntry = new IndexEntry(NativeMethods.GetSubArray(EntryBytes, (uint)indexEntryOffset, (uint)BitConverter.ToUInt16(EntryBytes, indexEntrySizeOffset)));
 
                         // Add IndexEntry Object to FileName List
                         entryList.Add(indexEntry);
@@ -123,7 +114,10 @@ namespace InvokeIR.PowerForensics.NTFS
             }
             #endregion IndexEntryArray
         }
+
         #endregion Constuctors
+
     }
+
     #endregion IndexRootClass
 }

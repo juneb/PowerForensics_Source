@@ -4,9 +4,8 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
-
     #region UsnJrnlClass
 
     public class UsnJrnl
@@ -14,7 +13,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Enums
 
         [FlagsAttribute]
-        internal enum USN_REASON : uint
+        public enum USN_REASON : uint
         {
             DATA_OVERWRITE = 0x00000001,
             DATA_EXTEND = 0x00000002,
@@ -40,7 +39,7 @@ namespace InvokeIR.PowerForensics.NTFS
         }
 
         [FlagsAttribute]
-        private enum USN_SOURCE : uint
+        public enum USN_SOURCE : uint
         {
             DATA_MANAGEMENT = 0x00000001,
             AUXILIARY_DATA = 0x00000002,
@@ -51,48 +50,50 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #region Properties
 
+        private readonly static Version USN40Version = new Version(4, 0);
+        
+        public readonly string VolumePath;
         public readonly Version Version;
         public readonly ulong RecordNumber;
-        //public readonly ushort FileSequenceNumber;
+        public readonly ushort FileSequenceNumber;
         public readonly ulong ParentFileRecordNumber;
-        //public readonly ushort ParentFileSequenceNumber;
+        public readonly ushort ParentFileSequenceNumber;
         public readonly ulong Usn;
         public readonly DateTime TimeStamp;
-        public readonly string Reason;
-        public readonly string SourceInfo;
+        public readonly USN_REASON Reason;
+        public readonly USN_SOURCE SourceInfo;
         public readonly uint SecurityId;
-        public readonly string FileAttributes;
+        public readonly StandardInformation.ATTR_STDINFO_PERMISSION FileAttributes;
         public readonly string FileName;
 
         #endregion Properties
 
         #region Constructors
 
-        internal UsnJrnl(byte[] bytes, ref int offset)
+        internal UsnJrnl(byte[] bytes, string volume, ref int offset)
         {
             uint RecordLength = RecordLength = BitConverter.ToUInt32(bytes, (0x00 + offset));
-            ushort MajorVersion = BitConverter.ToUInt16(bytes, (0x04 + offset));
-            ushort MinorVersion = BitConverter.ToUInt16(bytes, (0x06 + offset));
-            Version = new System.Version(MajorVersion, MinorVersion);
+            VolumePath = volume;
+            Version = new System.Version(BitConverter.ToUInt16(bytes, (0x04 + offset)), BitConverter.ToUInt16(bytes, (0x06 + offset)));
             RecordNumber = (BitConverter.ToUInt64(bytes, (0x08 + offset)) & 0x0000FFFFFFFFFFFF);
-            //FileSequenceNumber = (ushort)(BitConverter.ToUInt64(bytes, (0x08 + offset)) & 0xFFFF000000000000);
+            FileSequenceNumber = ParentFileSequenceNumber = BitConverter.ToUInt16(bytes, (0x0E + offset));
             ParentFileRecordNumber = (BitConverter.ToUInt64(bytes, (0x10 + offset)) & 0x0000FFFFFFFFFFFF);
-            //ParentFileSequenceNumber = (ushort)(BitConverter.ToUInt64(bytes, (0x10 + offset)) & 0xFFFF000000000000);
+            ParentFileSequenceNumber = BitConverter.ToUInt16(bytes, (0x16 + offset));
             Usn = BitConverter.ToUInt64(bytes, (0x18 + offset));
             TimeStamp = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, (0x20 + offset)));
-            Reason = ((USN_REASON)BitConverter.ToUInt32(bytes, (0x28 + offset))).ToString();
-            SourceInfo = ((USN_SOURCE)BitConverter.ToUInt32(bytes, (0x2C + offset))).ToString();
+            Reason = ((USN_REASON)BitConverter.ToUInt32(bytes, (0x28 + offset)));
+            SourceInfo = ((USN_SOURCE)BitConverter.ToUInt32(bytes, (0x2C + offset)));
             SecurityId = BitConverter.ToUInt32(bytes, (0x30 + offset));
-            FileAttributes = ((StandardInformation.ATTR_STDINFO_PERMISSION)BitConverter.ToUInt32(bytes, (0x34 + offset))).ToString();
+            FileAttributes = ((StandardInformation.ATTR_STDINFO_PERMISSION)BitConverter.ToUInt32(bytes, (0x34 + offset)));
             ushort fileNameLength = BitConverter.ToUInt16(bytes, (0x38 + offset));
             ushort fileNameOffset = BitConverter.ToUInt16(bytes, (0x3A + offset));
-            byte[] fileNameBytes = new byte[fileNameLength];
-            Array.Copy(bytes, (0x3C + offset), fileNameBytes, 0, fileNameBytes.Length);
-            FileName = Encoding.Unicode.GetString(fileNameBytes);
+            FileName = Encoding.Unicode.GetString(bytes, 0x3C + offset, fileNameLength); 
             offset += (int)RecordLength;
         }
 
         #endregion Constructors
+
+        #region StaticMethods
 
         public static UsnJrnl Get(string volume, ulong usn)
         {
@@ -104,7 +105,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));
@@ -149,10 +150,10 @@ namespace InvokeIR.PowerForensics.NTFS
                         {
                             // Copy current cluster bytes to clusterBytes variable
                             Array.Copy(fragmentBytes, ((long)j * VBR.BytesPerCluster), clusterBytes, 0, clusterBytes.Length);
-                            //Console.WriteLine("{0}", usnOffset);
+
                             // Parse desired UsnJrnl entry from cluster
                             int offset = (int)usnOffset;
-                            return new UsnJrnl(clusterBytes, ref offset);
+                            return new UsnJrnl(clusterBytes, volume, ref offset);
                         }
                     }
                 }
@@ -170,7 +171,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));
@@ -202,8 +203,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
                             try
                             {
-                                UsnJrnl usn = new UsnJrnl(clusterBytes, ref offset);
-                                if (usn.Version > new Version(4, 0))
+                                UsnJrnl usn = new UsnJrnl(clusterBytes, volume, ref offset);
+                                if (usn.Version > USN40Version)
                                 {
                                     break;
                                 }
@@ -251,6 +252,40 @@ namespace InvokeIR.PowerForensics.NTFS
             }
             throw new Exception("No $MAX attribute found.");
         }
+
+        #endregion StaticMethods
+
+        #region InstanceMethods
+
+        public FileRecord GetFileRecord()
+        {
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.RecordNumber), this.VolumePath);
+
+            if (record.SequenceNumber == this.FileSequenceNumber)
+            {
+                return record;
+            }
+            else
+            {
+                throw new Exception("Desired FileRecord has been overwritten");
+            }
+        }
+
+        public FileRecord GetParentFileRecord()
+        {
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.ParentFileRecordNumber), this.VolumePath);
+
+            if (record.SequenceNumber == this.ParentFileSequenceNumber)
+            {
+                return record;
+            }
+            else
+            {
+                throw new Exception("Desired FileRecord has been overwritten");
+            }
+        }
+
+        #endregion InstanceMethods
     }
 
     #endregion USNJrnlClass
@@ -282,5 +317,4 @@ namespace InvokeIR.PowerForensics.NTFS
     }
 
     #endregion UsnJrnlDetailClass
-
 }

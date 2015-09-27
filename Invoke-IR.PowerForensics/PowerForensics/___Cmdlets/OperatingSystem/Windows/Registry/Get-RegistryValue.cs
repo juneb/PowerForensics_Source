@@ -4,7 +4,6 @@ using InvokeIR.PowerForensics.Registry;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetRegistryValueCommand
     /// <summary> 
     /// This class implements the Get-RegistryValue cmdlet. 
@@ -94,7 +93,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 }
                 else
                 {
-                    WriteObject(ValueKey.GetInstances(path, key));
+                    foreach (ValueKey vk in ValueKey.GetInstances(path, key))
+                    {
+                        WriteObject(vk);
+                    }
                 }
             }
 

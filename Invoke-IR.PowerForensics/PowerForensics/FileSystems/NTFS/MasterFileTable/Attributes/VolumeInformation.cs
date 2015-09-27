@@ -1,13 +1,15 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region VolumeInformationClass
+
     public class VolumeInformation : Attr
     {
         #region Enums
 
         [FlagsAttribute]
-        enum ATTR_VOLINFO
+        public enum ATTR_VOLINFO
         {
             FLAG_DIRTY = 0x0001,	// Dirty
             FLAG_RLF = 0x0002,	    // Resize logfile
@@ -23,7 +25,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Properties
 
         public readonly Version Version;
-        public readonly string Flags;
+        public readonly ATTR_VOLINFO Flags;
 
         #endregion Properties
 
@@ -31,18 +33,17 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal VolumeInformation(ResidentHeader header, byte[] attrBytes, string attrName)
         {
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
 
-            uint MajorVersion = attrBytes[0x08];
-            uint MinorVersion = attrBytes[0x09];
-            Version = new Version((int)MajorVersion, (int)MinorVersion);
-
-            Flags = ((ATTR_VOLINFO)BitConverter.ToInt16(attrBytes, 0x0A)).ToString();
+            Version = new Version(attrBytes[0x08], attrBytes[0x09]);
+            Flags = (ATTR_VOLINFO)BitConverter.ToInt16(attrBytes, 0x0A);
         }
 
         #endregion Constructors
     }
+
+    #endregion VolumeInformationClass
 }

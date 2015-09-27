@@ -2,6 +2,8 @@
 
 namespace InvokeIR.PowerForensics.Registry
 {
+    #region ValuesListClass
+    
     public class ValuesList : Cell
     {
         #region Properties
@@ -41,6 +43,7 @@ namespace InvokeIR.PowerForensics.Registry
         }
 
         #endregion Constructors
-
     }
+
+    #endregion ValuesListClass
 }

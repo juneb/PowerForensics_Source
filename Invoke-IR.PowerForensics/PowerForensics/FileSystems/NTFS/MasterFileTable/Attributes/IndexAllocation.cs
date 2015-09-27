@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region IndexAllocationClass
+
     public class IndexAllocation : Attr
     {
         #region Properties
@@ -17,7 +20,7 @@ namespace InvokeIR.PowerForensics.NTFS
         internal IndexAllocation(NonResident header, string volume)
         {
             // Headers
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = header.NameString;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
@@ -44,25 +47,18 @@ namespace InvokeIR.PowerForensics.NTFS
                 IndexBlock.ApplyFixup(ref bytes, offset);
 
                 // Instantiate IndexBlock Object (Header)
-                byte[] indexBlockBytes = new byte[indexBlockSize];
-                Array.Copy(bytes, offset, indexBlockBytes, 0, indexBlockBytes.Length);
-                IndexBlock indexBlock = new IndexBlock(indexBlockBytes);
+                IndexBlock indexBlock = new IndexBlock(NativeMethods.GetSubArray(bytes, (uint)offset, (uint)indexBlockSize));
 
                 // Create byte array for IndexEntry object
                 // 0x18 represents the offset of the EntryOffset value, so it must be added on
-                byte[] indexEntryBytes = new byte[indexBlock.TotalEntrySize];
-                Array.Copy(bytes, offset + indexBlock.EntryOffset + 0x18, indexEntryBytes, 0, indexEntryBytes.Length);
+                byte[] indexEntryBytes = NativeMethods.GetSubArray(bytes, (uint)offset + indexBlock.EntryOffset + 0x18, indexBlock.TotalEntrySize);
                 
                 int entryOffset = 0;
 
                 do
                 {
-                    // Create byte array representing current entry using the IndexEntry.Size value
-                    byte[] entryBytes = new byte[BitConverter.ToUInt16(indexEntryBytes, entryOffset + 0x08)];
-                    Array.Copy(indexEntryBytes, entryOffset, entryBytes, 0, entryBytes.Length);
-
                     // Instantiate an IndexEntry Object
-                    IndexEntry indexEntry = new IndexEntry(entryBytes);
+                    IndexEntry indexEntry = new IndexEntry(NativeMethods.GetSubArray(indexEntryBytes, (uint)entryOffset, BitConverter.ToUInt16(indexEntryBytes, entryOffset + 0x08)));
                     entryOffset += indexEntry.Size;
 
                     // Check if entry is the last in the Entry array
@@ -81,7 +77,11 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Constructors
     }
-    
+
+    #endregion IndexAllocationClass
+
+    #region IndexBlockClass
+
     internal class IndexBlock
     {
         #region Properties
@@ -107,22 +107,11 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal IndexBlock(byte[] bytes)
         {
-            #region Signature
-            byte[] sigBytes = new byte[0x04];
-            Array.Copy(bytes, 0, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes);
-            #endregion Signature
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x04);
             OffsetOfUS = BitConverter.ToUInt16(bytes, 0x04);
             SizeOfUS = BitConverter.ToUInt16(bytes, 0x06);
-            #region UpdateSequenceNumber
-            byte[] usnBytes = new byte[2];
-            Array.Copy(bytes, OffsetOfUS, usnBytes, 0, usnBytes.Length);
-            UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
-            #endregion UpdateSequenceNumber
-            #region UpdateSequenceArray
-            UpdateSequenceArray = new byte[(2 * SizeOfUS) - 2];
-            Array.Copy(bytes, (OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
-            #endregion UpdateSequenceArray
+            UpdateSequenceNumber = BitConverter.ToUInt16(bytes, OffsetOfUS);
+            UpdateSequenceArray = NativeMethods.GetSubArray(bytes, (uint)(OffsetOfUS + 2), (uint)(2 * SizeOfUS) - 2);
             LSN = BitConverter.ToUInt64(bytes, 0x08);
             VCN = BitConverter.ToUInt64(bytes, 0x10);
 
@@ -135,6 +124,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Constructors
 
+        #region StaticMethods
+
         internal static void ApplyFixup(ref byte[] bytes, int offset)
         {
             // Take UpdateSequence into account
@@ -143,12 +134,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
             if (ussize != 0)
             {
-                byte[] usnBytes = new byte[2];
-                Array.Copy(bytes, usoffset + offset, usnBytes, 0, usnBytes.Length);
-                ushort UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
-
-                byte[] UpdateSequenceArray = new byte[(2 * ussize)];
-                Array.Copy(bytes, (usoffset + 2 + offset), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+                ushort UpdateSequenceNumber = BitConverter.ToUInt16(bytes, usoffset + offset);
+                byte[] UpdateSequenceArray = NativeMethods.GetSubArray(bytes, (uint)(usoffset + 2 + offset), (uint)(2 * ussize));
 
                 bytes[0x1FE + offset] = UpdateSequenceArray[0];
                 bytes[0x1FF + offset] = UpdateSequenceArray[1];
@@ -168,5 +155,9 @@ namespace InvokeIR.PowerForensics.NTFS
                 bytes[0xFFF + offset] = UpdateSequenceArray[15];
             }
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion IndexBlockClass
 }

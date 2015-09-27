@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     public class BadClus
     {
@@ -27,6 +27,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #endregion Constructors
 
+        #region StaticMethods
+        
         internal static FileRecord GetFileRecord(string volume)
         {
             return new FileRecord(FileRecord.GetRecordBytes(volume, BADCLUS_INDEX), volume, true);
@@ -43,5 +45,7 @@ namespace InvokeIR.PowerForensics.NTFS
             }
             throw new Exception("No $Bad attribute found.");
         }
+
+        #endregion StaticMethods
     }
 }

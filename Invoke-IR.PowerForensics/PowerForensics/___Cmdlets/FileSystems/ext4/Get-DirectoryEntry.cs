@@ -2,7 +2,7 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.ext3;
+using InvokeIR.PowerForensics.Ext3;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {

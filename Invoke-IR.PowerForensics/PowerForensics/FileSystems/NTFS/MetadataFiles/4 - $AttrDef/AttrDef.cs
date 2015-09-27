@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region AttrDefClass
 
@@ -12,14 +12,14 @@ namespace InvokeIR.PowerForensics.NTFS
     {
         #region Constants
 
-        public const int ATTRDEF_INDEX = 4;
+        internal const int ATTRDEF_INDEX = 4;
 
         #endregion Constants
 
         #region Enums
 
         [FlagsAttribute]
-        internal enum ATTR_DEF_ENTRY
+        public enum ATTR_DEF_ENTRY
         {
             INDEX = 0x02,
             ALWAYS_RESIDENT = 0x40,
@@ -34,7 +34,7 @@ namespace InvokeIR.PowerForensics.NTFS
         public readonly uint Type;
         public readonly uint DisplayRule;
         public readonly string CollationRule;
-        public readonly string Flags;
+        public readonly ATTR_DEF_ENTRY Flags;
         public readonly ulong MinSize;
         public readonly ulong MaxSize;
 
@@ -44,9 +44,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal AttrDef(byte[] bytes)
         {
-            byte[] nameBytes = new byte[0x80];
-            Array.Copy(bytes, 0, nameBytes, 0, nameBytes.Length);
-            Name = Encoding.Unicode.GetString(nameBytes).TrimEnd('\0');
+            Name = Encoding.Unicode.GetString(bytes, 0x00, 0x80).TrimEnd('\0');
             Type = BitConverter.ToUInt32(bytes, 0x80);
             DisplayRule = BitConverter.ToUInt32(bytes, 0x84);
             #region CollationRuleSwitch
@@ -80,7 +78,7 @@ namespace InvokeIR.PowerForensics.NTFS
             }
 
             #endregion CollationRuleSwitch
-            Flags = ((ATTR_DEF_ENTRY)BitConverter.ToUInt32(bytes, 0x8C)).ToString();
+            Flags = (ATTR_DEF_ENTRY)BitConverter.ToUInt32(bytes, 0x8C);
             MinSize = BitConverter.ToUInt64(bytes, 0x90);
             MaxSize = BitConverter.ToUInt64(bytes, 0x98);
         }
@@ -89,22 +87,28 @@ namespace InvokeIR.PowerForensics.NTFS
 
         #region PublicMethods
 
-        public static AttrDef[] GetInstances(string volume)
+        public static AttrDef[] GetInstances(string path)
         {
-            byte[] bytes = (new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume, true)).GetBytes(volume);
+            string volume = "\\\\.\\" + path.Split('\\')[0];
+            IndexEntry indx = IndexEntry.Get(path);
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, (int)indx.RecordNumber), volume).GetBytes());
+        }
 
+        internal static AttrDef[] GetInstances(string volume, int index)
+        {
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes());
+        }
+
+        internal static AttrDef[] GetInstances(byte[] bytes)
+        {
             // Instantiate a List of AttrDef objects for output
             List<AttrDef> adList = new List<AttrDef>();
 
             // Iterate through 160 byte chunks (representing an AttrDef object)
-            for (int i = 0; (i < bytes.Length) && (bytes[i] != 0); i += 160)
+            for (uint i = 0; (i < bytes.Length) && (bytes[i] != 0); i += 160)
             {
-                byte[] attrDefBytes = new byte[160];
-
-                Array.Copy(bytes, i, attrDefBytes, 0, attrDefBytes.Length);
-
                 // Intantiate a new AttrDef object and add it to the adList List of AttrDef objects
-                adList.Add(new AttrDef(attrDefBytes));
+                adList.Add(new AttrDef(NativeMethods.GetSubArray(bytes, i, 0xA0)));
             }
             return adList.ToArray();
         }

@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Security.Cryptography;
+using InvokeIR.Win32;
 
 namespace InvokeIR
 {
+    #region HashClass
+
     class Hash
     {
+        #region StaticMethods
 
         private static HashAlgorithm GetAlgorithm(string algorithm)
         {
@@ -29,17 +33,15 @@ namespace InvokeIR
 
         internal static string Get(byte[] bytes, int count, string algorithm)
         {
-            // Instantiate a byte array of length "count"
-            byte[] arr = new byte[count];
-
-            // Read bytes array into arr array
-            Array.Copy(bytes, 0, arr, 0, count);
-
             // Create a hash algorithm for specified algorithm
             HashAlgorithm hashAlgorithm = GetAlgorithm(algorithm);
 
             //Output the computed MD5 Hash as a string to the PowerShell pipeline
-            return BitConverter.ToString(hashAlgorithm.ComputeHash(arr)).Replace("-", "");
+            return BitConverter.ToString(hashAlgorithm.ComputeHash(NativeMethods.GetSubArray(bytes, 0x00, (uint)count))).Replace("-", "");
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion HashClass
 }

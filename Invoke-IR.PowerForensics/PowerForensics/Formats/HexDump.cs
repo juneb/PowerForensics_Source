@@ -2,9 +2,10 @@
 
 namespace InvokeIR.PowerForensics.Formats
 {
+    #region HexDumpClass
+    
     public class HexDump
-    {
-        
+    {       
         #region Properties
         
         public readonly string Offset;
@@ -23,6 +24,8 @@ namespace InvokeIR.PowerForensics.Formats
         }
 
         #endregion Constructors
+
+        #region StaticMethods
 
         public static HexDump[] Get(byte[] bytes)
         {
@@ -58,5 +61,8 @@ namespace InvokeIR.PowerForensics.Formats
             return dump;
         }
 
+        #endregion StaticMethods
     }
+
+    #endregion HexDumpClass
 }

@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     public class Bitmap
     {
@@ -41,7 +41,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the Data attribute
             NonResident dataStream = Bitmap.GetDataStream(Bitmap.GetFileRecord(volume));
@@ -103,7 +103,7 @@ namespace InvokeIR.PowerForensics.NTFS
             FileStream streamToRead = NativeMethods.getFileStream(hVolume);
 
             // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the Data attribute
             NonResident dataStream = Bitmap.GetDataStream(Bitmap.GetFileRecord(volume));
@@ -164,7 +164,7 @@ namespace InvokeIR.PowerForensics.NTFS
         {
             foreach (Attr attr in fileRecord.Attribute)
             {
-                if (attr.Name == "DATA")
+                if (attr.Name == Attr.ATTR_TYPE.DATA)
                 {
                     return attr as NonResident;
                 }

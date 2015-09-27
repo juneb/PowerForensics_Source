@@ -3,11 +3,19 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region LogFileClass
+
     public class LogFile
     {
+        #region Constants
+
         public const int LOGFILE_INDEX = 2;
+
+        #endregion Constants
+
+        #region StaticMethods
 
         internal static FileRecord GetFileRecord(string volume)
         {
@@ -18,7 +26,7 @@ namespace InvokeIR.PowerForensics.NTFS
         {
             foreach (Attr attr in fileRecord.Attribute)
             {
-                if (attr.Name == "DATA")
+                if (attr.Name == Attr.ATTR_TYPE.DATA)
                 {
                     return attr as NonResident;
                 }
@@ -35,7 +43,7 @@ namespace InvokeIR.PowerForensics.NTFS
             // Get filestream based on hVolume
             using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
-                VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+                VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
                 FileRecord logFileRecord = GetFileRecord(volume);
 
@@ -51,14 +59,8 @@ namespace InvokeIR.PowerForensics.NTFS
             byte[]pageBytes = getBytes(volume);
 
             // Get Page Header
-            byte[] headerBytes = new byte[0x40];
-            Array.Copy(pageBytes, 0, headerBytes, 0, headerBytes.Length);
-            PageHeader pageHeader = new PageHeader(headerBytes);
-
-            byte[] opsRecordBytes = new byte[0x58];
-            Array.Copy(pageBytes, 0x40, opsRecordBytes, 0 , opsRecordBytes.Length);
-            OperationRecord opsRecord = new OperationRecord(opsRecordBytes);
-            return opsRecord;
+            PageHeader pageHeader = new PageHeader(NativeMethods.GetSubArray(pageBytes, 0x00, 0x40));
+            return new OperationRecord(NativeMethods.GetSubArray(pageBytes, 0x40, 0x58));
             
             /*return pageHeader;
             
@@ -67,7 +69,13 @@ namespace InvokeIR.PowerForensics.NTFS
                 new
             }*/
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion LogFileClass
+
+    #region RestartAreaHeaderClass
 
     public class RestartAreaHeader
     {
@@ -94,60 +102,85 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal RestartAreaHeader(byte[] bytes)
         {
-            byte[] sigBytes = new byte[4];
-            Array.Copy(bytes, 0, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes); ;
-            USOffset = BitConverter.ToUInt16(bytes, 4);
-            USCount = BitConverter.ToUInt16(bytes, 6);
-            CheckDiskLSN = BitConverter.ToUInt64(bytes, 8);
-            SystemPageSize = BitConverter.ToUInt32(bytes, 16);
-            LogPageSize = BitConverter.ToUInt32(bytes, 20);
-            RestartOffset = BitConverter.ToUInt16(bytes, 24);
-            MinorVersion = BitConverter.ToUInt16(bytes, 26);
-            MajorVersion = BitConverter.ToUInt16(bytes, 28);
-            //USArray = bytes.Skip(30).Take(18).ToArray();
-            CurrentLSN = BitConverter.ToUInt64(bytes, 48);
-            LogClient = BitConverter.ToUInt32(bytes, 56);
-            ClientList = BitConverter.ToUInt32(bytes, 60);
-            Flags = BitConverter.ToUInt64(bytes, 64);
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x04);
+            
+            if (Signature == "RSTR")
+            {
+                USOffset = BitConverter.ToUInt16(bytes, 0x04);
+                USCount = BitConverter.ToUInt16(bytes, 0x06);
+                CheckDiskLSN = BitConverter.ToUInt64(bytes, 0x08);
+                SystemPageSize = BitConverter.ToUInt32(bytes, 0x10);
+                LogPageSize = BitConverter.ToUInt32(bytes, 20);
+                RestartOffset = BitConverter.ToUInt16(bytes, 0x18);
+                MinorVersion = BitConverter.ToUInt16(bytes, 26);
+                MajorVersion = BitConverter.ToUInt16(bytes, 28);
+                //USArray = bytes.Skip(30).Take(18).ToArray();
+                CurrentLSN = BitConverter.ToUInt64(bytes, 48);
+                LogClient = BitConverter.ToUInt32(bytes, 56);
+                ClientList = BitConverter.ToUInt32(bytes, 60);
+                Flags = BitConverter.ToUInt64(bytes, 0x40);
+            }
         }
 
         #endregion Constructors
 
-        public static RestartAreaHeader Get(string volume)
+        #region StaticMethods
+
+        public static RestartAreaHeader[] Get(string volume)
         {
-            return new RestartAreaHeader(LogFile.getBytes(volume));
+            return RestartAreaHeader.Get(LogFile.getBytes(volume));
         }
+
+        internal static RestartAreaHeader[] Get(byte[] bytes)
+        {
+            RestartAreaHeader[] headerArray = new RestartAreaHeader[0x02];
+            headerArray[0] = new RestartAreaHeader(NativeMethods.GetSubArray(bytes, 0x00, 0x1000));
+            headerArray[1] = new RestartAreaHeader(NativeMethods.GetSubArray(bytes, 0x1000, 0x1000));
+            return headerArray;
+        }
+
+        #endregion StaticMethods
     }
+
+    #endregion RestartAreaHeaderClass
+
+    #region RestartClass
 
     public class Restart
     {
-        public RestartAreaHeader restartHeader;
+        #region Properties
+
+        public RestartAreaHeader[] RestartHeader;
+
+        #endregion Properties
+
+        #region Constructors
 
         public Restart(byte[] bytes)
         {
-            byte[] restartHeaderBytes = new byte[72];
-            Array.Copy(bytes, 0, restartHeaderBytes, 0, restartHeaderBytes.Length);
-            restartHeader = new RestartAreaHeader(restartHeaderBytes);
-            //opRecord = new LogFile(bytes.Skip(72).Take(88).ToArray());
+            RestartHeader = RestartAreaHeader.Get(bytes);
         }
+
+        #endregion Constructors
+
+        #region StaticMethods
 
         public static Restart[] Get(byte[] bytes)
         {
             Restart[] restartArray = new Restart[2];
 
-            byte[] restart1 = new byte[0x1000];
-            Array.Copy(bytes, 0, restart1, 0, restart1.Length);
-
-            byte[] restart2 = new byte[0x1000];
-            Array.Copy(bytes, 0x1000, restart2, 0, restart2.Length);
-
-            restartArray[0] = new Restart(restart1);
-            restartArray[1] = new Restart(restart2);
+            restartArray[0] = new Restart(NativeMethods.GetSubArray(bytes, 0x00, 0x1000));
+            restartArray[1] = new Restart(NativeMethods.GetSubArray(bytes, 0x1000, 0x1000));
 
             return restartArray;
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion RestartClass
+
+    #region PageHeaderClass
 
     public class PageHeader
     {
@@ -171,34 +204,44 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal PageHeader(byte[] bytes)
         {
-            byte[] sigBytes = new byte[4];
-            Array.Copy(bytes, 0, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes);
-            USOffset = BitConverter.ToUInt16(bytes, 4);
-            USCount = BitConverter.ToUInt16(bytes, 6);
-            LastLSN = BitConverter.ToUInt64(bytes, 8);
-            Flags = BitConverter.ToUInt32(bytes, 16);
-            PageCount = BitConverter.ToUInt16(bytes, 20);
-            PagePosition = BitConverter.ToUInt16(bytes, 22);
-            NextRecordOffset = BitConverter.ToUInt16(bytes, 24);
-            LastLSN = BitConverter.ToUInt64(bytes, 32);
-            //USN = ;
-            //USArray = ;
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x04);
+            
+            if (Signature == "RCRD")
+            {
+                USOffset = BitConverter.ToUInt16(bytes, 4);
+                USCount = BitConverter.ToUInt16(bytes, 6);
+                LastLSN = BitConverter.ToUInt64(bytes, 8);
+                Flags = BitConverter.ToUInt32(bytes, 16);
+                PageCount = BitConverter.ToUInt16(bytes, 20);
+                PagePosition = BitConverter.ToUInt16(bytes, 22);
+                NextRecordOffset = BitConverter.ToUInt16(bytes, 24);
+                LastLSN = BitConverter.ToUInt64(bytes, 32);
+                //USN = ;
+                //USArray = ;
+            }
         }
 
         #endregion Constructors
+
+        #region StaticMethods
 
         public static PageHeader Get(string volume)
         {
             return new PageHeader(LogFile.getBytes(volume));
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion PageHeaderClass
+
+    #region OperationRecordClass
 
     public class OperationRecord
     {
         #region Enums
 
-        internal enum OPERATION_CODE
+        public enum OPERATION_CODE
         {
             Noop = 0x00,
             CompensationlogRecord = 0x01,
@@ -241,8 +284,8 @@ namespace InvokeIR.PowerForensics.NTFS
         public readonly uint RecordType;
         public readonly uint TransactionID;
         public readonly ushort Flags;
-        public readonly string RedoOP;
-        public readonly string UndoOP;
+        public readonly OPERATION_CODE RedoOP;
+        public readonly OPERATION_CODE UndoOP;
         public readonly ushort RedoOffset;
         public readonly ushort RedoLength;
         public readonly ushort UndoOffset;
@@ -269,8 +312,8 @@ namespace InvokeIR.PowerForensics.NTFS
             RecordType = BitConverter.ToUInt32(bytes, 32);
             TransactionID = BitConverter.ToUInt32(bytes, 36);
             Flags = BitConverter.ToUInt16(bytes, 40);
-            RedoOP = Enum.GetName(typeof(OPERATION_CODE), BitConverter.ToUInt16(bytes, 48)).ToString();
-            UndoOP = Enum.GetName(typeof(OPERATION_CODE), BitConverter.ToUInt16(bytes, 50)).ToString();
+            RedoOP = (OPERATION_CODE)BitConverter.ToUInt16(bytes, 48);
+            UndoOP = (OPERATION_CODE)BitConverter.ToUInt16(bytes, 50);
             RedoOffset = BitConverter.ToUInt16(bytes, 52);
             RedoLength = BitConverter.ToUInt16(bytes, 54);
             UndoOffset = BitConverter.ToUInt16(bytes, 56);
@@ -285,6 +328,21 @@ namespace InvokeIR.PowerForensics.NTFS
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        public static OperationRecord[] GetInstances(string volume)
+        {
+            return null;
+        }
+
+        internal static OperationRecord Get(byte[] bytes)
+        {
+            return new OperationRecord(bytes);
+        }
+
+        #endregion StaticMethods
     }
 
+    #endregion OperationRecordClass
 }

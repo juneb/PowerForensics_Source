@@ -45,8 +45,7 @@ namespace InvokeIR.PowerForensics
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
                 {
                     // Get Header
-                    byte[] headerBytes = NativeMethods.readDrive(streamToRead, GPT_OFFSET, SECTOR_SIZE);
-                    GuidPartitionTableHeader GPTHeader = new GuidPartitionTableHeader(headerBytes);
+                    GuidPartitionTableHeader GPTHeader = new GuidPartitionTableHeader(NativeMethods.readDrive(streamToRead, GPT_OFFSET, SECTOR_SIZE));
                     Revision = GPTHeader.Revision;
                     HeaderSize = GPTHeader.HeaderSize;
                     MyLBA = GPTHeader.MyLBA;
@@ -71,14 +70,11 @@ namespace InvokeIR.PowerForensics
                         
                         // Iterate through Partition Entries in Sector
                         // Sectors (512 bytes) / Partitions (128 bytes) = 4 partitions per sector 
-                        for (long i = 0; i < 512; i += GPTHeader.SizeOfPartitionEntry)
+                        for (uint i = 0; i < 512; i += GPTHeader.SizeOfPartitionEntry)
                         {
-                            // Instantiate byte array of size GPTHeader.SizeOfPartitionEntry (typically 128 bytes)
-                            byte[] partitionBytes = new byte[GPTHeader.SizeOfPartitionEntry];
-                            // Copy appropriate sector bytes to partitionBytes array
-                            Array.Copy(partitionSectorBytes, i, partitionBytes, 0, partitionBytes.Length);
                             // Instantiate a GuidPartitionTableEntry object
-                            GuidPartitionTableEntry entry = new GuidPartitionTableEntry(partitionBytes);
+                            GuidPartitionTableEntry entry = new GuidPartitionTableEntry(NativeMethods.GetSubArray(partitionSectorBytes, i, GPTHeader.SizeOfPartitionEntry));
+                            
                             // If entry's PartitionTypeGUID is 00000000-0000-0000-0000-000000000000 then it is not a partition
                             if (entry.PartitionTypeGUID == new Guid("00000000-0000-0000-0000-000000000000"))
                             {
@@ -104,14 +100,11 @@ namespace InvokeIR.PowerForensics
             }
         }
 
-        public GuidPartitionTable(byte[] bytes)
+        internal GuidPartitionTable(byte[] bytes)
         {
             #region Header
-            
-            byte[] headerBytes = new byte[SECTOR_SIZE];
-            Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
 
-            GuidPartitionTableHeader GPTHeader = new GuidPartitionTableHeader(headerBytes);
+            GuidPartitionTableHeader GPTHeader = new GuidPartitionTableHeader(NativeMethods.GetSubArray(bytes, 0x00, (uint)SECTOR_SIZE));
             Revision = GPTHeader.Revision;
             HeaderSize = GPTHeader.HeaderSize;
             MyLBA = GPTHeader.MyLBA;
@@ -128,14 +121,10 @@ namespace InvokeIR.PowerForensics
             // Get PartitionTable
             List<GuidPartitionTableEntry> partitionList = new List<GuidPartitionTableEntry>();
 
-            for (long i = 0; i < (bytes.Length - (int)SECTOR_SIZE); i += GPTHeader.SizeOfPartitionEntry)
+            for (uint i = 0; i < (bytes.Length - (int)SECTOR_SIZE); i += GPTHeader.SizeOfPartitionEntry)
             {
-                // Instantiate byte array of size GPTHeader.SizeOfPartitionEntry (typically 128 bytes)
-                byte[] partitionBytes = new byte[GPTHeader.SizeOfPartitionEntry];
-                // Copy appropriate sector bytes to partitionBytes array
-                Array.Copy(bytes, (i + (int)SECTOR_SIZE), partitionBytes, 0, partitionBytes.Length);
                 // Instantiate a GuidPartitionTableEntry object
-                GuidPartitionTableEntry entry = new GuidPartitionTableEntry(partitionBytes);
+                GuidPartitionTableEntry entry = new GuidPartitionTableEntry(NativeMethods.GetSubArray(bytes, (i + (uint)SECTOR_SIZE), GPTHeader.SizeOfPartitionEntry));
                 // If entry's PartitionTypeGUID is 00000000-0000-0000-0000-000000000000 then it is not a partition
                 if (entry.PartitionTypeGUID == new Guid("00000000-0000-0000-0000-000000000000"))
                 {
@@ -149,7 +138,7 @@ namespace InvokeIR.PowerForensics
 
         #endregion Constructors
 
-        #region PublicMethods
+        #region StaticMethods
 
         public static byte[] GetBytes(string devicePath)
         {
@@ -173,9 +162,12 @@ namespace InvokeIR.PowerForensics
             return new GuidPartitionTable(GuidPartitionTable.GetBytes(devicePath));
         }
 
-        #endregion PublicMethods
-
+        #endregion StaticMethods
     }
+
+    #endregion GuidPartitionTableClass
+
+    #region GuidPartitionTableHeaderClass
 
     internal class GuidPartitionTableHeader
     {
@@ -208,53 +200,46 @@ namespace InvokeIR.PowerForensics
         internal GuidPartitionTableHeader(byte[] bytes)
         {
             // Test GPT Signature
-            byte[] SignatureArray = new byte[8];
-            Array.Copy(bytes, SignatureArray, 8);
-            Signature = Encoding.ASCII.GetString(SignatureArray);
-            if (Signature != SIGNATURE_STRING)
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x08);
+            
+            if (Signature == SIGNATURE_STRING)
+            {
+                Revision = new Version(BitConverter.ToUInt16(bytes, 0x08), BitConverter.ToUInt16(bytes, 0x0A));
+                HeaderSize = BitConverter.ToUInt32(bytes, 0x0C);
+                // Get HeaderCRC32 Value
+                #region MyLBA
+                
+                MyLBA = BitConverter.ToUInt64(bytes, 0x18);
+                if (MyLBA != 1)
+                {
+                    throw new Exception("Invalid MyLBA property value");
+                }
+
+                #endregion MyLBA
+                AlternateLBA = BitConverter.ToUInt64(bytes, 0x20);
+                FirstUsableLBA = BitConverter.ToUInt64(bytes, 0x28);
+                LastUsableLBA = BitConverter.ToUInt64(bytes, 0x30);
+                DiskGUID = new Guid(NativeMethods.GetSubArray(bytes, 0x38, 0x10));
+                PartitionEntryLBA = BitConverter.ToUInt64(bytes, 0x48);
+                NumberOfPartitionEntries = BitConverter.ToUInt32(bytes, 0x50);
+                SizeOfPartitionEntry = BitConverter.ToUInt32(bytes, 0x54);
+                // Get PartitionEntryArrayCRC32 Value
+            }
+            else
             {
                 throw new Exception("Invalid GPT Signature");
             }
-
-            // Get Revision Number
-            ushort revMinor = BitConverter.ToUInt16(bytes, 8);
-            ushort revMajor = BitConverter.ToUInt16(bytes, 10);
-            Revision = new Version(revMajor, revMinor);
-
-            // Get Header Size
-            HeaderSize = BitConverter.ToUInt32(bytes, 12);
-
-            // Get HeaderCRC32 Value
-
-            // Get/Test MyLBA
-            MyLBA = BitConverter.ToUInt64(bytes, 24);
-            if (MyLBA != 1)
-            {
-                throw new Exception("Invalid MyLBA property value");
-            }
-
-            AlternateLBA = BitConverter.ToUInt64(bytes, 32);
-            FirstUsableLBA = BitConverter.ToUInt64(bytes, 40);
-            LastUsableLBA = BitConverter.ToUInt64(bytes, 48);
-
-            // Get DiskGUID Value
-            byte[] diskGUIDBytes = new byte[16];
-            Array.Copy(bytes, 56, diskGUIDBytes, 0, diskGUIDBytes.Length);
-            DiskGUID = new Guid(diskGUIDBytes);
-
-            PartitionEntryLBA = BitConverter.ToUInt64(bytes, 72);
-            NumberOfPartitionEntries = BitConverter.ToUInt32(bytes, 80);
-            SizeOfPartitionEntry = BitConverter.ToUInt32(bytes, 84);
-
-            // Get PartitionEntryArrayCRC32 Value
         }
 
         #endregion Constructors
     }
 
+    #endregion GuidPartitionTableHeaderClass
+
+    #region GuidPartitionTableEntryClass
+
     public class GuidPartitionTableEntry
     {
-
         #region Enums
 
         /*enum PARTITION_TYPE_GUID : string
@@ -265,7 +250,7 @@ namespace InvokeIR.PowerForensics
         }*/
 
         [FlagsAttribute]
-        enum PARTITION_ATTRIBUTE
+        public enum PARTITION_ATTRIBUTE
         {
             RequirePartition = 0x01,
             NoBlockIOProtocol = 0x02,
@@ -280,7 +265,7 @@ namespace InvokeIR.PowerForensics
         public readonly Guid UniquePartitionGUID;
         public readonly ulong StartingLBA;
         public readonly ulong EndingLBA;
-        public readonly string Attributes;
+        public readonly PARTITION_ATTRIBUTE Attributes;
         public readonly string PartitionName;
 
         #endregion Properties
@@ -289,31 +274,16 @@ namespace InvokeIR.PowerForensics
 
         internal GuidPartitionTableEntry(byte[] bytes)
         {
-            // Get PartitionTypeGuid Value
-            byte[] partitionTypeGuidBytes = new byte[16];
-            Array.Copy(bytes, 0, partitionTypeGuidBytes, 0, partitionTypeGuidBytes.Length);
-            PartitionTypeGUID = new Guid(partitionTypeGuidBytes);
-
-            // Get UniquePartitionGuid Value
-            byte[] uniquePartitionGuidBytes = new byte[16];
-            Array.Copy(bytes, 16, uniquePartitionGuidBytes, 0, uniquePartitionGuidBytes.Length);
-            UniquePartitionGUID = new Guid(uniquePartitionGuidBytes);
-
+            PartitionTypeGUID = new Guid(NativeMethods.GetSubArray(bytes, 0x00, 0x10));
+            UniquePartitionGUID = new Guid(NativeMethods.GetSubArray(bytes, 0x10, 0x10));
             StartingLBA = BitConverter.ToUInt64(bytes, 32);
             EndingLBA = BitConverter.ToUInt64(bytes, 40);
-
-            // Get Attributes Value
-            Attributes = ((PARTITION_ATTRIBUTE)(BitConverter.ToUInt64(bytes, 48))).ToString();
-
-            // Get the name of the Partition
-            byte[] nameBytes = new byte[72];
-            Array.Copy(bytes, 56, nameBytes, 0, nameBytes.Length);
-            PartitionName = Encoding.Unicode.GetString(nameBytes).Split('\0')[0];
+            Attributes = (PARTITION_ATTRIBUTE)BitConverter.ToUInt64(bytes, 48);
+            PartitionName = Encoding.Unicode.GetString(bytes, 0x38, 0x48).Split('\0')[0];
         }
 
         #endregion Constructors
-
     }
 
-    #endregion GuidPartitionTableClass
+    #endregion GuidPartitionTableEntryClass
 }

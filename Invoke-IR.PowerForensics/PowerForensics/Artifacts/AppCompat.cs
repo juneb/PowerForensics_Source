@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Security.Cryptography;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 using InvokeIR.PowerForensics.Registry;
 
 namespace InvokeIR.PowerForensics.Artifacts

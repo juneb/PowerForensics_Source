@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Text;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Registry
 {
+    #region ListClass
+
     public class List
     {
+        #region Properties
+
         public int Size;
         public string Signature;
         public bool Allocated;
         public ushort Count;
         public uint[] Offset;
 
+        #endregion Properties
+
+        #region Factory
+
         internal static List Factory(byte[] bytes, byte[] subKeyListBytes, string type)
         {
-            List list = null;
-
             if (type == "lf")
             {
                 return new Leaf(subKeyListBytes);
@@ -35,13 +42,8 @@ namespace InvokeIR.PowerForensics.Registry
 
                 for (int i = 0; i < ri.Offset.Length; i++)
                 {
-                    byte[] sublistBytes = new byte[Math.Abs(BitConverter.ToInt32(bytes, (int)ri.Offset[i]))];
-                    
-                    Array.Copy(bytes, ri.Offset[i], sublistBytes, 0, sublistBytes.Length);
-
-                    byte[] sigBytes = new byte[0x02];
-                    Array.Copy(sublistBytes, 0x04, sigBytes, 0, sigBytes.Length);
-                    string subtype = Encoding.ASCII.GetString(sigBytes);
+                    byte[] sublistBytes = NativeMethods.GetSubArray(bytes, ri.Offset[i], (uint)Math.Abs(BitConverter.ToInt32(bytes, (int)ri.Offset[i])));
+                    string subtype = Encoding.ASCII.GetString(sublistBytes, 0x04, 0x02);
 
                     listArray[i] = List.Factory(bytes, sublistBytes, subtype);
                 }
@@ -70,5 +72,9 @@ namespace InvokeIR.PowerForensics.Registry
                 return null;
             }
         }
+
+        #endregion Factory
     }
+
+    #endregion ListClass
 }

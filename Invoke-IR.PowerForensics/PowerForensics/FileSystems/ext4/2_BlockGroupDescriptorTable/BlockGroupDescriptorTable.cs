@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.ext3
+namespace InvokeIR.PowerForensics.Ext3
 {
     public class BlockGroupDescriptorTable
     {
@@ -16,7 +16,6 @@ namespace InvokeIR.PowerForensics.ext3
             // Ensure the bgdtLength value is a multiple of 512 (minimum value for reading bytes from disk)
             if ((length % NativeMethods.BYTES_PER_SECTOR) != 0)
             {
-                Console.WriteLine("length: {0}", length);
                 length += (NativeMethods.BYTES_PER_SECTOR - (length % NativeMethods.BYTES_PER_SECTOR));
             }
 

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Text;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Registry
 {
-
     //TODO: Determine if Data is Resident or NonResident
     //TODO: Get Data Buffer
     //TODO: Interpret Data based on Data Type
-
+    #region ValueKeyClass
 
     public class ValueKey : Cell
     {
         #region Enums
 
-        enum VALUE_KEY_DATA_TYPES
+        public enum VALUE_KEY_DATA_TYPES
         {
             REG_NONE = 0x00000000,
             REG_SZ = 0x00000001,
@@ -30,7 +30,7 @@ namespace InvokeIR.PowerForensics.Registry
         }
 
         [FlagsAttribute]
-        enum VALUE_KEY_FLAGS
+        public enum VALUE_KEY_FLAGS
         {
             NameIsUnicode = 0x0000,
             NameIsAscii = 0x0001,
@@ -43,92 +43,83 @@ namespace InvokeIR.PowerForensics.Registry
         public readonly string HivePath;
         public readonly string Key;
         private readonly ushort NameLength;
-        private readonly uint DataLength;
+        public readonly uint DataLength;
         private readonly bool ResidentData;
         private readonly uint DataOffset;
-        public readonly string DataType;
-        private readonly string Flags;
+        public readonly VALUE_KEY_DATA_TYPES DataType;
+        private readonly VALUE_KEY_FLAGS Flags;
         public readonly string Name;
 
         #endregion Properties
 
         #region Constructors
 
-        internal ValueKey(byte[] bytes, string path)
+        internal ValueKey(byte[] bytes, string path, string key)
         {
-            HivePath = path;
-
-            #region CellHeader
-
-            Size = BitConverter.ToInt32(bytes, 0x00);
-
-            if (Size >= 0)
-            {
-                Allocated = false;
-            }
-            else
-            {
-                Allocated = true;
-            }
-
-            #region Signature
-
-            byte[] sigBytes = new byte[0x02];
-            Array.Copy(bytes, 0x04, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes);
-            if (Signature != "vk")
-            {
-                throw new Exception("Cell is not a valid Value Key");
-            }
-
-            #endregion Signature
-
-            #endregion CellHeader
-
-            NameLength = BitConverter.ToUInt16(bytes, 0x06);
-
-            #region DataLength
-            uint dataLengthRaw = BitConverter.ToUInt32(bytes, 0x08);
+            Signature = Encoding.ASCII.GetString(bytes, 0x04, 0x02);
             
-            if(dataLengthRaw > 0x80000000)
+            if (Signature == "vk")
             {
-                DataLength = dataLengthRaw - 0x80000000;
-                ResidentData = true;
-            }
-            else
-            {
-                DataLength = dataLengthRaw;
-                ResidentData = false;
-            }
-            #endregion DataLength
-            
-            DataOffset = BitConverter.ToUInt32(bytes, 0x0C) + RegistryHeader.HBINOFFSET;
+                HivePath = path;
+                Key = key;
+                #region CellHeader
 
-            DataType = Enum.GetName(typeof(VALUE_KEY_DATA_TYPES), BitConverter.ToUInt32(bytes, 0x10));
-            Flags = ((VALUE_KEY_FLAGS)BitConverter.ToUInt16(bytes, 0x14)).ToString(); ;
+                Size = BitConverter.ToInt32(bytes, 0x00);
 
-            #region ValueName
-
-            if (NameLength == 0)
-            {
-                Name = "(Default)";
-            }
-            else
-            {
-                byte[] nameBytes = new byte[NameLength];
-                Array.Copy(bytes, 0x18, nameBytes, 0, nameBytes.Length);
-
-                if (Flags == "NameIsAscii")
+                if (Size >= 0)
                 {
-                    Name = Encoding.ASCII.GetString(nameBytes);
+                    Allocated = false;
                 }
                 else
                 {
-                    Name = Encoding.Unicode.GetString(nameBytes);
+                    Allocated = true;
                 }
+
+                #endregion CellHeader
+                NameLength = BitConverter.ToUInt16(bytes, 0x06);
+                #region DataLength
+
+                uint dataLengthRaw = BitConverter.ToUInt32(bytes, 0x08);
+
+                if (dataLengthRaw > 0x80000000)
+                {
+                    DataLength = dataLengthRaw - 0x80000000;
+                    ResidentData = true;
+                }
+                else
+                {
+                    DataLength = dataLengthRaw;
+                    ResidentData = false;
+                }
+                
+                #endregion DataLength
+                DataOffset = BitConverter.ToUInt32(bytes, 0x0C) + RegistryHeader.HBINOFFSET;
+                DataType = (VALUE_KEY_DATA_TYPES)BitConverter.ToUInt32(bytes, 0x10);
+                Flags = (VALUE_KEY_FLAGS)BitConverter.ToUInt16(bytes, 0x14);
+                #region ValueName
+
+                if (NameLength == 0)
+                {
+                    Name = "(Default)";
+                }
+                else
+                {
+                    if (Flags == VALUE_KEY_FLAGS.NameIsAscii)
+                    {
+                        Name = Encoding.ASCII.GetString(bytes, 0x18, NameLength);
+                    }
+                    else
+                    {
+                        Name = Encoding.Unicode.GetString(bytes, 0x18, NameLength);
+                    }
+                }
+
+                #endregion ValueName
             }
-            
-            #endregion ValueName
+            else
+            {
+                throw new Exception("Cell is not a valid Value Key");
+            }
         }
 
         #endregion Constructors
@@ -264,11 +255,7 @@ namespace InvokeIR.PowerForensics.Registry
             else
             {
                 byte[] bytes = Helper.GetHiveBytes(this.HivePath);
-
-                byte[] dataBytes = new byte[this.DataLength];
-                Array.Copy(bytes, this.DataOffset + 0x04, dataBytes, 0, dataBytes.Length);
-
-                return dataBytes;
+                return NativeMethods.GetSubArray(bytes, this.DataOffset + 0x04, this.DataLength);
             }
         }
 
@@ -280,13 +267,12 @@ namespace InvokeIR.PowerForensics.Registry
             }
             else
             {
-                byte[] dataBytes = new byte[this.DataLength];
-                Array.Copy(bytes, this.DataOffset + 0x04, dataBytes, 0, dataBytes.Length);
-
-                return dataBytes;
+                return NativeMethods.GetSubArray(bytes, this.DataOffset + 0x04, this.DataLength);
             }
         }
 
         #endregion ClassMethods
     }
+
+    #endregion ValueKeyClass
 }

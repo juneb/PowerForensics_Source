@@ -1,13 +1,16 @@
 ﻿using System;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Registry
 {
+    #region SecurityDescriptorClass
+
     public class SecurityDescriptor
     {
         #region Enums
 
         [FlagsAttribute]
-        enum SECURITY_KEY_CONTROLS
+        public enum SECURITY_KEY_CONTROLS
         {
             SeOwnerDefaulted = 0x0001,
             SeGroupDefaulted = 0x0002,
@@ -29,7 +32,7 @@ namespace InvokeIR.PowerForensics.Registry
         
         #region Properties
 
-        public readonly string Control;
+        public readonly SECURITY_KEY_CONTROLS Control;
         internal readonly uint OwnerOffset;
         internal readonly uint GroupOffset;
         internal readonly uint SACLOffset;
@@ -45,29 +48,19 @@ namespace InvokeIR.PowerForensics.Registry
 
         internal SecurityDescriptor(byte[] bytes)
         {
-            Control = ((SECURITY_KEY_CONTROLS)BitConverter.ToUInt16(bytes, 0x02)).ToString();
+            Control = (SECURITY_KEY_CONTROLS)BitConverter.ToUInt16(bytes, 0x02);
             OwnerOffset = BitConverter.ToUInt32(bytes, 0x04);
             GroupOffset = BitConverter.ToUInt32(bytes, 0x08);
             SACLOffset = BitConverter.ToUInt32(bytes, 0x0C);
             DACLOffset = BitConverter.ToUInt32(bytes, 0x10);
-            
-            byte[] ownerBytes = new byte[0x10];
-            Array.Copy(bytes, OwnerOffset, ownerBytes, 0, ownerBytes.Length);
-            Owner = ownerBytes;
-
-            byte[] groupBytes = new byte[0x0C];
-            Array.Copy(bytes, GroupOffset, groupBytes, 0, groupBytes.Length);
-            Group = groupBytes;
-
-            byte[] saclBytes = new byte[0x08];
-            Array.Copy(bytes, SACLOffset, saclBytes, 0, saclBytes.Length);
-            SACL = saclBytes;
-
-            byte[] daclBytes = new byte[0x84];
-            Array.Copy(bytes, DACLOffset, daclBytes, 0, daclBytes.Length);
-            DACL = daclBytes;
+            Owner = NativeMethods.GetSubArray(bytes, OwnerOffset, 0x10);
+            Group = NativeMethods.GetSubArray(bytes, GroupOffset, 0x0C);
+            SACL = NativeMethods.GetSubArray(bytes, SACLOffset, 0x08);
+            DACL = NativeMethods.GetSubArray(bytes, DACLOffset, 0x84);
         }
 
         #endregion Constructors
     }
+    
+    #endregion SecurityDescriptorClass
 }
