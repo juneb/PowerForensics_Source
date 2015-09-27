@@ -11,8 +11,24 @@ namespace InvokeIR.PowerForensics.Cmdlets
     /// </summary> 
 
     [Cmdlet(VerbsCommon.Get, "Timezone")]
-    public class GetTimezoneCommand : Cmdlet
+    public class GetTimezoneCommand : PSCmdlet
     {
+        #region Parameters
+
+        /// <summary> 
+        /// This parameter provides the the path of the Registry Hive to parse.
+        /// </summary> 
+
+        [Alias("HivePath")]
+        [Parameter(Mandatory = false, Position = 0)]
+        public string Path
+        {
+            get { return hivePath; }
+            set { hivePath = value; }
+        }
+        private string hivePath;
+
+        #endregion Parameters
 
         #region Cmdlet Overrides
 
@@ -21,7 +37,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-            ValueKey vk = ValueKey.Get(@"C:\Windows\system32\config\SYSTEM", @"ControlSet001\Control\TimeZoneInformation", "TimeZoneKeyName");
+            if (!(this.MyInvocation.BoundParameters.ContainsKey("Path")))
+            {
+                hivePath = @"C:\Windows\system32\config\SYSTEM";
+            }
+
+            ValueKey vk = ValueKey.Get(hivePath, @"ControlSet001\Control\TimeZoneInformation", "TimeZoneKeyName");
             TimeZone tz = TimeZone.CurrentTimeZone;
 
             WriteObject(new InvokeIR.PowerForensics.Artifacts.Timezone(System.Text.Encoding.Unicode.GetString(vk.GetData()), tz.StandardName, tz.DaylightName, tz.IsDaylightSavingTime(DateTime.Now)));

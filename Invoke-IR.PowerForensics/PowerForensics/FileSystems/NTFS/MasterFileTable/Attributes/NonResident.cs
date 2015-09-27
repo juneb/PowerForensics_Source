@@ -2,10 +2,12 @@
 using System.IO;
 using System.Collections.Generic;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region NonResidentClass
+
     public class NonResident : Attr
     {
         #region Properties
@@ -27,7 +29,7 @@ namespace InvokeIR.PowerForensics.NTFS
         internal NonResident(NonResidentHeader header, byte[] bytes, string attrName)
         {
             // Attr Object
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
@@ -59,12 +61,8 @@ namespace InvokeIR.PowerForensics.NTFS
                         break;
                     }
 
-                    // Get bytes for DataRun
-                    byte[] runBytes = new byte[DataRunLengthByteCount + DataRunOffsetByteCount];
-                    Array.Copy(bytes, (offset + 1), runBytes, 0, runBytes.Length);
-
                     // Instantiate a DataRun object
-                    DataRun dataRun = new DataRun(runBytes, DataRunLengthByteCount, DataRunOffsetByteCount, ref startCluster);
+                    DataRun dataRun = new DataRun(NativeMethods.GetSubArray(bytes, (uint)(offset + 1), (uint)DataRunLengthByteCount + (uint)DataRunOffsetByteCount), DataRunLengthByteCount, DataRunOffsetByteCount, ref startCluster);
 
                     // Add DataRun Object to dataRunList
                     dataRunList.Add(dataRun);
@@ -103,7 +101,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
             using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
-                VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+                VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
                 foreach (DataRun dr in this.DataRun)
                 {
@@ -138,6 +136,10 @@ namespace InvokeIR.PowerForensics.NTFS
         
         #endregion PublicMethods
     }
+
+    #endregion NonResidentClass
+
+    #region DataRunClass
 
     public class DataRun
     {
@@ -181,4 +183,5 @@ namespace InvokeIR.PowerForensics.NTFS
         #endregion Constructors
     }
 
+    #endregion DataRunClass
 }

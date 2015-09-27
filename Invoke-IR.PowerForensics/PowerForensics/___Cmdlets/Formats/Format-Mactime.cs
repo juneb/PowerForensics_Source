@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using InvokeIR.PowerForensics.Formats;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -23,12 +23,12 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
 
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
-        public FileRecord[] MFTRecord
+        public FileRecord MFTRecord
         {
             get { return mftRecord; }
             set { mftRecord = value; }
         }
-        private FileRecord[] mftRecord;
+        private FileRecord mftRecord;
 
         #endregion Parameters
 
@@ -41,14 +41,8 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-
-            // Iterate through each MFTRecord provided as input
-            foreach(FileRecord record in mftRecord)
-            {
-                // Create an array of Mactime objects for the current MFTRecord object
-                WriteObject(Mactime.Get(record));
-            }
-
+            // Create an array of Mactime objects for the current MFTRecord object
+            WriteObject(Mactime.Get(mftRecord));
         } // ProcessRecord 
 
         protected override void EndProcessing()

@@ -2,12 +2,11 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 using InvokeIR.PowerForensics.Artifacts;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetAlternateDataStreamCommand
     /// <summary> 
     /// This class implements the Get-AlternateDataStream cmdlet. 
@@ -16,7 +15,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
     [Cmdlet(VerbsCommon.Get, "AlternateDataStream", DefaultParameterSetName = "Zero", SupportsShouldProcess = true)]
     public class GetAlternateDataStreamCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
@@ -74,9 +72,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 {
                     foreach (Attr attr in record.Attribute)
                     {
-                        if (attr.Name == "DATA")
+                        if (attr.Name == Attr.ATTR_TYPE.DATA)
                         {
-                            if (attr.NameString != "")
+                            //if (attr.NameString != "")
+                            if(attr.NameString.Length > 0)
                             {
                                 WriteObject(new AlternateDataStream(record.FullName, record.Name, attr.NameString));
                             }
@@ -94,9 +93,10 @@ namespace InvokeIR.PowerForensics.Cmdlets
                     {
                         foreach (Attr attr in record.Attribute)
                         {
-                            if (attr.Name == "DATA")
+                            if (attr.Name == Attr.ATTR_TYPE.DATA)
                             {
-                                if (attr.NameString != "")
+                                //if (attr.NameString != "")
+                                if (attr.NameString.Length > 0)
                                 {
                                     WriteObject(new AlternateDataStream(record.FullName, record.Name, attr.NameString));
                                 }
@@ -118,5 +118,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetAlternateDataStreamCommand class. 
 
     #endregion GetAlternateDataStreamCommand
-
 }

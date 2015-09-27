@@ -1,6 +1,7 @@
 ﻿using System;
+using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region DataClass
 
@@ -16,12 +17,11 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal Data(ResidentHeader header, byte[] attrBytes, string attrName)
         {
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
-            RawData = new byte[(attrBytes.Length)];
-            Array.Copy(attrBytes, 0, RawData, 0, RawData.Length);
+            RawData = NativeMethods.GetSubArray(attrBytes, 0x00, (uint)attrBytes.Length);
         }
 
         #endregion Constructors

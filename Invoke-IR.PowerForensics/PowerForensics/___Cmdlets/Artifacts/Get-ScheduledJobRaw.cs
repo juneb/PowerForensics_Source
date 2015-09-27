@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 using InvokeIR.PowerForensics.Artifacts;
 
 namespace InvokeIR.PowerForensics.Cmdlets
@@ -39,7 +39,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
         private string filePath;
 
         #endregion Parameters
-
 
         #region Cmdlet Overrides
 

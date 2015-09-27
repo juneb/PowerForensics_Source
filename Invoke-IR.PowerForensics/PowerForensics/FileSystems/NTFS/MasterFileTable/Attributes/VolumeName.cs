@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Text;
+using InvokeIR.Win32;
 
-
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region VolumeNameClass
+
     public class VolumeName : Attr
     {
         #region Properties
@@ -16,16 +18,16 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal VolumeName(ResidentHeader header, byte[] attrBytes, string attrName)
         {
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
 
-            byte[] VolumeNameStringBytes = new byte[header.AttrSize];
-            Array.Copy(attrBytes, 0, VolumeNameStringBytes, 0, VolumeNameStringBytes.Length);
-            VolumeNameString = Encoding.Unicode.GetString(VolumeNameStringBytes);
+            VolumeNameString = Encoding.Unicode.GetString(attrBytes, 0x00, (int)header.AttrSize);
         }
 
         #endregion Constructors
     }
+    
+    #endregion VolumeNameClass
 }

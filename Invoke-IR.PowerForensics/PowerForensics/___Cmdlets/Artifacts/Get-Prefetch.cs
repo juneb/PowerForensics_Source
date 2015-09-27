@@ -3,7 +3,7 @@ using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
 using InvokeIR.PowerForensics.Artifacts;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
@@ -103,11 +103,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
                 }
             }
         } // ProcessRecord 
-
-        protected override void EndProcessing()
-        {
-            GC.Collect();
-        }
 
         #endregion Cmdlet Overrides
 

@@ -3,8 +3,10 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.ext3
+namespace InvokeIR.PowerForensics.Ext3
 {
+    #region ExtentHeaderClass
+
     internal class ExtentHeader
     {
         #region Properties
@@ -18,6 +20,7 @@ namespace InvokeIR.PowerForensics.ext3
         #endregion Properties
 
         #region Constructors
+
         internal ExtentHeader(byte[] bytes)
         {
             Signature = BitConverter.ToUInt16(bytes, 0x00);
@@ -33,8 +36,13 @@ namespace InvokeIR.PowerForensics.ext3
                 throw new Exception("Invalid ExtentHeader");
             }
         }
+        
         #endregion Constructors
     }
+
+    #endregion ExtentHeaderClass
+
+    #region ExtentClass
 
     public class Extent
     {
@@ -58,29 +66,30 @@ namespace InvokeIR.PowerForensics.ext3
 
         #endregion Constructors
 
+        #region StaticMethods
+
         public static Extent[] GetInstances(byte[] bytes)
         {
-            byte[] headerBytes = new byte[0x0C];
-            Array.Copy(bytes, 0x00, headerBytes, 0x00, headerBytes.Length);
-            ExtentHeader header = new ExtentHeader(headerBytes);
+            ExtentHeader header = new ExtentHeader(NativeMethods.GetSubArray(bytes, 0x00, 0x0C));
 
             Extent[] extentArray = new Extent[header.NumberOfExtents];
 
-            int offset = 0x0C;
-            int size = 0x0C;
+            uint offset = 0x0C;
+            uint size = 0x0C;
             
             for (int i = 0; (i < header.NumberOfExtents) && (i < 4); i++)
             {
-                byte[] extentBytes = new byte[0x0C];
-                Array.Copy(bytes, offset, extentBytes, 0, extentBytes.Length);
-
-                extentArray[i] = new Extent(extentBytes);
+                extentArray[i] = new Extent(NativeMethods.GetSubArray(bytes, offset, size));
                 
                 offset += size;
             }
                 
             return extentArray;
         }
+
+        #endregion StaticMethods
+
+        #region InstanceMethods
 
         public byte[] GetBytes(string volume)
         {
@@ -92,5 +101,9 @@ namespace InvokeIR.PowerForensics.ext3
                 return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.StartBlock), (sb.BlockSize * this.BlockCount));
             }
         }
+
+        #endregion InstanceMethods
     }
+    
+    #endregion ExtentClass
 }

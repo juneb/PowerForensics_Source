@@ -1,10 +1,14 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region AttrClass
+    
     public class Attr
     {
-        internal enum ATTR_TYPE
+        #region Enums
+
+        public enum ATTR_TYPE
         {
             STANDARD_INFORMATION = 0x10,
             ATTRIBUTE_LIST = 0x20,
@@ -27,9 +31,17 @@ namespace InvokeIR.PowerForensics.NTFS
             ATTR_FLAG_SPARSE = 0x8000
         }
 
-        public string Name;
+        #endregion Enums
+
+        #region Properties
+
+        public ATTR_TYPE Name;
         public string NameString;
         internal bool NonResident;
         public ushort AttributeId;
+
+        #endregion Properties
     }
+
+    #endregion AttrClass
 }

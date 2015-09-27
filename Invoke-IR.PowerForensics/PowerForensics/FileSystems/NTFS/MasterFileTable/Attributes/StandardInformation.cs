@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region StandardInformationClass
 
@@ -9,7 +9,7 @@ namespace InvokeIR.PowerForensics.NTFS
         #region Enums
         
         [FlagsAttribute]
-        internal enum ATTR_STDINFO_PERMISSION : uint
+        public enum ATTR_STDINFO_PERMISSION : uint
         {
             READONLY = 0x00000001,
             HIDDEN = 0x00000002,
@@ -34,7 +34,7 @@ namespace InvokeIR.PowerForensics.NTFS
         public readonly DateTime ModifiedTime;
         public readonly DateTime ChangedTime;
         public readonly DateTime AccessedTime;
-        public readonly string Permission;
+        public readonly ATTR_STDINFO_PERMISSION Permission;
         public readonly uint MaxVersionNumber;
         public readonly uint VersionNumber;
         public readonly uint ClassId;
@@ -49,7 +49,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
         internal StandardInformation(ResidentHeader header, byte[] attrBytes, string attrName)
         {
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
@@ -58,7 +58,7 @@ namespace InvokeIR.PowerForensics.NTFS
             ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x08));
             ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x10));
             AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x18));
-            Permission = ((ATTR_STDINFO_PERMISSION)BitConverter.ToUInt32(attrBytes, 0x20)).ToString();
+            Permission = ((ATTR_STDINFO_PERMISSION)BitConverter.ToUInt32(attrBytes, 0x20));
             MaxVersionNumber = BitConverter.ToUInt32(attrBytes, 0x24);
             VersionNumber = BitConverter.ToUInt32(attrBytes, 0x28);
             ClassId = BitConverter.ToUInt32(attrBytes, 0x2C);

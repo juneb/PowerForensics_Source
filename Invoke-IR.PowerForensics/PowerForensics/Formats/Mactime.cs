@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 using InvokeIR.PowerForensics.Artifacts;
 
 namespace InvokeIR.PowerForensics.Formats
@@ -23,7 +23,7 @@ namespace InvokeIR.PowerForensics.Formats
 
         public readonly DateTime DateTime;
         public readonly ulong Size;
-        public readonly string ActivityType;
+        public readonly ACTIVITY_TYPE ActivityType;
         //Permissions
         public readonly uint UserId;
         public readonly uint GroupId;
@@ -42,7 +42,7 @@ namespace InvokeIR.PowerForensics.Formats
             }
             
             DateTime = dateTime;
-            ActivityType = ((ACTIVITY_TYPE)activityType).ToString();
+            ActivityType = (ACTIVITY_TYPE)activityType;
             Size = size;
             UserId = 0;
             GroupId = 0;

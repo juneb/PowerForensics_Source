@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region MasterFileTableClass
 
@@ -11,7 +11,7 @@ namespace InvokeIR.PowerForensics.NTFS
         public static FileRecord GetRecord(FileStream streamToRead, string volume)
         {
             // Instantiate VolumeBootRecord object
-            VolumeBootRecord VBR = VolumeBootRecord.get(streamToRead);
+            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Calculate byte offset to the Master File Table (MFT)
             ulong mftOffset = ((ulong)VBR.BytesPerCluster * VBR.MFTStartIndex);
@@ -26,7 +26,7 @@ namespace InvokeIR.PowerForensics.NTFS
 
             foreach (Attr attr in mftRecord.Attribute)
             {
-                if (attr.Name == "DATA")
+                if (attr.Name == Attr.ATTR_TYPE.DATA)
                 {
                     return (attr as NonResident).GetBytes(volume);
                 }

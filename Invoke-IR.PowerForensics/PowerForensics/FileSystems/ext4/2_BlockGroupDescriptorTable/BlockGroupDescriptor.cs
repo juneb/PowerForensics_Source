@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.ext3
+namespace InvokeIR.PowerForensics.Ext3
 {
     public class BlockGroupDescriptor
     {
@@ -58,9 +58,7 @@ namespace InvokeIR.PowerForensics.ext3
             uint sectorOffset = (group % BLOCK_GROUPS_PER_SECTOR) * BLOCK_GROUP_DESCRIPTOR_LENGTH;
 
             // Create byte[] containing only bytes for the requested Block Group Descriptor
-            byte[] bgdBytes = new byte[BLOCK_GROUP_DESCRIPTOR_LENGTH];
-            Array.Copy(SectorBytes, sectorOffset, bgdBytes, 0, bgdBytes.Length);
-            return bgdBytes;
+            return NativeMethods.GetSubArray(SectorBytes, sectorOffset, BLOCK_GROUP_DESCRIPTOR_LENGTH);
         }
     }
 }

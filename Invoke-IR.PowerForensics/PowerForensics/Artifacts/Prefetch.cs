@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Artifacts
 {
@@ -19,7 +19,7 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #region Enums
 
-        enum PREFETCH_VERSION
+        public enum PREFETCH_VERSION
         {
             WINDOWS_8 = 0x1A,
             WINDOWS_7 = 0x17,
@@ -30,7 +30,7 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #region Parameters
 
-        public readonly string Version;
+        public readonly PREFETCH_VERSION Version;
         public readonly string Name;
         public readonly string Path;
 //        public string MD5
@@ -39,7 +39,7 @@ namespace InvokeIR.PowerForensics.Artifacts
         public readonly DateTime[] PrefetchAccessTime;
 //        public readonly DateTime PrefetchBornTime;
 //        public readonly string ProgramBornTime;
-//        public readonly string ProgramChangeTime
+//        public readonly string ProgramChangeTime;
         public readonly int DeviceCount;
         public readonly int RunCount;
         public readonly string[] DependencyFiles;
@@ -48,31 +48,25 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #region Constructors
 
-        private Prefetch(byte[] fileBytes)
+        private Prefetch(byte[] bytes)
         {
-            // Instantiate byte array
-            byte[] pfMagic = new byte[0x04];
-
-            // Create sub-array "pfMagic" from byte array "fileBytes"
-            Array.Copy(fileBytes, 0x04, pfMagic, 0x00, pfMagic.Length);
-
             // Check for Prefetch Magic Number (Value) SCCA at offset 0x04 - 0x07
-            if (Encoding.ASCII.GetString(pfMagic) == PREFETCH_MAGIC)
+            if (Encoding.ASCII.GetString(bytes, 0x04, 0x04) == PREFETCH_MAGIC)
             {
                 // Check Prefetch file for version (0x1A = Win 8, 0x17 = Win 7, 0x11 = Win XP)
-                string pfVersion = Enum.GetName(typeof(PREFETCH_VERSION), fileBytes[0]);
-
+                Version = (PREFETCH_VERSION)bytes[0];
+                #region PathHash
 
                 //// Get Prefetch Path Hash Value ////
                 // Instantiate byte array
-                byte[] pfHashBytes = new byte[0x04];
-                // Create sub-array "pfHashBytes" from byte array "bytes"
-                Array.Copy(fileBytes, 0x4C, pfHashBytes, 0, pfHashBytes.Length);
+                byte[] pfHashBytes = NativeMethods.GetSubArray(bytes, 0x4C, 0x04);
                 // Reverse Little Endian bytes
                 Array.Reverse(pfHashBytes);
                 // Return string representing Prefetch Path Hash
-                string pfPathHash = BitConverter.ToString(pfHashBytes).Replace("-", "");
-
+                PathHash = BitConverter.ToString(pfHashBytes).Replace("-", "");
+                
+                #endregion PathHash
+                #region PrefetchAccessTime
 
                 // Get Prefetch Last Accessed Time Array //
                 // Instantiate a null byte array
@@ -82,24 +76,21 @@ namespace InvokeIR.PowerForensics.Artifacts
                 // Zero out counter
                 int counter = 0;
                 // Check Prefetch version
-                switch (pfVersion)
+                switch (this.Version)
                 {
                     // Windows 8 Version
-                    case "WINDOWS_8":
-                        pfAccessTimeBytes = new byte[0x40];
-                        Array.Copy(fileBytes, 0x80, pfAccessTimeBytes, 0, 0x40);
+                    case PREFETCH_VERSION.WINDOWS_8:
+                        pfAccessTimeBytes = NativeMethods.GetSubArray(bytes, 0x80, 0x40);
                         counter = 64;
                         break;
                     // Windows 7 Version
-                    case "WINDOWS_7":
-                        pfAccessTimeBytes = new byte[0x08];
-                        Array.Copy(fileBytes, 0x80, pfAccessTimeBytes, 0, 0x08);
+                    case PREFETCH_VERSION.WINDOWS_7:
+                        pfAccessTimeBytes = NativeMethods.GetSubArray(bytes, 0x80, 0x08);
                         counter = 8;
                         break;
                     // Windows XP Version
-                    case "WINDOWS_XP":
-                        pfAccessTimeBytes = new byte[0x08];
-                        Array.Copy(fileBytes, 0x78, pfAccessTimeBytes, 0, 0x08);
+                    case PREFETCH_VERSION.WINDOWS_XP:
+                        pfAccessTimeBytes = NativeMethods.GetSubArray(bytes, 0x78, 0x08);
                         counter = 8;
                         break;
                 }
@@ -107,87 +98,51 @@ namespace InvokeIR.PowerForensics.Artifacts
                 {
                     long winFileTime = BitConverter.ToInt64(pfAccessTimeBytes, i);
                     DateTime dt = DateTime.FromFileTimeUtc(winFileTime);
-                    if ((pfVersion == "WINDOWS_8") && (dt.ToString() == "1/1/1601 12:00:00 AM"))
+                    if ((this.Version == PREFETCH_VERSION.WINDOWS_8) && (dt.ToString() == "1/1/1601 12:00:00 AM"))
                     {
                         break;
                     }
                     pfAccessTimeList.Add(dt);
                 }
+                PrefetchAccessTime = pfAccessTimeList.ToArray();
 
-                ////
-                byte[] appNameBytes = new byte[0x3C];
-                Array.Copy(fileBytes, 0x10, appNameBytes, 0, appNameBytes.Length);
-                string appName = System.Text.Encoding.Unicode.GetString(appNameBytes).TrimEnd('\0');
+                #endregion PrefetchAccessTime
+                Name = System.Text.Encoding.Unicode.GetString(bytes, 0x10, 0x3C).TrimEnd('\0');
+                #region DependencyFiles
 
-                //// Get Dependency Files Section ////
-                byte[] dependencyOffsetBytes = new byte[0x04];
-                Array.Copy(fileBytes, 0x64, dependencyOffsetBytes, 0, dependencyOffsetBytes.Length);
-                int dependencyOffsetValue = BitConverter.ToInt32(dependencyOffsetBytes, 0);
-
-                byte[] dependencyLengthBytes = new byte[0x04];
-                Array.Copy(fileBytes, 0x68, dependencyLengthBytes, 0, dependencyLengthBytes.Length);
-                int dependencyLengthValue = BitConverter.ToInt32(dependencyLengthBytes, 0);
-
-                byte[] pfDependencyBytes = new byte[dependencyLengthValue];
-                Array.Copy(fileBytes, dependencyOffsetValue, pfDependencyBytes, 0, pfDependencyBytes.Length);
-
-                ////
-                string pfPath = null;
-
-                ////
-                var dependencyString = Encoding.Unicode.GetString(pfDependencyBytes);
+                string dependencyString = Encoding.Unicode.GetString(bytes, BitConverter.ToInt32(bytes, 0x64), BitConverter.ToInt32(bytes, 0x68));
                 string[] dependencyArraySplit = dependencyString.Split(new string[] { "\\DEVICE\\" }, StringSplitOptions.RemoveEmptyEntries);
                 string[] dependencyArray = new string[dependencyArraySplit.Length];
                 for (int i = 0; i < dependencyArraySplit.Length; i++)
                 {
                     string dependency = dependencyArraySplit[i].Replace("HARDDISKVOLUME1", "\\DEVICE\\HARDDISKVOLUME1").Replace("\0", string.Empty);
-                    if((dependency.Contains(appName)) && (!(dependency.Contains(".MUI"))))
+                    if((dependency.Contains(Name)) && (!(dependency.Contains(".MUI"))))
                     {
-                        pfPath = dependency;
+                        Path = dependency;
                     }
                     dependencyArray[i] = dependency;
                 }
+                DependencyFiles = dependencyArray;
 
+                #endregion DependencyFiles
+                DependencyCount = dependencyArray.Length;
+                DeviceCount = BitConverter.ToInt32(bytes, 0x70);
+                #region RunCount
 
-                //// Get int representing the number of devices associated with prefetch record ////
-                // Instantiate byte array
-                byte[] deviceCountBytes = new byte[0x04];
-                // Create sub-array "deviceCountBytes" from byte array "bytes"
-                Array.Copy(fileBytes, 0x70, deviceCountBytes, 0, deviceCountBytes.Length);
-                // Return int representing the number of devices associated with this application
-                Int32 pfDeviceCount = BitConverter.ToInt32(deviceCountBytes, 0);
-
-
-                //// Get application run count ////
-                // Instantiate byte array
-                byte[] runCountBytes = new byte[0x04];
-                // Check version and put correct bytes in runCountBytes byte array
-                switch (pfVersion)
+                switch (this.Version)
                 {
-                    case "WINDOWS_8":
-                        Array.Copy(fileBytes, 0xD0, runCountBytes, 0, runCountBytes.Length);
+                    case PREFETCH_VERSION.WINDOWS_8:
+                        RunCount = BitConverter.ToInt32(bytes, 0xD0);
                         break;
-                    case "WINDOWS_7":
-                        Array.Copy(fileBytes, 0x98, runCountBytes, 0, runCountBytes.Length);
+                    case PREFETCH_VERSION.WINDOWS_7:
+                        RunCount = BitConverter.ToInt32(bytes, 0x98);
                         break;
-                    case "WINDOWS_XP":
-                        Array.Copy(fileBytes, 0x90, runCountBytes, 0, runCountBytes.Length);
+                    case PREFETCH_VERSION.WINDOWS_XP:
+                        RunCount = BitConverter.ToInt32(bytes, 0x90);
                         break;
                 }
-                // Return run count as int
-                Int32 pfRunCount =  BitConverter.ToInt32(runCountBytes, 0);
 
-
-                //
-                Version = pfVersion;
-                Name = appName;
-                PathHash = pfPathHash;
-                PrefetchAccessTime = pfAccessTimeList.ToArray();
-                DependencyFiles = dependencyArray;
-                DependencyCount = dependencyArray.Length;
-                Path = pfPath;
-                DeviceCount = pfDeviceCount;
-                RunCount = pfRunCount;
+                #endregion RunCount
             }
         }
         
@@ -207,7 +162,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             int index = (int)(IndexEntry.Get(filePath)).RecordNumber;
 
             // Get bytes for specific Prefetch file
-            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes(volume);
+            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes();
             
             try
             {
@@ -284,13 +239,11 @@ namespace InvokeIR.PowerForensics.Artifacts
 
                     int i = 0;
 
-                    foreach (IndexEntry entry in pfEntries)
+                    foreach(IndexEntry entry in pfEntries)
                     {
                         if (entry.Filename.Contains(".pf"))
                         {
-                            byte[] recordBytes = new byte[1024];
-                            Array.Copy(MFT, ((long)entry.RecordNumber * 1024), recordBytes, 0, recordBytes.Length);
-                            pfArray[i] = new Prefetch(new FileRecord(recordBytes, volume, true).GetBytes(volume));
+                            pfArray[i] = new Prefetch(new FileRecord(NativeMethods.GetSubArray(MFT, (uint)entry.RecordNumber * 0x400, 0x400), volume, true).GetBytes());
                             i++;
                         }
                     }

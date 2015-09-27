@@ -136,6 +136,7 @@ namespace InvokeIR.Win32
             }
             else
             {
+
                 throw new Exception("Provided Volume Name is not acceptable.");
             }
 
@@ -177,7 +178,7 @@ namespace InvokeIR.Win32
         {
 
             // Bytes must be read by sector
-            if ((sizeToRead < 1)) throw new System.ArgumentException("Size parameter cannot be null or 0 or less than 0!");
+            //if ((sizeToRead < 1)) throw new System.ArgumentException("Size parameter cannot be null or 0 or less than 0!");
             if (((sizeToRead % 512) != 0)) throw new System.ArgumentException("Size parameter must be divisible by 512");
             if (((offset % 512) != 0)) throw new System.ArgumentException("Offset parameter must be divisible by 512");
 
@@ -302,6 +303,13 @@ namespace InvokeIR.Win32
         {
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return epoch.AddSeconds(unixTime);
+        }
+
+        internal static byte[] GetSubArray(byte[] InputBytes, uint offset, uint length)
+        {
+            byte[] outputBytes = new byte[length];
+            Array.Copy(InputBytes, offset, outputBytes, 0, outputBytes.Length);
+            return outputBytes;
         }
 
         #endregion Helper Functions

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Registry
 {
@@ -40,18 +41,12 @@ namespace InvokeIR.PowerForensics.Registry
 
         internal RegistryHeader(byte[] bytes)
         {
-            #region Signature
-            
-            byte[] sigBytes = new byte[4];
-            Array.Copy(bytes, 0x00, sigBytes, 0, sigBytes.Length);
-            Signature = Encoding.ASCII.GetString(sigBytes);
+            Signature = Encoding.ASCII.GetString(bytes, 0x00, 0x04);
 
             if(Signature != "regf")
             {
                 throw new Exception("Invalid Registry Header");
             }
-            
-            #endregion Signature
 
             PrimarySequenceNumber = BitConverter.ToUInt32(bytes, 0x04);
             SecondarySequenceNumber = BitConverter.ToUInt32(bytes, 0x08);
@@ -65,7 +60,7 @@ namespace InvokeIR.PowerForensics.Registry
 
         #endregion Constructors
 
-        #region PublicMethods
+        #region StaticMethods
         
         public static byte[] GetBytes(string path)
         {
@@ -73,12 +68,10 @@ namespace InvokeIR.PowerForensics.Registry
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry entry = IndexEntry.Get(path);
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
-            byte[] bytes = record.GetBytes(volume);
+            byte[] bytes = record.GetBytes();
 
             // Registry Header
-            byte[] headerBytes = new byte[0x200];
-            Array.Copy(bytes, 0, headerBytes, 0, headerBytes.Length);
-            return headerBytes;
+            return NativeMethods.GetSubArray(bytes, 0x00, 0x200);
         }
 
         public static RegistryHeader Get(string path)
@@ -86,6 +79,6 @@ namespace InvokeIR.PowerForensics.Registry
             return new RegistryHeader(RegistryHeader.GetBytes(path));
         }
 
-        #endregion PublicMethods
+        #endregion StaticMethods
     }
 }

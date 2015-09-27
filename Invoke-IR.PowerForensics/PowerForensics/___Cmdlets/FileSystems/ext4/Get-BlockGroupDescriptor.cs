@@ -2,11 +2,10 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.ext3;
+using InvokeIR.PowerForensics.Ext3;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetBlockGroupDescriptorCommand
     /// <summary> 
     /// This class implements the Get-BlockGroupDescriptor cmdlet. 
@@ -122,9 +121,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
                         byte[] bgdtBytes = BlockGroupDescriptorTable.GetBytes(streamToRead, superblockOffset, superBlock);
                         for (uint o = 0; o < bgdtBytes.Length; o += BlockGroupDescriptor.BLOCK_GROUP_DESCRIPTOR_LENGTH)
                         {
-                            byte[] bgdBytes = new byte[BlockGroupDescriptor.BLOCK_GROUP_DESCRIPTOR_LENGTH];
-                            Array.Copy(bgdtBytes, o, bgdBytes, 0, bgdBytes.Length);
-                            WriteObject(new BlockGroupDescriptor(bgdBytes));
+                            WriteObject(new BlockGroupDescriptor(NativeMethods.GetSubArray(bgdtBytes, o, BlockGroupDescriptor.BLOCK_GROUP_DESCRIPTOR_LENGTH)));
                         }
                     }
                 }
@@ -141,5 +138,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetBlockGroupDescriptorCommand class. 
 
     #endregion GetBlockGroupDescriptorCommand
-
 }

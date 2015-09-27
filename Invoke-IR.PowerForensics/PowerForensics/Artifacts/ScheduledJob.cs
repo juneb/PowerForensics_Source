@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Text;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
+using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Artifacts
 {
+    #region ScheduledJobClass
+
     // https://msdn.microsoft.com/en-us/library/cc248285.aspx
     public class ScheduledJob
     {
         #region Enums
 
-        enum PRODUCT_VERSION
+        public enum PRODUCT_VERSION
         {
             WindowsNT4 = 0x0400,
             Windows2000 = 0x0500,
@@ -21,7 +24,7 @@ namespace InvokeIR.PowerForensics.Artifacts
         }
 
         [FlagsAttribute]
-        enum PRIORITY_CLASS
+        public enum PRIORITY_CLASS
         {
             NORMAL = 0x4000000,
             IDLE = 0x2000000,
@@ -29,7 +32,7 @@ namespace InvokeIR.PowerForensics.Artifacts
             REALTIME = 0x800000
         }
 
-        enum STATUS
+        public enum STATUS
         {
             SCHED_S_TASK_READY = 0x00041300,
             SCHED_S_TASK_RUNNING = 0x00041301,
@@ -37,7 +40,7 @@ namespace InvokeIR.PowerForensics.Artifacts
         }
 
         [FlagsAttribute]
-        enum TASK_FLAG : uint
+        public enum TASK_FLAG : uint
         {
             INTERACTIVE = 0x80000000,
             DELETE_WHEN_DONE = 0x40000000,
@@ -60,7 +63,7 @@ namespace InvokeIR.PowerForensics.Artifacts
         #region Properties
 
         // FIXDLEN_DATA
-        public readonly string ProductVersion;
+        public readonly PRODUCT_VERSION ProductVersion;
         public readonly ushort FileVersion;
         public readonly Guid UUID;
         private readonly ushort ApplicationNameOffset;
@@ -72,8 +75,8 @@ namespace InvokeIR.PowerForensics.Artifacts
         //public readonly string Priority;
         public readonly uint MaximumRuntime;
         public readonly uint ExitCode;
-        public readonly string Status;
-        public readonly string Flags;
+        public readonly STATUS Status;
+        public readonly TASK_FLAG Flags;
         public readonly DateTime RunTime;
 
         // Variable-Length Data Section
@@ -96,33 +99,22 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         internal ScheduledJob(byte[] bytes)
         {
-            // FIXDLEN_DATA
-            ProductVersion = Enum.GetName(typeof(PRODUCT_VERSION), BitConverter.ToUInt16(bytes, 0x00));
+            #region FIXDLEN_DATA
+
+            ProductVersion = (PRODUCT_VERSION)BitConverter.ToUInt16(bytes, 0x00);
             FileVersion = BitConverter.ToUInt16(bytes, 0x02);
-            
-            #region UUID
-
-            int Data1 = BitConverter.ToInt32(bytes, 0x04);
-            short Data2 = BitConverter.ToInt16(bytes, 0x08);
-            short Data3 = BitConverter.ToInt16(bytes, 0x0A);
-            byte[] Data4 = new byte[8];
-            Array.Copy(bytes, 0x0C, Data4, 0, Data4.Length);
-            UUID = new Guid(Data1, Data2, Data3, Data4);
-
-            #endregion UUID
-
+            UUID = new Guid(BitConverter.ToInt32(bytes, 0x04), BitConverter.ToInt16(bytes, 0x08), BitConverter.ToInt16(bytes, 0x0A), NativeMethods.GetSubArray(bytes, 0x0C, 0x08));
             ApplicationNameOffset = BitConverter.ToUInt16(bytes, 0x14);
             TriggerOffset = BitConverter.ToUInt16(bytes, 0x16);
             ErrorRetryCount = BitConverter.ToUInt16(bytes, 0x18);
             ErrorRetryInterval = BitConverter.ToUInt16(bytes, 0x1A);
             IdleDeadline = BitConverter.ToUInt16(bytes, 0x1C);
             IdleWait = BitConverter.ToUInt16(bytes, 0x1E);
-            //Priority = ((PRIORITY_CLASS)BitConverter.ToUInt32(bytes, 0x20)).ToString();
+            //Priority = (PRIORITY_CLASS)BitConverter.ToUInt32(bytes, 0x20);
             MaximumRuntime = BitConverter.ToUInt32(bytes, 0x24);
             ExitCode = BitConverter.ToUInt32(bytes, 0x28);
-            Status = Enum.GetName(typeof(STATUS), BitConverter.ToUInt32(bytes, 0x2C));
-            Flags = ((TASK_FLAG)BitConverter.ToUInt32(bytes, 0x30)).ToString();
-            
+            Status = (STATUS)BitConverter.ToUInt32(bytes, 0x2C);
+            Flags = (TASK_FLAG)BitConverter.ToUInt32(bytes, 0x30);
             #region RunTime
 
             short year = BitConverter.ToInt16(bytes, 0x34);
@@ -140,62 +132,32 @@ namespace InvokeIR.PowerForensics.Artifacts
             {
                 RunTime = new DateTime(0);
             }
-            
 
             #endregion RunTime
-            
 
-            // Variable-Length Data Section
+            #endregion FIXDLEN_DATA
+
+            #region Variable-Length Data Section
+
             RunningInstanceCount = BitConverter.ToUInt16(bytes, 0x44);
-            
-            #region ApplicationName
-            
             ApplicationNameLength = BitConverter.ToUInt16(bytes, ApplicationNameOffset);
-            byte[] appNameBytes = new byte[ApplicationNameLength * 2];
-            Array.Copy(bytes, ApplicationNameOffset + 0x02, appNameBytes, 0, appNameBytes.Length);
-            ApplicationName = Encoding.Unicode.GetString(appNameBytes).Split('\0')[0];
+            ApplicationName = Encoding.Unicode.GetString(bytes, ApplicationNameOffset + 0x02, ApplicationNameLength * 0x02).Split('\0')[0];
             
-            #endregion ApplicationName
-
-            #region Parameters
-
             int parameterOffset = ApplicationNameOffset + 0x02 + (ApplicationNameLength * 2);
             ParameterLength = BitConverter.ToUInt16(bytes, parameterOffset);
-            byte[] parameterBytes = new byte[ParameterLength * 2];
-            Array.Copy(bytes, parameterOffset + 0x02, parameterBytes, 0, parameterBytes.Length);
-            Parameters = Encoding.Unicode.GetString(parameterBytes).Split('\0')[0];
-
-            #endregion Parameters
-
-            #region WorkingDirectory
+            Parameters = Encoding.Unicode.GetString(bytes, parameterOffset, ParameterLength * 0x02).Split('\0')[0];
 
             int workingdirectoryOffset = parameterOffset + 0x02 + (ParameterLength * 2);
             WorkingDirectoryLength = BitConverter.ToUInt16(bytes, workingdirectoryOffset);
-            byte[] workingdirectoryBytes = new byte[WorkingDirectoryLength * 2];
-            Array.Copy(bytes, workingdirectoryOffset + 0x02, workingdirectoryBytes, 0, workingdirectoryBytes.Length);
-            WorkingDirectory = Encoding.Unicode.GetString(workingdirectoryBytes).Split('\0')[0];
-
-            #endregion WorkingDirectory
-
-            #region AuthorLength
+            WorkingDirectory = Encoding.Unicode.GetString(bytes, workingdirectoryOffset, WorkingDirectoryLength * 2).Split('\0')[0];
 
             int authorOffset = workingdirectoryOffset + 0x02 + (WorkingDirectoryLength * 2);
             AuthorLength = BitConverter.ToUInt16(bytes, authorOffset);
-            byte[] authorBytes = new byte[AuthorLength * 2];
-            Array.Copy(bytes, authorOffset + 0x02, authorBytes, 0, authorBytes.Length);
-            Author = Encoding.Unicode.GetString(authorBytes).Split('\0')[0];
-
-            #endregion AuthorLength
-
-            #region Comment
+            Author = Encoding.Unicode.GetString(bytes, authorOffset, AuthorLength * 2).Split('\0')[0];
 
             int commentOffset = authorOffset + 0x02 + (AuthorLength * 2);
             CommentLength = BitConverter.ToUInt16(bytes, commentOffset);
-            byte[] commentBytes = new byte[CommentLength * 2];
-            Array.Copy(bytes, commentOffset + 0x02, commentBytes, 0, commentBytes.Length);
-            Comment = Encoding.Unicode.GetString(commentBytes).Split('\0')[0];
-
-            #endregion Comment
+            Comment = Encoding.Unicode.GetString(bytes, commentOffset, CommentLength * 2).Split('\0')[0];
 
             #region StartTime
 
@@ -207,22 +169,30 @@ namespace InvokeIR.PowerForensics.Artifacts
             StartTime = new DateTime(year, month, day, hour, minute, 0, DateTimeKind.Utc);
 
             #endregion StartTime
+
+            #endregion Variable-Length Data Section
         }
 
         #endregion Constructors
+
+        #region StaticMethods
 
         internal static ScheduledJob Get(string path)
         {
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry index = IndexEntry.Get(path);
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)index.RecordNumber), volume, true);
-            return new ScheduledJob(record.GetBytes(volume));
+            return new ScheduledJob(record.GetBytes());
         }
 
         internal static ScheduledJob Get(string volume, int recordNumber)
         {
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume, true);
-            return new ScheduledJob(record.GetBytes(volume));
+            return new ScheduledJob(record.GetBytes());
         }
+
+        #endregion StaticMethods
     }
+
+    #endregion ScheduledJobClass
 }

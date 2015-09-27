@@ -2,11 +2,10 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.NTFS;
+using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetVolumeBootRecordCommand
     /// <summary> 
     /// This class implements the Get-GetVolumeBootRecord cmdlet. 
@@ -23,13 +22,26 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// Volume Boot Record that will be returned.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "None")]
         public string VolumeName
         {
             get { return volume; }
             set { volume = value; }
         }
         private string volume;
+
+        /// <summary> 
+        /// This parameter provides the path to the $Boot File or Volume Boot Record
+        /// </summary>
+
+        [Alias("FilePath")]
+        [Parameter(Mandatory = true, ParameterSetName = "Path", Position = 0)]
+        public string Path
+        {
+            get { return filePath; }
+            set { filePath = value; }
+        }
+        private string filePath;
 
         /// <summary> 
         /// This parameter provides causes Get-VolumeBootRecord
@@ -82,5 +94,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetVolumeBootRecordCommand class. 
 
     #endregion GetVolumeBootRecordCommand
-
 }

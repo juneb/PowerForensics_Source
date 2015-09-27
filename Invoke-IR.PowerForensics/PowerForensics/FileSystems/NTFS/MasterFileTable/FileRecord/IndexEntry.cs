@@ -3,13 +3,14 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region IndexEntryClass
 
     public class IndexEntry
     {
         #region Properties
+
         public ulong RecordNumber;       // Low 6B: MFT record index, High 2B: MFT record sequence number
         public bool Directory;
         internal ushort Size;            // Length of the index entry
@@ -20,21 +21,20 @@ namespace InvokeIR.PowerForensics.NTFS
         internal FileName Entry;
         public string Filename;
         public string FullName;
+        
         #endregion Properties
 
         #region Constructors
+
         internal IndexEntry(byte[] bytes)
         {
             RecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
             Size = BitConverter.ToUInt16(bytes, 0x08);
             StreamSize = BitConverter.ToUInt16(bytes, 0x0A);
             Flags = bytes[0x0C];
-            byte[] stream = new byte[this.StreamSize];
-            
-            Array.Copy(bytes, 0x10, stream, 0, stream.Length);
-            Stream = stream;
+            Stream = NativeMethods.GetSubArray(bytes, 0x10, this.StreamSize);
 
-            if (!(stream.Length == 0))
+            if (!(this.Stream.Length == 0))
             {
                 // Instantiate a FileName Object from IndexEntry Stream
                 Entry = new FileName(this.Stream);
@@ -48,9 +48,11 @@ namespace InvokeIR.PowerForensics.NTFS
             Filename = record.Name;
             FullName = record.FullName;
         }
+
         #endregion Constructors
 
-        #region Methods
+        #region StaticMethods
+
         internal static IndexEntry Get(string path)
         {
             string[] paths = path.TrimEnd('\\').Split('\\');
@@ -63,8 +65,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
             int index = -1;
 
-            IndexRoot indexRoot = null;
-            IndexAllocation indexAllocation = null;
             List<IndexEntry> indexEntryList = new List<IndexEntry>();
 
             for (int i = 0; i < paths.Length; i++)
@@ -98,7 +98,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 {
                     foreach (Attr attr in record.Attribute)
                     {
-                        if (attr.Name == "INDEX_ROOT")
+                        if (attr.Name == Attr.ATTR_TYPE.INDEX_ROOT)
                         {
                             foreach (IndexEntry entry in (attr as IndexRoot).Entries)
                             {
@@ -108,7 +108,7 @@ namespace InvokeIR.PowerForensics.NTFS
                                 }
                             }
                         }
-                        else if (attr.Name == "INDEX_ALLOCATION")
+                        else if (attr.Name == Attr.ATTR_TYPE.INDEX_ALLOCATION)
                         {
                             // Get INDEX_ALLOCATION bytes
                             IndexAllocation IA = new IndexAllocation(attr as NonResident, volume);
@@ -143,8 +143,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
             int index = -1;
 
-            IndexRoot indexRoot = null;
-            IndexAllocation indexAllocation = null;
             List<IndexEntry> indexEntryList = new List<IndexEntry>();
 
             for (int i = 0; i < paths.Length; i++)
@@ -180,7 +178,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 {
                     foreach (Attr attr in record.Attribute)
                     {
-                        if (attr.Name == "INDEX_ROOT")
+                        if (attr.Name == Attr.ATTR_TYPE.INDEX_ROOT)
                         {
                             try
                             {
@@ -202,7 +200,7 @@ namespace InvokeIR.PowerForensics.NTFS
                                 return null;
                             }
                         }
-                        else if (attr.Name == "INDEX_ALLOCATION")
+                        else if (attr.Name == Attr.ATTR_TYPE.INDEX_ALLOCATION)
                         {
                             // Get INDEX_ALLOCATION bytes
                             IndexAllocation IA = new IndexAllocation(attr as NonResident, volume);
@@ -234,7 +232,8 @@ namespace InvokeIR.PowerForensics.NTFS
 
             return indexEntryList.ToArray();
         }
-        #endregion Methods
+        
+        #endregion StaticMethods
     }
 
     #endregion IndexEntryClass

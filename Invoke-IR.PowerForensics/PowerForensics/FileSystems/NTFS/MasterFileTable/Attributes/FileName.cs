@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
+using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
     #region FileNameClass
 
@@ -60,8 +61,6 @@ namespace InvokeIR.PowerForensics.NTFS
 
         public FileName(byte[] bytes)
         {
-            Name = "FILE_NAME";
-
             try
             {
                 // FILE_NAME Attribute
@@ -77,18 +76,7 @@ namespace InvokeIR.PowerForensics.NTFS
                 ER = BitConverter.ToUInt32(bytes, 0x3C);
                 NameLength = bytes[0x40];
                 Namespace = Convert.ToInt32(bytes[0x41]);
-
-                // Get FileName
-                byte[] nameBytes = new byte[NameLength * 2];
-                try
-                {
-                    Array.Copy(bytes, 0x42, nameBytes, 0, nameBytes.Length);
-                    Filename = Encoding.Unicode.GetString(nameBytes).TrimEnd('\0');
-                }
-                catch
-                {
-                    throw new Exception("Could not get File Name");
-                }
+                Filename = Encoding.Unicode.GetString(bytes, 0x42, NameLength * 2).TrimEnd('\0');
             }
             catch
             {
@@ -99,7 +87,7 @@ namespace InvokeIR.PowerForensics.NTFS
         internal FileName(ResidentHeader header, byte[] attrBytes, string attrName)
         {
             // Headers
-            Name = Enum.GetName(typeof(ATTR_TYPE), header.commonHeader.ATTRType);
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
@@ -119,9 +107,7 @@ namespace InvokeIR.PowerForensics.NTFS
             Namespace = Convert.ToInt32(attrBytes[0x41]);
 
             // Get FileName
-            byte[] nameBytes = new byte[NameLength * 2];
-            Array.Copy(attrBytes, 0x42, nameBytes, 0, nameBytes.Length);
-            Filename = Encoding.Unicode.GetString(nameBytes).TrimEnd('\0');
+            Filename = Encoding.Unicode.GetString(attrBytes, 0x42, NameLength * 2).TrimEnd('\0');
         }
 
         #endregion Constructors

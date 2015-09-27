@@ -1,5 +1,7 @@
 ﻿namespace InvokeIR.PowerForensics.Registry
 {
+    #region CellClass
+    
     public class Cell
     {
         #region Properties
@@ -10,4 +12,6 @@
 
         #endregion Properties
     }
+
+    #endregion CellClass
 }

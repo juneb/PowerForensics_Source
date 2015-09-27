@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.NTFS
+namespace InvokeIR.PowerForensics.Ntfs
 {
 
     #region GetChildItemRawCommand
