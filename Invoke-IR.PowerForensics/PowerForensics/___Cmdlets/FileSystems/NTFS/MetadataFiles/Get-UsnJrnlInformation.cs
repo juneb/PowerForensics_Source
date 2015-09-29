@@ -6,29 +6,40 @@ using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetUsnJrnlInformationCommand
     /// <summary> 
     /// This class implements the Get-UsnJrnlInformation cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "UsnJrnlInformation")]
+    [Cmdlet(VerbsCommon.Get, "UsnJrnlInformation", DefaultParameterSetName = "ByVolume")]
     public class GetUsnJrnlInformationCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
         /// This parameter provides the the name of the target volume.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
             set { volume = value; }
         }
         private string volume;
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        public string Path
+        {
+            get { return path; }
+            set { path = value; }
+        }
+        private string path;
 
         [Parameter()]
         public SwitchParameter AsBytes
@@ -43,48 +54,51 @@ namespace InvokeIR.PowerForensics.Cmdlets
         #region Cmdlet Overrides
 
         /// <summary> 
-        /// The ProcessRecord method returns.
+        /// 
         /// </summary> 
 
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            if (ParameterSetName == "ByVolume")
+            {
+                NativeMethods.getVolumeName(ref volume);
+            }
         }
-        
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
         protected override void ProcessRecord()
         {
-            // Check for valid Volume name
-            NativeMethods.getVolumeName(ref volume);
-
-            // Set up FileStream to read volume
-            IntPtr hVolume = NativeMethods.getHandle(volume);
-            FileStream streamToRead = NativeMethods.getFileStream(hVolume);
-
-            // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
-
-            // Get the $Max Data attribute (contains UsnJrnl details)
-            Data Max = UsnJrnl.GetMaxStream(UsnJrnl.GetFileRecord(volume));
-
-            if (asBytes)
+            switch (ParameterSetName)
             {
-                WriteObject(Max.RawData);
-            }
-            else
-            {
-                WriteObject(new UsnJrnlDetail(Max.RawData));
+                case "ByVolume":
+                    if (asBytes)
+                    {
+                        WriteObject(UsnJrnlDetail.GetBytes(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl"), true);
+                    }
+                    else
+                    {
+                        WriteObject(UsnJrnlDetail.Get(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl"), true);
+                    }
+                    break;
+                case "ByPath":
+                    if (asBytes)
+                    {
+                        WriteObject(UsnJrnlDetail.GetBytes(path));
+                    }
+                    else
+                    {
+                        WriteObject(UsnJrnlDetail.Get(path));
+                    }
+                    break;
             }
         } // ProcessRecord 
 
-        protected override void EndProcessing()
-        {
-            GC.Collect();
-        }
-
         #endregion Cmdlet Overrides
-
-    } // End GetUsnJrnlInformationCommand class.
+    } // End GetUsnJrnlInformationCommand class
 
     #endregion GetUsnJrnlInformationCommand
-
 }

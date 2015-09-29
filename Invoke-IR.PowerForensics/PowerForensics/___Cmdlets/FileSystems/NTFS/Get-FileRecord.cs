@@ -24,7 +24,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         /// </summary> 
 
         [Parameter(ParameterSetName = "Default")]
-        [Parameter(ParameterSetName = "Index")]
+        [Parameter(ParameterSetName = "ByIndex")]
         public string VolumeName
         {
             get { return volume; }
@@ -36,21 +36,23 @@ namespace InvokeIR.PowerForensics.Ntfs
         /// 
         /// </summary> 
 
-        [Parameter(ParameterSetName = "Index")]
-        [Parameter(ParameterSetName = "Path")]
-        public SwitchParameter AsBytes
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPath")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByIndex")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByPath")]
+        public string MftPath
         {
-            get { return asbytes; }
-            set { asbytes = value; }
+            get { return mftpath; }
+            set { mftpath = value; }
         }
-        private SwitchParameter asbytes;
+        private string mftpath;
 
         /// <summary> 
         /// This parameter provides the IndexNumber for the 
         /// FileRecord object that will be returned.
         /// </summary> 
 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Index")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByIndex")]
+        //[Parameter(Mandatory = true, Position = 1, ParameterSetName = "MFTPathByIndex")]
         public int Index
         {
             get { return indexNumber; }
@@ -63,13 +65,29 @@ namespace InvokeIR.PowerForensics.Ntfs
         /// </summary> 
 
         [Alias("FullName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Path", ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        //[Parameter(Mandatory = true, Position = 1, ParameterSetName = "MFTPathByPath", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
             get { return path; }
             set { path = value; }
         }
         private string path;
+
+        /// <summary>
+        /// 
+        /// </summary> 
+
+        [Parameter(ParameterSetName = "ByIndex")]
+        [Parameter(ParameterSetName = "ByPath")]
+        //[Parameter(ParameterSetName = "MFTPathByIndex")]
+        //[Parameter(ParameterSetName = "MFTPathByPath")]
+        public SwitchParameter AsBytes
+        {
+            get { return asbytes; }
+            set { asbytes = value; }
+        }
+        private SwitchParameter asbytes;
 
         #endregion Parameters
 
@@ -83,45 +101,64 @@ namespace InvokeIR.PowerForensics.Ntfs
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            if ((ParameterSetName == "ByIndex") || (ParameterSetName == "Default"))
+            {
+                NativeMethods.getVolumeName(ref volume);
+            }
         }
 
         protected override void ProcessRecord()
         {
-            if (this.MyInvocation.BoundParameters.ContainsKey("Index"))
+            switch (ParameterSetName)
             {
-                NativeMethods.getVolumeName(ref volume);
+                case "ByIndex":
+                    if (asbytes)
+                    {
+                        WriteObject(FileRecord.GetRecordBytes(volume, indexNumber));
+                    }
+                    else
+                    {
+                        WriteObject(FileRecord.Get(volume, indexNumber));
+                    }
+                    break;
+                case "ByPath":
+                    if (asbytes)
+                    {
+                        WriteObject(FileRecord.GetRecordBytes(path));
+                    }
+                    else
+                    {
+                        WriteObject(FileRecord.Get(path));
+                    }
+                    break;
+                /*case "MFTPathByIndex":
+                    if (asbytes)
+                    {
+                        //WriteObject(FileRecord.Get)
+                    }
+                    else
+                    {
 
-                if (asbytes)
-                {
-                    WriteObject(FileRecord.GetRecordBytes(volume, indexNumber));
-                }
-                else
-                {
-                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, indexNumber), volume));
-                }
+                    }
+                    break;
+                case "MFTPathByPath":
+                    if (asbytes)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                    break;*/
+                case "MFTPath":
+                    WriteObject(FileRecord.GetInstancesByPath(mftpath), true);
+                    break;
+                case "Default":
+                    WriteObject(FileRecord.GetInstances(volume), true);
+                    break;
             }
-            else if (this.MyInvocation.BoundParameters.ContainsKey("Path"))
-            {
-                string volume = NativeMethods.getVolumeName(ref path.Split(':')[0]);
-
-                IndexEntry entry = IndexEntry.Get(path);
-
-                if (asbytes)
-                {
-                    WriteObject(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber));
-                }
-                else
-                {
-                    WriteObject(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume));
-                }
-            }
-            else
-            {
-                NativeMethods.getVolumeName(ref volume);
-
-                WriteObject(FileRecord.GetInstances(volume), true);
-            }
-        } // ProcessRecord 
+        }
 
         #endregion Cmdlet Overrides
 

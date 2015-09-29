@@ -11,10 +11,23 @@ namespace InvokeIR.PowerForensics.Cmdlets
     /// This class implements the Get-AppCompatCache cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "Amcache")]
+    [Cmdlet(VerbsCommon.Get, "Amcache", DefaultParameterSetName = "Volume")]
     public class GetAmcacheCommand : PSCmdlet
     {
         #region Parameters
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Alias("HivePath")]
+        [Parameter(Mandatory = false, Position = 0)]
+        public string Volume
+        {
+            get { return volume; }
+            set { volume = value; }
+        }
+        private string volume;
 
         /// <summary> 
         /// This parameter provides the the path of the Registry Hive to parse.

@@ -30,18 +30,17 @@ namespace InvokeIR.PowerForensics.Cmdlets
         private string volume;
 
         /// <summary> 
-        /// This parameter provides the the path of the Registry Hive to parse.
+        /// 
         /// </summary> 
 
-        /*[Alias("FilePath")]
-        [Parameter(Mandatory = false, Position = 0)]
+        /*[Alias("FullName")]
+        [Parameter(ParameterSetName = "Path", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
-            get { return filePath; }
-            set { filePath = value; }
+            get { return path; }
+            set { path = value; }
         }
-        private string filePath;
-        */
+        private string path;*/
         
         #endregion Parameters
 

@@ -12,7 +12,6 @@ namespace InvokeIR.PowerForensics.Cmdlets
     [Cmdlet(VerbsCommon.Get, "RegistryValue", DefaultParameterSetName = "Path")]
     public class GetRegistryValueCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 

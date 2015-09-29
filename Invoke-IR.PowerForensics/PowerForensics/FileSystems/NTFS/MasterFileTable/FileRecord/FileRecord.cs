@@ -80,25 +80,26 @@ namespace InvokeIR.PowerForensics.Ntfs
                 // Parse File Record Header
                 OffsetOfUS = BitConverter.ToUInt16(recordBytes, 0x04);
                 SizeOfUS = BitConverter.ToUInt16(recordBytes, 0x06);
-
                 #region UpdateSequenceNumber
+
                 byte[] usnBytes = new byte[2];
                 Array.Copy(recordBytes, OffsetOfUS, usnBytes, 0, usnBytes.Length);
                 UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+                
                 #endregion UpdateSequenceNumber
-
                 #region UpdateSequenceArray
+
                 UpdateSequenceArray = new byte[(2 * SizeOfUS) - 2];
                 Array.Copy(recordBytes, (OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+                
                 #endregion UpdateSequenceArray
-
                 LogFileSequenceNumber = BitConverter.ToUInt64(recordBytes, 0x08);
                 SequenceNumber = BitConverter.ToUInt16(recordBytes, 0x10);
                 Hardlinks = BitConverter.ToUInt16(recordBytes, 18);
                 OffsetOfAttribute = BitConverter.ToUInt16(recordBytes, 20);
                 Flags = BitConverter.ToUInt16(recordBytes, 22);
-
                 #region Deleted
+
                 if ((Flags & (ushort)FILE_RECORD_FLAG.INUSE) == (ushort)FILE_RECORD_FLAG.INUSE)
                 {
                     Deleted = false;
@@ -107,9 +108,10 @@ namespace InvokeIR.PowerForensics.Ntfs
                 {
                     Deleted = true;
                 }
-                #endregion Deleted
 
+                #endregion Deleted
                 #region Directory
+
                 if ((Flags & (ushort)FILE_RECORD_FLAG.DIR) == (ushort)FILE_RECORD_FLAG.DIR)
                 {
                     Directory = true;
@@ -118,15 +120,15 @@ namespace InvokeIR.PowerForensics.Ntfs
                 {
                     Directory = false;
                 }
-                #endregion Directory
 
+                #endregion Directory
                 RealSize = BitConverter.ToUInt32(recordBytes, 24);
                 AllocatedSize = BitConverter.ToUInt32(recordBytes, 28);
                 ReferenceToBase = BitConverter.ToUInt64(recordBytes, 32);
                 NextAttrId = BitConverter.ToUInt16(recordBytes, 40);
                 RecordNumber = BitConverter.ToUInt32(recordBytes, 44);
-
                 #region Attribute
+
                 // Create a byte array representing the attribute array
                 byte[] attrArrayBytes = new byte[RealSize - OffsetOfAttribute];
                 Array.Copy(recordBytes, OffsetOfAttribute, attrArrayBytes, 0, attrArrayBytes.Length);
@@ -183,13 +185,13 @@ namespace InvokeIR.PowerForensics.Ntfs
                 } while (currentOffset < (attrArrayBytes.Length - 8));
 
                 Attribute = AttributeList.ToArray();
-                #endregion Attribute
 
+                #endregion Attribute
                 FullName = Name;
             }
             else
             {
-                throw new Exception("Invalid Master File Table Entry");
+                throw new Exception("Invalid Master File Table Record");
             }
         }
 
@@ -204,25 +206,26 @@ namespace InvokeIR.PowerForensics.Ntfs
                 // Parse File Record Header
                 OffsetOfUS = BitConverter.ToUInt16(recordBytes, 4);
                 SizeOfUS = BitConverter.ToUInt16(recordBytes, 6);
-
                 #region UpdateSequenceNumber
+
                 byte[] usnBytes = new byte[2];
                 Array.Copy(recordBytes, OffsetOfUS, usnBytes, 0, usnBytes.Length);
                 UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
+                
                 #endregion UpdateSequenceNumber
-
                 #region UpdateSequenceArray
+
                 UpdateSequenceArray = new byte[(2 * SizeOfUS) - 2];
                 Array.Copy(recordBytes, (OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
+                
                 #endregion UpdateSequenceArray
-
                 LogFileSequenceNumber = BitConverter.ToUInt64(recordBytes, 8);
                 SequenceNumber = BitConverter.ToUInt16(recordBytes, 16);
                 Hardlinks = BitConverter.ToUInt16(recordBytes, 18);
                 OffsetOfAttribute = BitConverter.ToUInt16(recordBytes, 20);
                 Flags = BitConverter.ToUInt16(recordBytes, 22);
-
                 #region Deleted
+
                 if ((Flags & (ushort)FILE_RECORD_FLAG.INUSE) == (ushort)FILE_RECORD_FLAG.INUSE)
                 {
                     Deleted = false;
@@ -231,9 +234,10 @@ namespace InvokeIR.PowerForensics.Ntfs
                 {
                     Deleted = true;
                 }
-                #endregion Deleted
 
+                #endregion Deleted
                 #region Directory
+
                 if ((Flags & (ushort)FILE_RECORD_FLAG.DIR) == (ushort)FILE_RECORD_FLAG.DIR)
                 {
                     Directory = true;
@@ -242,15 +246,15 @@ namespace InvokeIR.PowerForensics.Ntfs
                 {
                     Directory = false;
                 }
-                #endregion Directory
 
+                #endregion Directory
                 RealSize = BitConverter.ToUInt32(recordBytes, 24);
                 AllocatedSize = BitConverter.ToUInt32(recordBytes, 28);
                 ReferenceToBase = BitConverter.ToUInt64(recordBytes, 32);
                 NextAttrId = BitConverter.ToUInt16(recordBytes, 40);
                 RecordNumber = BitConverter.ToUInt32(recordBytes, 44);
-
                 #region Attribute
+
                 // Create a byte array representing the attribute array
                 byte[] attrArrayBytes = new byte[RealSize - OffsetOfAttribute];
                 Array.Copy(recordBytes, OffsetOfAttribute, attrArrayBytes, 0, attrArrayBytes.Length);
@@ -310,8 +314,8 @@ namespace InvokeIR.PowerForensics.Ntfs
                 }
 
                 Attribute = AttributeList.ToArray();
-                #endregion Attribute
 
+                #endregion Attribute
                 #region FullName
 
                 StringBuilder sb = new StringBuilder();
@@ -355,7 +359,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             }
         }
 
-        public FileRecord(ref FileRecord[] array, byte[] recordBytes, string volume)
+        public FileRecord(ref FileRecord[] array, byte[] mftBytes, byte[] recordBytes, int bytesPerFileRecord, string volume)
         {
             VolumePath = volume;
 
@@ -417,6 +421,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                 RecordNumber = BitConverter.ToUInt32(recordBytes, 44);
 
                 #region Attribute
+
                 // Create a byte array representing the attribute array
                 byte[] attrArrayBytes = new byte[RealSize - OffsetOfAttribute];
                 Array.Copy(recordBytes, OffsetOfAttribute, attrArrayBytes, 0, attrArrayBytes.Length);
@@ -476,6 +481,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                 }
 
                 Attribute = AttributeList.ToArray();
+
                 #endregion Attribute
 
                 #region FullName
@@ -498,10 +504,15 @@ namespace InvokeIR.PowerForensics.Ntfs
                     else
                     {
                         //Console.WriteLine("RecordIndex: {0}, ParentIndex: {1}", RecordNumber, ParentRecordNumber);
+                        //byte[] parentBytes = GetRecordBytes(mftBytes, bytesPerFileRecord, (int)ParentRecordNumber);
+                        //array[(int)ParentRecordNumber] = new FileRecord(ref array, mftBytes, parentBytes, bytesPerFileRecord, volume);
+                        //sb.Append(array[(int)ParentRecordNumber].FullName);
+                        
                         // This is where the recursive call should live...
                         //array[(int)ParentRecordNumber] = new FileRecord(ref array, FileRecord.GetRecordBytes(volume, (int)ParentRecordNumber), volume);
                         //sb.Append(array[(int)ParentRecordNumber].FullName);
                     }
+
                     // Add file name to end of path
                     sb.Append(Name);
                 }
@@ -523,6 +534,24 @@ namespace InvokeIR.PowerForensics.Ntfs
         #endregion Constructors
 
         #region StaticMethods
+
+        #region GetMethod
+
+        public static FileRecord Get(string path)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            return new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+        }
+
+        public static FileRecord Get(string volume, int index)
+        {
+            return new FileRecord(FileRecord.GetRecordBytes(volume, index), volume);
+        }
+
+        #endregion GetMethod
+
+        #region GetInstancesMethod
 
         public static FileRecord[] GetInstances(string volume)
         {
@@ -560,32 +589,69 @@ namespace InvokeIR.PowerForensics.Ntfs
                         ApplyFixup(ref recordBytes);
 
                         // Instantiate FileRecord object
-                        recordArray[index] = new FileRecord(ref recordArray, recordBytes, volume);
+                        recordArray[index] = new FileRecord(ref recordArray, mftBytes, recordBytes, bytesPerFileRecord, volume);
                     }
                 }
                 return recordArray;
             }
         }
 
-        private static void ApplyFixup(ref byte[] bytes)
+        public static FileRecord[] GetInstancesByPath(string path)
         {
-            // Take UpdateSequence into account
-            ushort usoffset = BitConverter.ToUInt16(bytes, 4);
-            ushort ussize = BitConverter.ToUInt16(bytes, 6);
+            string volume = NativeMethods.GetVolumeFromPath(path);
 
-            if (ussize != 0)
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(path), volume);
+
+            byte[] mftBytes = record.GetBytes();
+
+            // Determine the size of an MFT File Record
+            int bytesPerFileRecord = (int)new VolumeBootRecord(VolumeBootRecord.GetBytes(volume)).BytesPerFileRecord;
+
+            // Calulate the number of entries in the MFT
+            int fileCount = mftBytes.Length / bytesPerFileRecord;
+
+            // Instantiate an array of FileRecord objects
+            FileRecord[] recordArray = new FileRecord[fileCount];
+
+            // Instantiate a byte array large enough to store the bytes belonging to a file record
+            byte[] recordBytes = new byte[bytesPerFileRecord];
+
+            // Now we need to iterate through all possible index values
+            for (int index = 0; index < fileCount; index++)
             {
-                ushort UpdateSequenceNumber = BitConverter.ToUInt16(NativeMethods.GetSubArray(bytes, usoffset, 0x02), 0);
-                byte[] UpdateSequenceArray = NativeMethods.GetSubArray(bytes, (uint)(usoffset + 2), (uint)(2 * ussize));
+                // Check if current record has been instantiated
+                if (recordArray[index] == null)
+                {
+                    // Copy filerecord bytes into the recordBytes byte[]
+                    Array.Copy(mftBytes, index * bytesPerFileRecord, recordBytes, 0, recordBytes.Length);
 
-                bytes[0x1FE] = UpdateSequenceArray[0];
-                bytes[0x1FF] = UpdateSequenceArray[1];
-                bytes[0x3FE] = UpdateSequenceArray[2];
-                bytes[0x3FF] = UpdateSequenceArray[3];
+                    // Take UpdateSequence into account
+                    ApplyFixup(ref recordBytes);
+
+                    // Instantiate FileRecord object
+                    recordArray[index] = new FileRecord(ref recordArray, mftBytes, recordBytes, bytesPerFileRecord, volume);
+                }
             }
+            return recordArray;
+        }
+
+        #endregion GetInstancesMethod
+
+        #region GetRecordBytesMethod
+
+        public static byte[] GetRecordBytes(string path)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            return GetRecordBytesPrivate(volume, (int)entry.RecordNumber);
         }
 
         public static byte[] GetRecordBytes(string volume, int index)
+        {
+            return GetRecordBytesPrivate(volume, index);
+        }
+
+        private static byte[] GetRecordBytesPrivate(string volume, int index)
         {
             // Get handle for volume
             IntPtr hVolume = NativeMethods.getHandle(volume);
@@ -605,7 +671,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                 // Get $MFT Data Attribute
                 NonResident data = null;
 
-                foreach(Attr attr in mftRecord.Attribute)
+                foreach (Attr attr in mftRecord.Attribute)
                 {
                     if (attr.Name == Attr.ATTR_TYPE.DATA)
                     {
@@ -636,6 +702,27 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                 }
                 throw new Exception("Could not find the FileRecord requested...");
+            }
+        }
+
+        #endregion GetRecordBytesMethod
+
+
+        private static void ApplyFixup(ref byte[] bytes)
+        {
+            // Take UpdateSequence into account
+            ushort usoffset = BitConverter.ToUInt16(bytes, 4);
+            ushort ussize = BitConverter.ToUInt16(bytes, 6);
+
+            if (ussize != 0)
+            {
+                ushort UpdateSequenceNumber = BitConverter.ToUInt16(NativeMethods.GetSubArray(bytes, usoffset, 0x02), 0);
+                byte[] UpdateSequenceArray = NativeMethods.GetSubArray(bytes, (uint)(usoffset + 2), (uint)(2 * ussize));
+
+                bytes[0x1FE] = UpdateSequenceArray[0];
+                bytes[0x1FF] = UpdateSequenceArray[1];
+                bytes[0x3FE] = UpdateSequenceArray[2];
+                bytes[0x3FF] = UpdateSequenceArray[3];
             }
         }
 

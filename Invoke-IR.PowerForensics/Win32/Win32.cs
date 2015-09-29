@@ -305,6 +305,11 @@ namespace InvokeIR.Win32
             return epoch.AddSeconds(unixTime);
         }
 
+        internal static string GetVolumeFromPath(string path)
+        {
+            return "\\\\.\\" + path.Split('\\')[0];
+        }
+
         internal static byte[] GetSubArray(byte[] InputBytes, uint offset, uint length)
         {
             byte[] outputBytes = new byte[length];

@@ -66,9 +66,9 @@
     <Compile Include="PowerForensics\FileSystems\ext4\1_Superblock\Superblockext4.cs" />
     <Compile Include="PowerForensics\FileSystems\FAT32\VolumeBootRecord\VolumeBootRecord.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MasterFileTable\Attributes\AttributeList.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\3 - %24Volume\Volume.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\6 - %24Bitmap\Bitmap.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\8 - %24BadClus\BadClus.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\Volume.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\Bitmap.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\BadClus.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\EseDb\Header.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\EseDb\Pages\BranchPage.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\EseDb\Pages\LeafPage.cs" />
@@ -87,6 +87,7 @@
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\OffsetRecord.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ReferenceItem.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ValuesList.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\WmiResponsitory\Index.cs" />
     <Compile Include="PowerForensics\Utilities\Rot13.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-AlternateDataStream.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Analytics\Get-UnallocatedSpace.cs" />
@@ -111,26 +112,26 @@
     <Compile Include="PowerForensics\___Cmdlets\OperatingSystem\Windows\Registry\Get-RegistryValue.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-VolumeShadowCopy.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-Hash.cs" />
-    <Compile Include="PowerForensics\Utilities\Hash\Hash.cs" />
+    <Compile Include="PowerForensics\Utilities\Hash.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Prefetch.cs" />
     <Compile Include="PowerForensics\Artifacts\Prefetch.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Artifacts\Get-Timezone.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-BootSector.cs" />
-    <Compile Include="PowerForensics\Utilities\DD\DD.cs" />
+    <Compile Include="PowerForensics\Utilities\DD.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Formats\Format-Hex.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Formats\Format-Mactime.cs" />
     <Compile Include="PowerForensics\Formats\HexDump.cs" />
     <Compile Include="PowerForensics\Formats\Mactime.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-GPT.cs" />
     <Compile Include="PowerForensics\BootSectors\GuidPartitionTable.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\4 - %24AttrDef\AttrDef.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\AttrDef.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\MetadataFiles\Get-AttrDef.cs" />
     <Compile Include="PowerForensics\___Cmdlets\FileSystems\NTFS\Get-VolumeBootRecord.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\2- %24LogFile\LogFile.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\LogFile.cs" />
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-MBR.cs" />
     <Compile Include="PowerForensics\BootSectors\MasterBootRecord.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Copy-FileRaw.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\11 - %24Extend\UsnJrnl.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\UsnJrnl.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MasterFileTable\Attributes\AttributeFactory.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MasterFileTable\Attributes\Attr.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MasterFileTable\Attributes\Data.cs" />
@@ -152,13 +153,11 @@
     <Compile Include="PowerForensics\___Cmdlets\BootSector\Get-PartitionTable.cs" />
     <Compile Include="PowerForensics\___Cmdlets\Utilities\Get-ContentRaw.cs" />
     <Compile Include="PowerForensics\FileSystems\NTFS\MasterFileTable\MasterFileTable.cs" />
-    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\7 - %24Boot\VolumeBootRecord.cs" />
+    <Compile Include="PowerForensics\FileSystems\NTFS\MetadataFiles\VolumeBootRecord.cs" />
     <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PowerForensics\FileSystems\NTFS\MetadataFiles\9 - %24Secure\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -5,16 +5,14 @@ using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetAttrDefCommand
     /// <summary> 
     /// This class implements the Get-AttrDef cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "AttrDef")]
+    [Cmdlet(VerbsCommon.Get, "AttrDef", DefaultParameterSetName = "Volume")]
     public class GetAttrDefCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
@@ -34,7 +32,8 @@ namespace InvokeIR.PowerForensics.Cmdlets
         /// 
         /// </summary> 
 
-        [Parameter(ParameterSetName = "Path")]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "Path", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
             get { return path; }
@@ -61,23 +60,22 @@ namespace InvokeIR.PowerForensics.Cmdlets
         {
             if (ParameterSetName == "Volume")
             {
-                WriteObject(AttrDef.GetInstances(volume, AttrDef.ATTRDEF_INDEX));
+                WriteObject(AttrDef.GetInstances(volume));
             }
             else
             {
-                WriteObject(AttrDef.GetInstances(path));
+                WriteObject(AttrDef.GetInstancesByPath(path));
             }
         } // ProcessRecord 
-
-        #endregion Cmdlet Overrides
 
         protected override void EndProcessing()
         {
             GC.Collect();
         }
+        
+        #endregion Cmdlet Overrides
 
     } // End GetProcCommand class. 
 
     #endregion GetAttrDefCommand
-
 }

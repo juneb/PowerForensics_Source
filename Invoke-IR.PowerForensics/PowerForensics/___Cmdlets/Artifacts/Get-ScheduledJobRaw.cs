@@ -6,18 +6,17 @@ using InvokeIR.PowerForensics.Artifacts;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetScheduledJobCommand
     /// <summary> 
     /// This class implements the Get-ScheduledJob cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "ScheduledJobRaw", DefaultParameterSetName = "None")]
+    [Cmdlet(VerbsCommon.Get, "ScheduledJobRaw", DefaultParameterSetName = "Volume")]
     public class GetScheduledJobCommand : PSCmdlet
     {
         #region Parameters
 
-        [Parameter(ParameterSetName = "None", Position = 0)]
+        [Parameter(ParameterSetName = "Volume", Position = 0)]
         public string VolumeName
         {
             get { return volume; }
@@ -82,5 +81,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetScheduledJobCommand class. 
 
     #endregion GetScheduledJobCommand
-
 }

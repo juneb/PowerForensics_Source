@@ -7,19 +7,17 @@ using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetPrefetchCommand
     /// <summary> 
     /// This class implements the Get-Prefetch cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "Prefetch", DefaultParameterSetName = "None")]
+    [Cmdlet(VerbsCommon.Get, "Prefetch", DefaultParameterSetName = "Volume")]
     public class GetPrefetchCommand : PSCmdlet
     {
-
         #region Parameters
 
-        [Parameter(ParameterSetName = "None", Position = 0)]
+        [Parameter(ParameterSetName = "Volume", Position = 0)]
         public string VolumeName
         {
             get { return volume; }
@@ -109,5 +107,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetPrefetchCommand class.
  
     #endregion GetPrefetchCommand
-
 }

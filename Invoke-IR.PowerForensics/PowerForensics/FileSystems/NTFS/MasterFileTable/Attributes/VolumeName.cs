@@ -16,14 +16,24 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal VolumeName(ResidentHeader header, byte[] attrBytes, string attrName)
+        internal VolumeName(ResidentHeader header, byte[] bytes, string attrName)
         {
             Name = (ATTR_TYPE)header.commonHeader.ATTRType;
             NameString = attrName;
             NonResident = header.commonHeader.NonResident;
             AttributeId = header.commonHeader.Id;
 
-            VolumeNameString = Encoding.Unicode.GetString(attrBytes, 0x00, (int)header.AttrSize);
+            VolumeNameString = Encoding.Unicode.GetString(bytes, 0x00, (int)header.AttrSize);
+        }
+
+        internal VolumeName(ResidentHeader header, byte[] bytes, int offset, string attrName)
+        {
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
+            NameString = attrName;
+            NonResident = header.commonHeader.NonResident;
+            AttributeId = header.commonHeader.Id;
+
+            VolumeNameString = Encoding.Unicode.GetString(bytes, 0x00 + offset, (int)header.AttrSize);
         }
 
         #endregion Constructors

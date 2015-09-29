@@ -16,4 +16,3 @@ C:\Users\Uproot\Documents\GitHub\PowerForensics_Source\Invoke-IR.PowerForensics\
 C:\Users\Uproot\Documents\GitHub\PowerForensics_Source\Invoke-IR.PowerForensics\obj\Debug\PowerForensics.pdb
 C:\Users\Uproot\Documents\GitHub\PowerForensics_Source\Modules\PowerForensics\PowerForensics.dll
 C:\Users\Uproot\Documents\GitHub\PowerForensics_Source\Modules\PowerForensics\PowerForensics.pdb
-C:\Users\Uproot\Documents\GitHub\PowerForensics_Source\Invoke-IR.PowerForensics\obj\Debug\PowerForensics.csprojResolveAssemblyReference.cache
