@@ -370,7 +370,6 @@ namespace InvokeIR.PowerForensics.Ntfs
                 // Parse File Record Header
                 OffsetOfUS = BitConverter.ToUInt16(recordBytes, 4);
                 SizeOfUS = BitConverter.ToUInt16(recordBytes, 6);
-
                 #region UpdateSequenceNumber
                 
                 byte[] usnBytes = new byte[2];
@@ -378,20 +377,17 @@ namespace InvokeIR.PowerForensics.Ntfs
                 UpdateSequenceNumber = BitConverter.ToUInt16(usnBytes, 0);
                 
                 #endregion UpdateSequenceNumber
-
                 #region UpdateSequenceArray
                 
                 UpdateSequenceArray = new byte[(2 * SizeOfUS) - 2];
                 Array.Copy(recordBytes, (OffsetOfUS + 2), UpdateSequenceArray, 0, UpdateSequenceArray.Length);
                 
                 #endregion UpdateSequenceArray
-
                 LogFileSequenceNumber = BitConverter.ToUInt64(recordBytes, 8);
                 SequenceNumber = BitConverter.ToUInt16(recordBytes, 16);
                 Hardlinks = BitConverter.ToUInt16(recordBytes, 18);
                 OffsetOfAttribute = BitConverter.ToUInt16(recordBytes, 20);
                 Flags = BitConverter.ToUInt16(recordBytes, 22);
-
                 #region Deleted
                 if ((Flags & (ushort)FILE_RECORD_FLAG.INUSE) == (ushort)FILE_RECORD_FLAG.INUSE)
                 {
@@ -402,7 +398,6 @@ namespace InvokeIR.PowerForensics.Ntfs
                     Deleted = true;
                 }
                 #endregion Deleted
-
                 #region Directory
                 if ((Flags & (ushort)FILE_RECORD_FLAG.DIR) == (ushort)FILE_RECORD_FLAG.DIR)
                 {
@@ -413,17 +408,18 @@ namespace InvokeIR.PowerForensics.Ntfs
                     Directory = false;
                 }
                 #endregion Directory
-
                 RealSize = BitConverter.ToUInt32(recordBytes, 24);
                 AllocatedSize = BitConverter.ToUInt32(recordBytes, 28);
                 ReferenceToBase = BitConverter.ToUInt64(recordBytes, 32);
                 NextAttrId = BitConverter.ToUInt16(recordBytes, 40);
                 RecordNumber = BitConverter.ToUInt32(recordBytes, 44);
-
                 #region Attribute
 
                 // Create a byte array representing the attribute array
                 byte[] attrArrayBytes = new byte[RealSize - OffsetOfAttribute];
+
+                ApplyFixup(ref recordBytes);
+
                 Array.Copy(recordBytes, OffsetOfAttribute, attrArrayBytes, 0, attrArrayBytes.Length);
 
                 // Instantiate an empty list of Attr Objects (We don't know how many attributes the record contains)
@@ -483,7 +479,6 @@ namespace InvokeIR.PowerForensics.Ntfs
                 Attribute = AttributeList.ToArray();
 
                 #endregion Attribute
-
                 #region FullName
 
                 StringBuilder sb = new StringBuilder();
@@ -500,17 +495,20 @@ namespace InvokeIR.PowerForensics.Ntfs
                     {
                         sb.Append(array[(int)ParentRecordNumber].FullName);
                     }
+
                     // If record for Parent does not already exist then instantiate it and add it to the array
                     else
                     {
-                        //Console.WriteLine("RecordIndex: {0}, ParentIndex: {1}", RecordNumber, ParentRecordNumber);
-                        //byte[] parentBytes = GetRecordBytes(mftBytes, bytesPerFileRecord, (int)ParentRecordNumber);
-                        //array[(int)ParentRecordNumber] = new FileRecord(ref array, mftBytes, parentBytes, bytesPerFileRecord, volume);
-                        //sb.Append(array[(int)ParentRecordNumber].FullName);
-                        
-                        // This is where the recursive call should live...
-                        //array[(int)ParentRecordNumber] = new FileRecord(ref array, FileRecord.GetRecordBytes(volume, (int)ParentRecordNumber), volume);
-                        //sb.Append(array[(int)ParentRecordNumber].FullName);
+                        byte[] parentBytes = NativeMethods.GetSubArray(mftBytes, (uint)bytesPerFileRecord * (uint)ParentRecordNumber, (uint)bytesPerFileRecord);
+                        array[(int)ParentRecordNumber] = new FileRecord(ref array, mftBytes, parentBytes, bytesPerFileRecord, volume);
+                        if (ParentSequenceNumber == array[(int)ParentRecordNumber].SequenceNumber)
+                        {
+                            sb.Append(array[(int)ParentRecordNumber].FullName);
+                        }
+                        else
+                        {
+                            sb.Append(@"$OrphanFiles\");
+                        }
                     }
 
                     // Add file name to end of path
@@ -706,7 +704,6 @@ namespace InvokeIR.PowerForensics.Ntfs
         }
 
         #endregion GetRecordBytesMethod
-
 
         private static void ApplyFixup(ref byte[] bytes)
         {
