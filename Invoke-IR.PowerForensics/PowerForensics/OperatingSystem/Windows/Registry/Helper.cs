@@ -12,10 +12,7 @@ namespace InvokeIR.PowerForensics.Registry
 
         public static byte[] GetHiveBytes(string path)
         {
-            // Get bytes for the specific record
-            string volume = "\\\\.\\" + path.Split('\\')[0];
-            IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
+            FileRecord record = FileRecord.Get(path, true);
             return record.GetBytes();
         }
 

@@ -152,17 +152,8 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         public static Prefetch Get(string filePath)
         {
-            // Get volume path from filePath
-            string volume = @"\\.\" + filePath.Split('\\')[0];
-
-            // Get a handle to the volume
-            IntPtr hVolume = NativeMethods.getHandle(volume);
-
-            // Get MFT Index for specified file
-            int index = (int)(IndexEntry.Get(filePath)).RecordNumber;
-
             // Get bytes for specific Prefetch file
-            byte[] fileBytes = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true).GetBytes();
+            byte[] fileBytes = FileRecord.Get(filePath, true).GetBytes();
             
             try
             {

@@ -234,7 +234,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             }
         }
 
-        internal FileRecord(ref FileRecord[] array, byte[] mftBytes, byte[] recordBytes, int bytesPerFileRecord, string volume)
+        private FileRecord(ref FileRecord[] array, byte[] mftBytes, byte[] recordBytes, int bytesPerFileRecord, string volume)
         {
             VolumePath = volume;
 
@@ -412,16 +412,16 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region GetMethod
 
-        public static FileRecord Get(string path)
+        public static FileRecord Get(string path, bool fast)
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
-            return new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, false);
+            return new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, fast);
         }
 
-        public static FileRecord Get(string volume, int index)
+        public static FileRecord Get(string volume, int index, bool fast)
         {
-            return new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, false);
+            return new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, fast);
         }
 
         #endregion GetMethod
@@ -599,6 +599,11 @@ namespace InvokeIR.PowerForensics.Ntfs
                 }
             }
             throw new Exception("Could not locate file contents");
+        }
+
+        public FileRecord GetParent()
+        {
+            return FileRecord.Get(this.VolumePath, (int)this.ParentRecordNumber, false);
         }
 
         public UsnJrnl GetUsnJrnl()

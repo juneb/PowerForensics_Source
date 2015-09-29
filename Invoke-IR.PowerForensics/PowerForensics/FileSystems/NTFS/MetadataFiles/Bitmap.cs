@@ -63,7 +63,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the Data attribute
-            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume, true));
+            NonResident dataStream = Bitmap.GetDataStream(FileRecord.Get(volume, recordNumber, true));
 
             // Calulate the offset of the Bitmap file's data
             ulong dataRunOffset = (ulong)dataStream.DataRun[0].StartCluster * VBR.BytesPerCluster;

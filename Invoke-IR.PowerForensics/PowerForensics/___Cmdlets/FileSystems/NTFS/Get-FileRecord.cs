@@ -118,7 +118,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                     else
                     {
-                        WriteObject(FileRecord.Get(volume, indexNumber));
+                        WriteObject(FileRecord.Get(volume, indexNumber, false));
                     }
                     break;
                 case "ByPath":
@@ -128,7 +128,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                     else
                     {
-                        WriteObject(FileRecord.Get(path));
+                        WriteObject(FileRecord.Get(path, false));
                     }
                     break;
                 /*case "MFTPathByIndex":
