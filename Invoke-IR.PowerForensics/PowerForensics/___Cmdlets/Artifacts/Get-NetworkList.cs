@@ -6,7 +6,6 @@ using InvokeIR.PowerForensics.Utilities;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetNetworkListCommand
     /// <summary> 
     /// This class implements the Get-NetworkList cmdlet. 
@@ -73,5 +72,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetNetworkListCommand class. 
 
     #endregion GetNetworkListCommand
-
 }

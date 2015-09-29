@@ -6,24 +6,21 @@ using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetVolumeNameCommand
     /// <summary> 
     /// This class implements the Get-VolumeName cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "VolumeName")]
-    public class GetVolumeNameCommand : Cmdlet
+    [Cmdlet(VerbsCommon.Get, "VolumeName", DefaultParameterSetName = "ByVolume")]
+    public class GetVolumeNameCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
-        /// This parameter provides the Volume Name for the 
-        /// AttrDef objects that will be returned.
+        /// This parameter provides the the name of the target volume.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -31,43 +28,52 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private string volume;
 
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        public string Path
+        {
+            get { return path; }
+            set { path = value; }
+        }
+        private string path;
+
         #endregion Parameters
 
         #region Cmdlet Overrides
 
         /// <summary> 
-        /// The ProcessRecord method calls AttrDef.GetInstances() 
-        /// method to iterate through each AttrDef object on the specified volume.
+        /// 
         /// </summary> 
 
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            if (ParameterSetName == "ByVolume")
+            {
+                NativeMethods.getVolumeName(ref volume);
+            }
         }
         
         protected override void ProcessRecord()
         {
-            // Check for valid Volume name
-            NativeMethods.getVolumeName(ref volume);
+            switch (ParameterSetName)
+            {
+                case "ByVolume":
+                    WriteObject(Volume.GetVolumeName(volume));
+                    break;
+                case "ByPath":
+                    WriteObject(Volume.GetVolumeNameByPath(path));
+                    break;
+            }
 
-            // Set up FileStream to read volume
-            IntPtr hVolume = NativeMethods.getHandle(volume);
-            FileStream streamToRead = NativeMethods.getFileStream(hVolume);
-
-            // Get the $J Data attribute (contains UsnJrnl details
-            WriteObject(Volume.GetVolumeNameAttr(Volume.GetFileRecord(volume)));
-
-        } // ProcessRecord 
+        } 
 
         #endregion Cmdlet Overrides
-
-        protected override void EndProcessing()
-        {
-            GC.Collect();
-        }
-
     } // End GetVolumeNameCommand class. 
 
     #endregion GetVolumeNameCommand
-
 }

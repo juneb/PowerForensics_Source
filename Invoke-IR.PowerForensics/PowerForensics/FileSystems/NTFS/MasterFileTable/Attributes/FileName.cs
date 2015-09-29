@@ -64,8 +64,8 @@ namespace InvokeIR.PowerForensics.Ntfs
             try
             {
                 // FILE_NAME Attribute
-                ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06));
                 ParentRecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
+                ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06));
                 BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08));
                 ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10));
                 ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x18));
@@ -84,7 +84,32 @@ namespace InvokeIR.PowerForensics.Ntfs
             }
         }
 
-        internal FileName(ResidentHeader header, byte[] attrBytes, string attrName)
+        public FileName(byte[] bytes, int offset)
+        {
+            try
+            {
+                // FILE_NAME Attribute
+                ParentRecordNumber = (BitConverter.ToUInt64(bytes, 0x00 + offset) & 0x0000FFFFFFFFFFFF);
+                ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06 + offset));
+                BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08 + offset));
+                ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10 + offset));
+                ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x18 + offset));
+                AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x20 + offset));
+                AllocatedSize = BitConverter.ToUInt64(bytes, 0x28 + offset);
+                RealSize = BitConverter.ToUInt64(bytes, 0x30 + offset);
+                Flags = BitConverter.ToUInt32(bytes, 0x38 + offset);
+                ER = BitConverter.ToUInt32(bytes, 0x3C + offset);
+                NameLength = bytes[0x40 + offset];
+                Namespace = Convert.ToInt32(bytes[0x41 + offset]);
+                Filename = Encoding.Unicode.GetString(bytes, 0x42 + offset, NameLength * 2).TrimEnd('\0');
+            }
+            catch
+            {
+
+            }
+        }
+
+        internal FileName(ResidentHeader header, byte[] bytes, string attrName)
         {
             // Headers
             Name = (ATTR_TYPE)header.commonHeader.ATTRType;
@@ -93,21 +118,47 @@ namespace InvokeIR.PowerForensics.Ntfs
             AttributeId = header.commonHeader.Id;
             
             // FILE_NAME Attribute
-            ParentSequenceNumber = (BitConverter.ToUInt16(attrBytes, 0x06));
-            ParentRecordNumber = (BitConverter.ToUInt64(attrBytes, 0x00) & 0x0000FFFFFFFFFFFF);
-            BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x08));
-            ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x10));
-            ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x18));
-            AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(attrBytes, 0x20));
-            AllocatedSize = BitConverter.ToUInt64(attrBytes, 0x28);
-            RealSize = BitConverter.ToUInt64(attrBytes, 0x30);
-            Flags = BitConverter.ToUInt32(attrBytes, 0x38);
-            ER = BitConverter.ToUInt32(attrBytes, 0x3C);
-            NameLength = attrBytes[0x40];
-            Namespace = Convert.ToInt32(attrBytes[0x41]);
+            ParentRecordNumber = (BitConverter.ToUInt64(bytes, 0x00) & 0x0000FFFFFFFFFFFF);
+            ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06));
+            BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08));
+            ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10));
+            ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x18));
+            AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x20));
+            AllocatedSize = BitConverter.ToUInt64(bytes, 0x28);
+            RealSize = BitConverter.ToUInt64(bytes, 0x30);
+            Flags = BitConverter.ToUInt32(bytes, 0x38);
+            ER = BitConverter.ToUInt32(bytes, 0x3C);
+            NameLength = bytes[0x40];
+            Namespace = Convert.ToInt32(bytes[0x41]);
 
             // Get FileName
-            Filename = Encoding.Unicode.GetString(attrBytes, 0x42, NameLength * 2).TrimEnd('\0');
+            Filename = Encoding.Unicode.GetString(bytes, 0x42, NameLength * 2).TrimEnd('\0');
+        }
+
+        internal FileName(ResidentHeader header, byte[] bytes, int offset, string attrName)
+        {
+            // Headers
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
+            NameString = attrName;
+            NonResident = header.commonHeader.NonResident;
+            AttributeId = header.commonHeader.Id;
+
+            // FILE_NAME Attribute
+            ParentRecordNumber = (BitConverter.ToUInt64(bytes, 0x00 + offset) & 0x0000FFFFFFFFFFFF);
+            ParentSequenceNumber = (BitConverter.ToUInt16(bytes, 0x06 + offset));
+            BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08 + offset));
+            ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10 + offset));
+            ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x18 + offset));
+            AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x20 + offset));
+            AllocatedSize = BitConverter.ToUInt64(bytes, 0x28 + offset);
+            RealSize = BitConverter.ToUInt64(bytes, 0x30 + offset);
+            Flags = BitConverter.ToUInt32(bytes, 0x38 + offset);
+            ER = BitConverter.ToUInt32(bytes, 0x3C + offset);
+            NameLength = bytes[0x40 + offset];
+            Namespace = Convert.ToInt32(bytes[0x41 + offset]);
+
+            // Get FileName
+            Filename = Encoding.Unicode.GetString(bytes, 0x42 + offset, NameLength * 2).TrimEnd('\0');
         }
 
         #endregion Constructors

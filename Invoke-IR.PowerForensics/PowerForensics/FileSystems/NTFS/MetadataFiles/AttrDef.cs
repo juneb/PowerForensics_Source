@@ -85,19 +85,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #endregion Constructors
 
-        #region PublicMethods
-
-        public static AttrDef[] GetInstances(string path)
-        {
-            string volume = "\\\\.\\" + path.Split('\\')[0];
-            IndexEntry indx = IndexEntry.Get(path);
-            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, (int)indx.RecordNumber), volume).GetBytes());
-        }
-
-        internal static AttrDef[] GetInstances(string volume, int index)
-        {
-            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, index), volume).GetBytes());
-        }
+        #region StaticMethods
 
         internal static AttrDef[] GetInstances(byte[] bytes)
         {
@@ -113,7 +101,19 @@ namespace InvokeIR.PowerForensics.Ntfs
             return adList.ToArray();
         }
 
-        #endregion PublicMethods
+        public static AttrDef[] GetInstances(string volume)
+        {
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume).GetBytes());
+        }
+
+        public static AttrDef[] GetInstancesByPath(string path)
+        {
+            string volume = "\\\\.\\" + path.Split('\\')[0];
+            IndexEntry indx = IndexEntry.Get(path);
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, (int)indx.RecordNumber), volume).GetBytes());
+        }
+
+        #endregion StaticMethods
     }
 
     #endregion AttrDefClass

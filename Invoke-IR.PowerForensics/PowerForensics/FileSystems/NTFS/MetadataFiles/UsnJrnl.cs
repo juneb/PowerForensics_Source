@@ -95,7 +95,16 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region StaticMethods
 
-        public static UsnJrnl Get(string volume, ulong usn)
+        #region GetMethods
+
+        public static UsnJrnl Get(string path, ulong usn)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            return Get(volume, (int)entry.RecordNumber, usn);
+        }
+
+        private static UsnJrnl Get(string volume, int recordnumber, ulong usn)
         {
             // Check for valid Volume name
             NativeMethods.getVolumeName(ref volume);
@@ -107,8 +116,10 @@ namespace InvokeIR.PowerForensics.Ntfs
             // Get VolumeBootRecord object for logical addressing
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume);
+
             // Get the $J Data attribute (contains UsnJrnl details
-            NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));
+            NonResident J = UsnJrnl.GetJStream(record);
 
             // Determine the length of the initial sparse pages
             ulong SparseLength = (ulong)J.DataRun[0].ClusterLength * VBR.BytesPerCluster;
@@ -161,7 +172,18 @@ namespace InvokeIR.PowerForensics.Ntfs
             return null;
         }
 
-        public static UsnJrnl[] GetInstances(string volume)
+        #endregion GetMethods
+
+        #region GetInstancesMethods
+
+        public static UsnJrnl[] GetInstances(string path)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            return GetInstances(volume, (int)entry.RecordNumber);
+        }
+
+        private static UsnJrnl[] GetInstances(string volume, int recordnumber)
         {
             // Check for valid Volume name
             NativeMethods.getVolumeName(ref volume);
@@ -173,8 +195,10 @@ namespace InvokeIR.PowerForensics.Ntfs
             // Get VolumeBootRecord object for logical addressing
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume);
+
             // Get the $J Data attribute (contains UsnJrnl details
-            NonResident J = UsnJrnl.GetJStream(UsnJrnl.GetFileRecord(volume));
+            NonResident J = UsnJrnl.GetJStream(record);
 
             List<UsnJrnl> usnList = new List<UsnJrnl>();
 
@@ -185,7 +209,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     long clusterCount = J.DataRun[i].ClusterLength;
 
                     byte[] fragmentBytes = NativeMethods.readDrive(streamToRead, ((ulong)J.DataRun[i].StartCluster * VBR.BytesPerCluster), ((ulong)clusterCount * VBR.BytesPerCluster));
-                    
+
                     byte[] clusterBytes = new byte[VBR.BytesPerCluster];
 
                     for (long j = 0; j < clusterCount; j++)
@@ -222,6 +246,8 @@ namespace InvokeIR.PowerForensics.Ntfs
             return usnList.ToArray();
         }
 
+        #endregion GetInstancesMethods
+
         internal static FileRecord GetFileRecord(string volume)
         {
             string volLetter = volume.Split('\\')[3];
@@ -239,18 +265,6 @@ namespace InvokeIR.PowerForensics.Ntfs
                 }
             }
             throw new Exception("No $J attribute found.");
-        }
-
-        internal static Data GetMaxStream(FileRecord fileRecord)
-        {
-            foreach (Attr attr in fileRecord.Attribute)
-            {
-                if (attr.NameString == "$Max")
-                {
-                    return attr as Data;
-                }
-            }
-            throw new Exception("No $MAX attribute found.");
         }
 
         #endregion StaticMethods
@@ -314,6 +328,48 @@ namespace InvokeIR.PowerForensics.Ntfs
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        #region GetMethod
+
+        public static UsnJrnlDetail Get(string path)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            
+            return new UsnJrnlDetail(GetMaxStream(record).RawData);
+        }
+
+        #endregion GetMethod
+
+        #region GetBytesMethod
+
+        public static byte[] GetBytes(string path)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+
+            return GetMaxStream(record).RawData;
+        }
+
+        #endregion GetBytesMethod
+
+        internal static Data GetMaxStream(FileRecord fileRecord)
+        {
+            foreach (Attr attr in fileRecord.Attribute)
+            {
+                if (attr.NameString == "$Max")
+                {
+                    return attr as Data;
+                }
+            }
+            throw new Exception("No $MAX attribute found.");
+        }
+
+        #endregion StaticMethods
     }
 
     #endregion UsnJrnlDetailClass

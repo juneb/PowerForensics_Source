@@ -7,20 +7,20 @@ namespace InvokeIR.PowerForensics.Cmdlets
 {
     #region GetUsnJrnlCommand
     /// <summary> 
-    /// This class implements the Get-UsnJrnl cmdlet. 
+    /// This class implements the Get-UsnJrnl cmdlet 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "UsnJrnl")]
+    [Cmdlet(VerbsCommon.Get, "UsnJrnl", DefaultParameterSetName = "ByVolume")]
     public class GetUsnJrnlCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
         /// This parameter provides the the name of the target volume.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
+        [Parameter(Position = 0, ParameterSetName = "ByVolumeUsn")]
         public string VolumeName
         {
             get { return volume; }
@@ -28,7 +28,26 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private string volume;
 
-        [Parameter(ParameterSetName = "USN")]
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPathUsn", ValueFromPipelineByPropertyName = true)]
+        public string Path
+        {
+            get { return path; }
+            set { path = value; }
+        }
+        private string path;
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        [Parameter(Mandatory = true, ParameterSetName = "ByVolumeUsn")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPathUsn")]
         public ulong USN
         {
             get { return usn; }
@@ -36,43 +55,61 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private ulong usn;
 
-        [Parameter()]
+        /// <summary> 
+        /// 
+        /// </summary> 
+
+        /*[Parameter()]
         public SwitchParameter AsBytes
         {
             get { return asBytes; }
             set { asBytes = value; }
         }
-        private SwitchParameter asBytes;
+        private SwitchParameter asBytes;*/
 
         #endregion Parameters
 
         #region Cmdlet Overrides
 
         /// <summary> 
-        /// The ProcessRecord method returns.
+        /// 
         /// </summary> 
 
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            if (ParameterSetName.Contains("Volume"))
+            {
+                NativeMethods.getVolumeName(ref volume);
+            }
         }
-        
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+
         protected override void ProcessRecord()
         {
-            
-            if (this.MyInvocation.BoundParameters.ContainsKey("USN"))
+            switch (ParameterSetName)
             {
-                WriteObject(UsnJrnl.Get(volume, usn));
+                case "ByVolume":
+                    WriteObject(UsnJrnl.GetInstances(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl"), true);
+                    break;
+                case "ByVolumeUsn":
+                    WriteObject(UsnJrnl.Get(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl", usn));
+                    break;
+                case "ByPath":
+                    WriteObject(UsnJrnl.GetInstances(path), true);
+                    break;
+                case "ByPathUsn":
+                    WriteObject(UsnJrnl.Get(path, usn));
+                    break;
             }
-            
-            else
-            {
-                UsnJrnl[] usn = UsnJrnl.GetInstances(volume);
+        }
 
-                WriteObject(usn, true);
-            }
-
-        } // ProcessRecord 
+        /// <summary> 
+        /// 
+        /// </summary> 
 
         protected override void EndProcessing()
         {
@@ -80,8 +117,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
 
         #endregion Cmdlet Overrides
-
-    } // End GetUsnJrnlCommand class.
+    } // End GetUsnJrnlCommand class
 
     #endregion GetUsnJrnlCommand
 }

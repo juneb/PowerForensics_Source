@@ -4,9 +4,15 @@ using InvokeIR.Win32;
 
 namespace InvokeIR.PowerForensics.Ntfs
 {
+    #region BitmapClass
+    
     public class Bitmap
     {
+        #region Constants
+
         public const int BITMAP_INDEX = 6;
+        
+        #endregion Constants
 
         #region Properties
 
@@ -25,12 +31,25 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #endregion Constructors
 
+        #region StaticMethods
+
         #region GetMethods
 
-        internal static Bitmap Get(string volume, ulong cluster)
+        public static Bitmap Get(string volume, ulong cluster)
+        {
+            return Get(volume, BITMAP_INDEX, cluster);
+        }
+
+        public static Bitmap GetByPath(string path, ulong cluster)
+        {
+            string volume = NativeMethods.GetVolumeFromPath(path);
+            IndexEntry entry = IndexEntry.Get(path);
+            return Get(volume, (int)entry.RecordNumber, cluster);
+        }
+
+        private static Bitmap Get(string volume, int recordNumber, ulong cluster)
         {
             ulong sectorOffset = cluster / 4096;
-            ulong byteOffset = (cluster % 4096) / 8;
 
             // Check for valid Volume name
             NativeMethods.getVolumeName(ref volume);
@@ -44,16 +63,23 @@ namespace InvokeIR.PowerForensics.Ntfs
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the Data attribute
-            NonResident dataStream = Bitmap.GetDataStream(Bitmap.GetFileRecord(volume));
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume));
 
             // Calulate the offset of the Bitmap file's data
             ulong dataRunOffset = (ulong)dataStream.DataRun[0].StartCluster * VBR.BytesPerCluster;
 
             // Calculate the offset of the sector that contains the entry for the specific cluster
-            ulong offset = dataRunOffset + (VBR.BytesPerSector * sectorOffset); 
+            ulong offset = dataRunOffset + (VBR.BytesPerSector * sectorOffset);
 
             // Read appropriate sector
             byte[] bytes = NativeMethods.readDrive(streamToRead, offset, VBR.BytesPerSector);
+
+            return Get(bytes, cluster);
+        }
+
+        private static Bitmap Get(byte[] bytes, ulong cluster)
+        {
+            ulong byteOffset = (cluster % 4096) / 8;
 
             byte b = bytes[byteOffset];
 
@@ -93,23 +119,32 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region GetInstancesMethods
 
-        internal static Bitmap[] GetInstances(string volume)
+        public static Bitmap[] GetInstancesByPath(string path)
         {
-            // Check for valid Volume name
-            NativeMethods.getVolumeName(ref volume);
+            // Get Volume string from specified path
+            string volume = NativeMethods.GetVolumeFromPath(path);
 
-            // Set up FileStream to read volume
-            IntPtr hVolume = NativeMethods.getHandle(volume);
-            FileStream streamToRead = NativeMethods.getFileStream(hVolume);
+            // Determine Record Number for specified file
+            IndexEntry entry = IndexEntry.Get(path);
 
-            // Get VolumeBootRecord object for logical addressing
-            VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
+            // Get the proper data stream from the FileRecord
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume));
 
-            // Get the Data attribute
-            NonResident dataStream = Bitmap.GetDataStream(Bitmap.GetFileRecord(volume));
+            // Call GetInstances to return all associated Bitmap Values
+            return GetInstances(dataStream.GetBytes(volume));
+        }
 
-            byte[] bytes = NativeMethods.readDrive(streamToRead, ((ulong)dataStream.DataRun[0].StartCluster * VBR.BytesPerCluster), ((ulong)dataStream.DataRun[0].ClusterLength * VBR.BytesPerCluster));
+        public static Bitmap[] GetInstances(string volume)
+        {
+            // Get the proper data stream from the FileRecord
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, BITMAP_INDEX), volume));
 
+            // Call GetInstances to return all associated Bitmap Values
+            return GetInstances(dataStream.GetBytes(volume));
+        }
+
+        internal static Bitmap[] GetInstances(byte[] bytes)
+        {
             Bitmap[] bitmapArray = new Bitmap[bytes.Length * 8];
 
             for (int j = 0; j < bytes.Length; j++)
@@ -155,11 +190,6 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #endregion GetInstancesMethods
 
-        internal static FileRecord GetFileRecord(string volume)
-        {
-            return new FileRecord(FileRecord.GetRecordBytes(volume, BITMAP_INDEX), volume, true);
-        }
-
         internal static NonResident GetDataStream(FileRecord fileRecord)
         {
             foreach (Attr attr in fileRecord.Attribute)
@@ -171,6 +201,9 @@ namespace InvokeIR.PowerForensics.Ntfs
             }
             throw new Exception("No DATA attribute found.");
         }
-
+        
+        #endregion StaticMethods
     }
+
+    #endregion BitmapClass
 }

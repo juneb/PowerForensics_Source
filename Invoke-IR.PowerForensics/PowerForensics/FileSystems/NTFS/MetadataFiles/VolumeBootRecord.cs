@@ -106,9 +106,9 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Get
 
-        public static VolumeBootRecord Get(string path)
+        public static VolumeBootRecord Get(string volume)
         {
-            return new VolumeBootRecord(VolumeBootRecord.GetBytes(path));
+            return new VolumeBootRecord(VolumeBootRecord.GetBytes(volume));
         }
 
         internal static VolumeBootRecord Get(FileStream streamToRead)
@@ -120,10 +120,10 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region GetBytes
 
-        public static byte[] GetBytes(string path)
+        public static byte[] GetBytes(string volume)
         {
             // Get Handle to Hard Drive
-            IntPtr hDrive = NativeMethods.getHandle(path);
+            IntPtr hDrive = NativeMethods.getHandle(volume);
 
             // Create a FileStream to read from hDrive
             using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))

@@ -6,7 +6,6 @@ using InvokeIR.PowerForensics.Utilities;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetUserAssistCommand
     /// <summary> 
     /// This class implements the Get-UserAssist cmdlet. 
@@ -71,5 +70,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetUserAssistCommand class. 
 
     #endregion GetUserAssistCommand
-
 }

@@ -5,23 +5,21 @@ using InvokeIR.PowerForensics.Ntfs;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetBitmapCommand
     /// <summary> 
     /// This class implements the Get-Bitmap cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "Bitmap")]
+    [Cmdlet(VerbsCommon.Get, "Bitmap", DefaultParameterSetName = "ByVolume")]
     public class GetBitmapCommand : PSCmdlet
     {
-
         #region Parameters
 
         /// <summary> 
         /// This parameter provides the the name of the target volume.
         /// </summary> 
 
-        [Parameter(Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -29,7 +27,17 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
         private string volume;
 
-        [Parameter(Mandatory = true)]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        public string Path
+        {
+            get { return path; }
+            set { path = value; }
+        }
+        private string path;
+
+        [Parameter(Mandatory = true, ParameterSetName = "ByVolume")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
         public ulong Cluster
         {
             get { return cluster; }
@@ -42,20 +50,33 @@ namespace InvokeIR.PowerForensics.Cmdlets
         #region Cmdlet Overrides
 
         /// <summary> 
-        /// The ProcessRecord method returns.
+        /// The BeginProcessing method returns.
         /// </summary> 
 
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
         }
-        
+
+        /// <summary> 
+        /// The ProcessRecord method returns.
+        /// </summary> 
+
         protected override void ProcessRecord()
         {
+            if (ParameterSetName == "ByVolume")
+            {
+                WriteObject(Bitmap.Get(volume, cluster));
+            }
+            else
+            {
+                WriteObject(Bitmap.GetByPath(path, cluster));
+            }
+        }
 
-            WriteObject(Bitmap.Get(volume, cluster));
-
-        } // ProcessRecord 
+        /// <summary> 
+        /// The EndProcessing method calls for Garbage Collection.
+        /// </summary> 
 
         protected override void EndProcessing()
         {
@@ -63,9 +84,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
         }
 
         #endregion Cmdlet Overrides
-
     } // End GetBitmapCommand class.
 
     #endregion GetBitmapCommand
-
 }

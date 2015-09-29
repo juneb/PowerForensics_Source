@@ -4,7 +4,6 @@ using InvokeIR.PowerForensics.Registry;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetRegistryKeyCommand
     /// <summary> 
     /// This class implements the Get-RegistryKey cmdlet. 

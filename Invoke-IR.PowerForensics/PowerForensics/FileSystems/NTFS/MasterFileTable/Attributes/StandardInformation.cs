@@ -72,6 +72,31 @@ namespace InvokeIR.PowerForensics.Ntfs
             }
         }
 
+        internal StandardInformation(ResidentHeader header, byte[] bytes, int offset, string attrName)
+        {
+            Name = (ATTR_TYPE)header.commonHeader.ATTRType;
+            NameString = attrName;
+            NonResident = header.commonHeader.NonResident;
+            AttributeId = header.commonHeader.Id;
+
+            BornTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x00 + offset));
+            ModifiedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x08 + offset));
+            ChangedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x10 + offset));
+            AccessedTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(bytes, 0x18 + offset));
+            Permission = ((ATTR_STDINFO_PERMISSION)BitConverter.ToUInt32(bytes, 0x20 + offset));
+            MaxVersionNumber = BitConverter.ToUInt32(bytes, 0x24 + offset);
+            VersionNumber = BitConverter.ToUInt32(bytes, 0x28 + offset);
+            ClassId = BitConverter.ToUInt32(bytes, 0x2C + offset);
+
+            if (header.AttrSize == 0x48)
+            {
+                OwnerId = BitConverter.ToUInt32(bytes, 0x30 + offset);
+                SecurityId = BitConverter.ToUInt32(bytes, 0x34 + offset);
+                QuotaCharged = BitConverter.ToUInt64(bytes, 0x38 + offset);
+                UpdateSequenceNumber = BitConverter.ToUInt64(bytes, 0x40 + offset);
+            }
+        }
+
         #endregion Constructors
     }
 

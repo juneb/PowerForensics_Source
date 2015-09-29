@@ -4,7 +4,6 @@ using InvokeIR.PowerForensics.Registry;
 
 namespace InvokeIR.PowerForensics.Cmdlets
 {
-
     #region GetTimezoneCommand
     /// <summary> 
     /// This class implements the Get-Timezone cmdlet. 
@@ -58,5 +57,4 @@ namespace InvokeIR.PowerForensics.Cmdlets
     } // End GetTimezoneCommand class. 
     
     #endregion GetTimezoneCommand
-
 }
