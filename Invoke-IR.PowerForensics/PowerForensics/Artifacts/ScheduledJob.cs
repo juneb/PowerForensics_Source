@@ -179,15 +179,13 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         internal static ScheduledJob Get(string path)
         {
-            string volume = "\\\\.\\" + path.Split('\\')[0];
-            IndexEntry index = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)index.RecordNumber), volume, true);
+            FileRecord record = FileRecord.Get(path, true);
             return new ScheduledJob(record.GetBytes());
         }
 
         internal static ScheduledJob Get(string volume, int recordNumber)
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume, true);
+            FileRecord record = FileRecord.Get(volume, recordNumber, true);
             return new ScheduledJob(record.GetBytes());
         }
 

@@ -31,7 +31,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         
         internal static FileRecord GetFileRecord(string volume)
         {
-            return new FileRecord(FileRecord.GetRecordBytes(volume, BADCLUS_INDEX), volume, true);
+            return FileRecord.Get(volume, BADCLUS_INDEX, true);
         }
 
         internal static NonResident GetBadStream(FileRecord fileRecord)

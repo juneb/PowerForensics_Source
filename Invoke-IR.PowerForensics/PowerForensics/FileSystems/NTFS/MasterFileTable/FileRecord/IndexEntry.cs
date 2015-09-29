@@ -90,7 +90,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                 }
 
-                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true);
+                FileRecord record = FileRecord.Get(volume, index, true);
 
                 indexEntryList.Clear();
 

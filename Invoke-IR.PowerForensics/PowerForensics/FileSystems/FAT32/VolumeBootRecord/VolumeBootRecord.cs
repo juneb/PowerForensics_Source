@@ -6,7 +6,7 @@ namespace InvokeIR.PowerForensics.FAT
     {
         #region Properties
         
-        public readonly ushort BytesPerSector;
+        /*public readonly ushort BytesPerSector;
         public readonly byte SectorsPerCluster;
         public readonly ushort ReservedSectors;
         public readonly byte NumberofFATs;
@@ -30,7 +30,7 @@ namespace InvokeIR.PowerForensics.FAT
         public readonly byte ExtendedBootSignature;
         public readonly uint VolumeSerialNumber;
         public readonly string VolumeLable;
-        public readonly string FileSystemType;
+        public readonly string FileSystemType;*/
 
         #endregion Properties
 
