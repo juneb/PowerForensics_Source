@@ -43,7 +43,7 @@ namespace InvokeIR.PowerForensics.Registry
             // Get bytes for the specific record
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
             byte[] bytes = record.GetBytes();
 
             // Registry Header

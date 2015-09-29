@@ -58,7 +58,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             string[] paths = path.TrimEnd('\\').Split('\\');
 
             // Determine Volume Name
-            string volume = @"\\.\" + paths[0];
+            string volume = NativeMethods.GetVolumeFromPath(path);
 
             // Test volume path
             NativeMethods.getVolumeName(ref volume);
@@ -90,7 +90,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                 }
 
-                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume);
+                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true);
 
                 indexEntryList.Clear();
 
@@ -136,7 +136,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             string[] paths = path.TrimEnd('\\').Split('\\');
 
             // Determine Volume Name
-            string volume = @"\\.\" + paths[0];
+            string volume = NativeMethods.GetVolumeFromPath(path);
 
             // Test volume path
             NativeMethods.getVolumeName(ref volume);
@@ -170,7 +170,7 @@ namespace InvokeIR.PowerForensics.Ntfs
                     }
                 }
 
-                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume);
+                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, index), volume, true);
 
                 indexEntryList.Clear();
 
@@ -204,8 +204,6 @@ namespace InvokeIR.PowerForensics.Ntfs
                         {
                             // Get INDEX_ALLOCATION bytes
                             IndexAllocation IA = new IndexAllocation(attr as NonResident, volume);
-
-                            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
                             foreach (IndexEntry entry in IA.Entries)
                             {
