@@ -116,7 +116,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             // Get VolumeBootRecord object for logical addressing
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume, true);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(record);
@@ -195,7 +195,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             // Get VolumeBootRecord object for logical addressing
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, recordnumber), volume, true);
 
             // Get the $J Data attribute (contains UsnJrnl details
             NonResident J = UsnJrnl.GetJStream(record);
@@ -273,7 +273,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public FileRecord GetFileRecord()
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.RecordNumber), this.VolumePath);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.RecordNumber), this.VolumePath, true);
 
             if (record.SequenceNumber == this.FileSequenceNumber)
             {
@@ -287,7 +287,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public FileRecord GetParentFileRecord()
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.ParentFileRecordNumber), this.VolumePath);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)this.ParentFileRecordNumber), this.VolumePath, true);
 
             if (record.SequenceNumber == this.ParentFileSequenceNumber)
             {
@@ -337,7 +337,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
             
             return new UsnJrnlDetail(GetMaxStream(record).RawData);
         }
@@ -350,7 +350,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
 
             return GetMaxStream(record).RawData;
         }

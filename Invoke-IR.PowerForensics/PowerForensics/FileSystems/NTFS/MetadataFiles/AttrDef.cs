@@ -103,14 +103,14 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public static AttrDef[] GetInstances(string volume)
         {
-            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume).GetBytes());
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, ATTRDEF_INDEX), volume, true).GetBytes());
         }
 
         public static AttrDef[] GetInstancesByPath(string path)
         {
             string volume = "\\\\.\\" + path.Split('\\')[0];
             IndexEntry indx = IndexEntry.Get(path);
-            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, (int)indx.RecordNumber), volume).GetBytes());
+            return AttrDef.GetInstances(new FileRecord(FileRecord.GetRecordBytes(volume, (int)indx.RecordNumber), volume, true).GetBytes());
         }
 
         #endregion StaticMethods

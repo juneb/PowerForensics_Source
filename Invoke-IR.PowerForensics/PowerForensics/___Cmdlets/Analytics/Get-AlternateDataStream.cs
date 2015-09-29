@@ -66,7 +66,7 @@ namespace InvokeIR.PowerForensics.Cmdlets
             {
                 IndexEntry entry = IndexEntry.Get(filePath);
 
-                FileRecord record =  new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+                FileRecord record =  new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, false);
 
                 if (record.Attribute != null)
                 {

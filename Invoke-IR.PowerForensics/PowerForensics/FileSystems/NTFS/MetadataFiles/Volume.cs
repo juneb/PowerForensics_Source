@@ -20,7 +20,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public static VolumeName GetVolumeName(string volume)
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, VOLUME_INDEX), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, VOLUME_INDEX), volume, true);
             return GetVolumeName(record);
         }
 
@@ -28,7 +28,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
             return GetVolumeName(record);
         }
 
@@ -50,7 +50,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public static VolumeInformation GetVolumeInformation(string volume)
         {
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, VOLUME_INDEX), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, VOLUME_INDEX), volume, true);
             return GetVolumeInformation(record);
         }
 
@@ -58,7 +58,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
-            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume);
+            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true);
             return GetVolumeInformation(record);
         }
 

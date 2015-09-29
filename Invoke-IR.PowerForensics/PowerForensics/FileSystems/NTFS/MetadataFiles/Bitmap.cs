@@ -63,7 +63,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
             // Get the Data attribute
-            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume));
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, recordNumber), volume, true));
 
             // Calulate the offset of the Bitmap file's data
             ulong dataRunOffset = (ulong)dataStream.DataRun[0].StartCluster * VBR.BytesPerCluster;
@@ -128,7 +128,7 @@ namespace InvokeIR.PowerForensics.Ntfs
             IndexEntry entry = IndexEntry.Get(path);
 
             // Get the proper data stream from the FileRecord
-            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume));
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, (int)entry.RecordNumber), volume, true));
 
             // Call GetInstances to return all associated Bitmap Values
             return GetInstances(dataStream.GetBytes(volume));
@@ -137,7 +137,7 @@ namespace InvokeIR.PowerForensics.Ntfs
         public static Bitmap[] GetInstances(string volume)
         {
             // Get the proper data stream from the FileRecord
-            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, BITMAP_INDEX), volume));
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, BITMAP_INDEX), volume, true));
 
             // Call GetInstances to return all associated Bitmap Values
             return GetInstances(dataStream.GetBytes(volume));
