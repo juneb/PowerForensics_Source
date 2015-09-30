@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.Formats
+namespace PowerForensics.Formats
 {
     #region HexDumpClass
     

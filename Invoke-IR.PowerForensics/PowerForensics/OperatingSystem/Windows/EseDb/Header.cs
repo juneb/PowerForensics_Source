@@ -2,10 +2,10 @@
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.EseDb
+namespace PowerForensics.EseDb
 {
-    #region HeaderClass
-    public class Header
+    #region JetHeaderClass
+    public class JetHeader
     {
         #region Enums
 
@@ -84,7 +84,7 @@ namespace InvokeIR.PowerForensics.EseDb
 
         #region Constructors
 
-        internal Header(byte[] bytes)
+        internal JetHeader(byte[] bytes)
         {
             Checksum = BitConverter.ToUInt32(bytes, 0x00);
             Signature = BitConverter.ToUInt32(bytes, 0x04);

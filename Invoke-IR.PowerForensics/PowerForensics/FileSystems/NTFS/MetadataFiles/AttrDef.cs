@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region AttrDefClass
 
@@ -42,7 +42,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal AttrDef(byte[] bytes)
+        private AttrDef(byte[] bytes)
         {
             Name = Encoding.Unicode.GetString(bytes, 0x00, 0x80).TrimEnd('\0');
             Type = BitConverter.ToUInt32(bytes, 0x80);

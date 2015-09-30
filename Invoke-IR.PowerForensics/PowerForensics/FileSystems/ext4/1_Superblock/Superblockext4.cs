@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ext4
+namespace PowerForensics.Ext4
 {
     #region SuperblockClass
 

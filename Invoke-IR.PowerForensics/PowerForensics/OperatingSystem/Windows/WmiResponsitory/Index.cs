@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace InvokeIR.PowerForensics.WmiResponsitory
+namespace PowerForensics.WmiResponsitory
 {
     public class Index
     {

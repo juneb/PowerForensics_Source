@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region MasterFileTableClass
 

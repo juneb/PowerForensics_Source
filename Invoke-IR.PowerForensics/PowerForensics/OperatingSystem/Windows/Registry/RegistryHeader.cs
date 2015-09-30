@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
-using InvokeIR.PowerForensics.Ntfs;
+using PowerForensics.Ntfs;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Registry
+namespace PowerForensics.Registry
 {
     public class RegistryHeader
     {

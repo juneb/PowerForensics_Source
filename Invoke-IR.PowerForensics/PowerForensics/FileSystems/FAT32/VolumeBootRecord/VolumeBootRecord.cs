@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.FAT
+namespace PowerForensics.FAT
 {
     class VolumeBootRecord
     {

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region IndexRootClass
 

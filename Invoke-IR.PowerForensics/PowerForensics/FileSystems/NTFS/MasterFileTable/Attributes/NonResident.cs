@@ -2,9 +2,8 @@
 using System.IO;
 using System.Collections.Generic;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.Ntfs;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region NonResidentClass
 
@@ -133,7 +132,49 @@ namespace InvokeIR.PowerForensics.Ntfs
                 return fileBytes;
             }
         }
-        
+
+        internal byte[] GetBytes(string volume, VolumeBootRecord VBR)
+        {
+            byte[] fileBytes = new byte[this.RealSize];
+
+            int offset = 0;
+
+            NativeMethods.getVolumeName(ref volume);
+            IntPtr hVolume = NativeMethods.getHandle(volume);
+
+            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+            {
+                foreach (DataRun dr in this.DataRun)
+                {
+                    if (dr.Sparse)
+                    {
+                        // Figure out how to add Sparse Bytes
+                    }
+                    else
+                    {
+                        ulong startOffset = (ulong)VBR.BytesPerCluster * (ulong)dr.StartCluster;
+                        ulong count = (ulong)VBR.BytesPerCluster * (ulong)dr.ClusterLength;
+                        byte[] dataRunBytes = NativeMethods.readDrive(streamToRead, startOffset, count);
+
+                        if (((ulong)offset + count) <= (ulong)fileBytes.Length)
+                        {
+                            // Save dataRunBytes to fileBytes
+                            Array.Copy(dataRunBytes, 0, fileBytes, offset, dataRunBytes.Length);
+
+                            // Increment Offset Value
+                            offset += dataRunBytes.Length;
+                        }
+                        else
+                        {
+                            Array.Copy(dataRunBytes, 0, fileBytes, offset, (fileBytes.Length - offset));
+                            break;
+                        }
+                    }
+                }
+                return fileBytes;
+            }
+        }
+
         #endregion PublicMethods
     }
 

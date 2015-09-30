@@ -2,7 +2,7 @@
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Registry
+namespace PowerForensics.Registry
 {
     #region ReferenceItem
 

@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region UsnJrnlClass
 
@@ -70,7 +70,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal UsnJrnl(byte[] bytes, string volume, ref int offset)
+        private UsnJrnl(byte[] bytes, string volume, ref int offset)
         {
             uint RecordLength = RecordLength = BitConverter.ToUInt32(bytes, (0x00 + offset));
             VolumePath = volume;
@@ -312,7 +312,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal UsnJrnlDetail(byte[] maxBytes)
+        private UsnJrnlDetail(byte[] maxBytes)
         {
             MaxSize = BitConverter.ToUInt64(maxBytes, 0x00);
             AllocationDelta = BitConverter.ToUInt64(maxBytes, 0x08);

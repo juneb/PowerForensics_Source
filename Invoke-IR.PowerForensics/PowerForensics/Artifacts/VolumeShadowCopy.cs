@@ -1,8 +1,10 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
-    class VolumeShadowCopy
+    #region VolumeShadowCopyClass
+
+    public class VolumeShadowCopy
     {
         #region Properties
 
@@ -16,4 +18,6 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #endregion Constructors
     }
+
+    #endregion VolumeShadowCopyClass
 }

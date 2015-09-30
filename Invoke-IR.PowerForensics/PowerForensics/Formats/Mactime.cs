@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using InvokeIR.PowerForensics.Ntfs;
-using InvokeIR.PowerForensics.Artifacts;
+using PowerForensics.Ntfs;
+using PowerForensics.Artifacts;
 
-namespace InvokeIR.PowerForensics.Formats
+namespace PowerForensics.Formats
 {
 
     #region mactimeClass

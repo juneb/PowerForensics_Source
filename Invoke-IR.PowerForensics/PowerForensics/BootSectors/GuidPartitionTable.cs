@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics
+namespace PowerForensics
 {
     #region GuidPartitionTableClass
 
@@ -145,10 +145,10 @@ namespace InvokeIR.PowerForensics
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
             if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
             {
-                IntPtr hDevice = Win32.NativeMethods.getHandle(devicePath);
+                IntPtr hDevice = NativeMethods.getHandle(devicePath);
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
                 {
-                    return Win32.NativeMethods.readDrive(streamToRead, GPT_OFFSET, SECTOR_SIZE);
+                    return NativeMethods.readDrive(streamToRead, GPT_OFFSET, SECTOR_SIZE);
                 }
             }
             else

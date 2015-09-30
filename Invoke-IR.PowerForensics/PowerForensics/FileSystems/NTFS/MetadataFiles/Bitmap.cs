@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region BitmapClass
     
@@ -23,7 +23,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal Bitmap(ulong cluster, bool inUse)
+        private Bitmap(ulong cluster, bool inUse)
         {
             Cluster = cluster;
             InUse = inUse;

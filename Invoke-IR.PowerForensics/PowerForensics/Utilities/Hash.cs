@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using InvokeIR.Win32;
 
-namespace InvokeIR
+namespace PowerForensics.Utilities
 {
     #region HashClass
 

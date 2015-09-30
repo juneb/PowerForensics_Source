@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Text;
-using InvokeIR.PowerForensics.Ntfs;
+using System.Collections.Generic;
+using PowerForensics.Ntfs;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
     #region ScheduledJobClass
 
@@ -177,7 +178,9 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #region StaticMethods
 
-        internal static ScheduledJob Get(string path)
+        #region GetMethods
+
+        public static ScheduledJob Get(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
             return new ScheduledJob(record.GetBytes());
@@ -188,6 +191,33 @@ namespace InvokeIR.PowerForensics.Artifacts
             FileRecord record = FileRecord.Get(volume, recordNumber, true);
             return new ScheduledJob(record.GetBytes());
         }
+
+        #endregion GetMethods
+
+        #region GetInstancesMethods
+
+        public static ScheduledJob[] GetInstances(string volume)
+        {
+            string path = volume.Split('\\')[3] + @"\Windows\Tasks";
+            return GetInstances(volume, path);
+        }
+
+        private static ScheduledJob[] GetInstances(string volume, string path)
+        {
+            List<ScheduledJob> jobList = new List<ScheduledJob>();
+
+            foreach (IndexEntry entry in IndexEntry.GetInstances(path))
+            {
+                if (entry.Filename.Contains(".job"))
+                {
+                    jobList.Add(ScheduledJob.Get(volume, (int)entry.RecordNumber));
+                }
+            }
+
+            return jobList.ToArray();
+        }
+
+        #endregion GetInstancesMethods
 
         #endregion StaticMethods
     }
