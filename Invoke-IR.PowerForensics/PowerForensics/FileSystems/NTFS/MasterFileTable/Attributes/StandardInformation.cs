@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region StandardInformationClass
 

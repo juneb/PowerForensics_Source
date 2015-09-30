@@ -1,6 +1,5 @@
 ﻿namespace InvokeIR
 {
-    
     internal static class ExternDll
     {
 

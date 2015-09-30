@@ -2,7 +2,7 @@
 using System.IO;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics
+namespace PowerForensics.Utilities
 {
     #region DDClass
 

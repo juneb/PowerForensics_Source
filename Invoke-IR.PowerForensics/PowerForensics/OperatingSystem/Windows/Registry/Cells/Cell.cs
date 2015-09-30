@@ -1,4 +1,4 @@
-﻿namespace InvokeIR.PowerForensics.Registry
+﻿namespace PowerForensics.Registry
 {
     #region CellClass
     

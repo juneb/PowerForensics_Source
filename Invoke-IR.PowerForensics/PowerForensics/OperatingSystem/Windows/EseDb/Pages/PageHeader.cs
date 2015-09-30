@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.EseDb
+namespace PowerForensics.EseDb
 {
     #region PageHeaderClass
 

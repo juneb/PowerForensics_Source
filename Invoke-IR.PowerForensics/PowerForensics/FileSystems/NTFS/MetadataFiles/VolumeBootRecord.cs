@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region VolumeBootRecordClass
 
@@ -41,7 +41,7 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         #region Constructors
 
-        internal VolumeBootRecord(byte[] bytes)
+        private VolumeBootRecord(byte[] bytes)
         {
             // Get VolumeBootRecord Signature to determine File System Type
             Signature = Encoding.ASCII.GetString(bytes, 0x03, 0x08);
@@ -108,12 +108,17 @@ namespace InvokeIR.PowerForensics.Ntfs
 
         public static VolumeBootRecord Get(string volume)
         {
-            return new VolumeBootRecord(VolumeBootRecord.GetBytes(volume));
+            return new VolumeBootRecord(GetBytes(volume));
+        }
+
+        public static VolumeBootRecord GetByPath(string path)
+        {
+            return new VolumeBootRecord(GetBytesByPath(path));
         }
 
         internal static VolumeBootRecord Get(FileStream streamToRead)
         {
-            return new VolumeBootRecord(VolumeBootRecord.GetBytes(streamToRead));
+            return new VolumeBootRecord(GetBytes(streamToRead));
         }
 
         #endregion Get
@@ -128,8 +133,14 @@ namespace InvokeIR.PowerForensics.Ntfs
             // Create a FileStream to read from hDrive
             using (FileStream streamToRead = NativeMethods.getFileStream(hDrive))
             {
-                return VolumeBootRecord.GetBytes(streamToRead);
+                return GetBytes(streamToRead);
             }
+        }
+
+        public static byte[] GetBytesByPath(string path)
+        {
+            FileRecord record = FileRecord.Get(path, true);
+            return record.GetBytes();
         }
 
         internal static byte[] GetBytes(FileStream streamToRead)

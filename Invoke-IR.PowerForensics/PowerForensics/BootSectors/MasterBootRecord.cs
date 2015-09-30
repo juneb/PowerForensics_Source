@@ -1,15 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using PowerForensics.Utilities;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics
+namespace PowerForensics
 {
     #region MasterBootRecordClass
 
     class MasterBootRecord
     {
-
         #region MBRSignatures
 
         private const string WINDOWS5_X = "8F558EB6672622401DA993E1E865C861";
@@ -150,7 +150,6 @@ namespace InvokeIR.PowerForensics
         }
 
         #endregion PrivateMethods
-
     }
 
     #endregion MasterBootRecordClass

@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ntfs
+namespace PowerForensics.Ntfs
 {
     #region FileRecordClass
     
@@ -12,7 +12,7 @@ namespace InvokeIR.PowerForensics.Ntfs
     {
         #region Enums
 
-        enum FILE_RECORD_FLAG
+        private enum FILE_RECORD_FLAG
         {
             INUSE = 0x01,	// File record is in use
             DIR = 0x02	    // File record is a directory
@@ -579,6 +579,37 @@ namespace InvokeIR.PowerForensics.Ntfs
                     if (attr.NonResident)
                     {
                         return (attr as NonResident).GetBytes(this.VolumePath);
+                    }
+                    else
+                    {
+                        return (attr as Data).RawData;
+                    }
+                }
+                else if (attr.Name == Attr.ATTR_TYPE.ATTRIBUTE_LIST)
+                {
+                    AttributeList attrlist = attr as AttributeList;
+                    foreach (AttrRef ar in attrlist.AttributeReference)
+                    {
+                        if (ar.Name == "DATA")
+                        {
+                            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
+                            return record.GetBytes();
+                        }
+                    }
+                }
+            }
+            throw new Exception("Could not locate file contents");
+        }
+
+        internal byte[] GetBytes(VolumeBootRecord VBR)
+        {
+            foreach (Attr attr in this.Attribute)
+            {
+                if (attr.Name == Attr.ATTR_TYPE.DATA)
+                {
+                    if (attr.NonResident)
+                    {
+                        return (attr as NonResident).GetBytes(this.VolumePath, VBR);
                     }
                     else
                     {

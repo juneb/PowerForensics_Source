@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace InvokeIR.PowerForensics.Utilities
+namespace PowerForensics.Utilities
 {
     static class Rot13
     {

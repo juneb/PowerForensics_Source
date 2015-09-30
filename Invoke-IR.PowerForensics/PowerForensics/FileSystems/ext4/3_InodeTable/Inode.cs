@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ext3
+namespace PowerForensics.Ext3
 {
     public class Inode
     {
@@ -330,7 +330,7 @@ namespace InvokeIR.PowerForensics.Ext3
             {
                 Superblock sb = new Superblock(Superblock.GetBytes(streamToRead, 0));
                 //put this in a foreach block in this.Blocks loop
-                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.Blocks[0].StartBlock), (sb.BlockSize * this.Blocks[0].BlockCount));
+                return NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.Blocks[0].StartBlock), (sb.BlockSize * this.Blocks[0].BlockCount));
             }
         }
     }

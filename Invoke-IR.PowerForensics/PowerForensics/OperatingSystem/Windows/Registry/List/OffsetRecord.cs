@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.Registry
+namespace PowerForensics.Registry
 {
     #region OffsetRecord
 

@@ -1,8 +1,9 @@
 ﻿using System;
-using InvokeIR.PowerForensics.Registry;
-using InvokeIR.PowerForensics.Utilities;
+using System.Collections.Generic;
+using PowerForensics.Registry;
+using PowerForensics.Utilities;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
     public class UserAssist
     {
@@ -141,5 +142,35 @@ namespace InvokeIR.PowerForensics.Artifacts
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        public static UserAssist[] GetInstances(string hivePath)
+        {
+            List<UserAssist> uaList = new List<UserAssist>();
+
+            string Key = @"Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist";
+
+            byte[] bytes = Registry.Helper.GetHiveBytes(hivePath);
+
+            NamedKey[] FileSubKey = NamedKey.GetInstances(bytes, hivePath, Key);
+
+            foreach (NamedKey key in FileSubKey)
+            {
+                foreach (NamedKey nk in key.GetSubKeys(bytes))
+                {
+                    if (nk.NumberOfValues != 0)
+                    {
+                        foreach (ValueKey vk in nk.GetValues(bytes))
+                        {
+                            uaList.Add(new UserAssist(vk, bytes));
+                        }
+                    }
+                }
+            }
+            return uaList.ToArray();
+        }
+
+        #endregion StaticMethods
     }
 }

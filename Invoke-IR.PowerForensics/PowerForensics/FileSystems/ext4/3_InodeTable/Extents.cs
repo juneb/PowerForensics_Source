@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Ext3
+namespace PowerForensics.Ext3
 {
     #region ExtentHeaderClass
 
@@ -98,7 +98,7 @@ namespace InvokeIR.PowerForensics.Ext3
             using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
             {
                 Superblock sb = new Superblock(Superblock.GetBytes(streamToRead, 0));
-                return Win32.NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.StartBlock), (sb.BlockSize * this.BlockCount));
+                return NativeMethods.readDrive(streamToRead, (sb.BlockSize * this.StartBlock), (sb.BlockSize * this.BlockCount));
             }
         }
 

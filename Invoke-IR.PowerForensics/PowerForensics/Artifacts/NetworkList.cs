@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
-using InvokeIR.PowerForensics.Registry;
+using PowerForensics.Registry;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
     public class NetworkList
     {
@@ -54,5 +55,42 @@ namespace InvokeIR.PowerForensics.Artifacts
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        #region GetInstancesMethods
+
+        public static NetworkList[] GetInstances()
+        {
+            string hivePath = @"C:\windows\system32\config\SOFTWARE";
+            return GetInstances(hivePath);
+        }
+
+        public static NetworkList[] GetInstances(string hivePath)
+        {
+            string Key = @"Software\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures";
+
+            byte[] bytes = Registry.Helper.GetHiveBytes(hivePath);
+
+            NamedKey[] SignatureKey = NamedKey.GetInstances(bytes, hivePath, Key);
+
+            List<NetworkList> nlList = new List<NetworkList>();
+
+            foreach (NamedKey key in SignatureKey)
+            {
+                if (key.NumberOfSubKeys != 0)
+                {
+                    foreach (NamedKey nk in key.GetSubKeys(bytes))
+                    {
+                        nlList.Add(new NetworkList(nk, bytes));
+                    }
+                }
+            }
+            return nlList.ToArray();
+        }
+
+        #endregion GetInstancesMethods
+
+        #endregion StaticMethods
     }
 }

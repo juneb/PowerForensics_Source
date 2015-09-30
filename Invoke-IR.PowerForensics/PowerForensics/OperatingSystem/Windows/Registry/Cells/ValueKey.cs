@@ -2,7 +2,7 @@
 using System.Text;
 using InvokeIR.Win32;
 
-namespace InvokeIR.PowerForensics.Registry
+namespace PowerForensics.Registry
 {
     //TODO: Determine if Data is Resident or NonResident
     //TODO: Get Data Buffer
@@ -244,7 +244,7 @@ namespace InvokeIR.PowerForensics.Registry
 
         #endregion StaticMethods
 
-        #region ClassMethods
+        #region InstanceMethods
 
         public byte[] GetData()
         {
@@ -271,7 +271,7 @@ namespace InvokeIR.PowerForensics.Registry
             }
         }
 
-        #endregion ClassMethods
+        #endregion InstanceMethods
     }
 
     #endregion ValueKeyClass

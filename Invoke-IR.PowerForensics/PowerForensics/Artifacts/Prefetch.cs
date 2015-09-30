@@ -3,9 +3,9 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
-using InvokeIR.PowerForensics.Ntfs;
+using PowerForensics.Ntfs;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
     #region PrefetchClass
 
@@ -150,55 +150,68 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #region StaticMethods
 
+        #region GetMethods
+
         public static Prefetch Get(string filePath)
         {
-            // Get bytes for specific Prefetch file
-            byte[] fileBytes = FileRecord.Get(filePath, true).GetBytes();
-            
-            try
+            if (File.Exists(filePath))
             {
+                // Get bytes for specific Prefetch file
+                byte[] fileBytes = FileRecord.Get(filePath, true).GetBytes();
+
                 // Return a Prefetch object for the Prefetch file stored at filePath
                 return new Prefetch(fileBytes);
             }
-            catch
+            else
             {
-                throw new Exception("Error parsing Prefetch file");
+                throw new FileNotFoundException((filePath + " does not exist.  Please enter a valid file path."));
             }
         }
 
         public static Prefetch Get(string filePath, bool fast)
         {
-            // Get bytes for specific Prefetch file
-            byte[] fileBytes = null;
+            if (File.Exists(filePath))
+            {
+                // Get bytes for specific Prefetch file
+                byte[] fileBytes = null;
 
-            try
-            {
-                fileBytes = File.ReadAllBytes(filePath);
-            }
-            catch (ArgumentException)
-            {
-                throw new ArgumentException("ArgumentException thrown by Prefetch.GetInstance()");
-            }
-            catch (PathTooLongException)
-            {
-                throw new PathTooLongException("PathTooLongException thrown by Prefetch.GetInstance()");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                throw new DirectoryNotFoundException("DirectoryNotFoundException thrown by Prefetch.GetInstance()");
-            }
-            catch (IOException)
-            {
-                throw new IOException("IOException thrown by Prefetch.GetInstance()");
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw new UnauthorizedAccessException("UnauthorizedAccessException thrown by Prefetch.GetInstance()");
-            }
+                try
+                {
+                    fileBytes = File.ReadAllBytes(filePath);
+                }
+                catch (ArgumentException)
+                {
+                    throw new ArgumentException("ArgumentException thrown by Prefetch.GetInstance()");
+                }
+                catch (PathTooLongException)
+                {
+                    throw new PathTooLongException("PathTooLongException thrown by Prefetch.GetInstance()");
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    throw new DirectoryNotFoundException("DirectoryNotFoundException thrown by Prefetch.GetInstance()");
+                }
+                catch (IOException)
+                {
+                    throw new IOException("IOException thrown by Prefetch.GetInstance()");
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    throw new UnauthorizedAccessException("UnauthorizedAccessException thrown by Prefetch.GetInstance()");
+                }
 
-            // Return a Prefetch object for the Prefetch file stored at filePath
-            return new Prefetch(fileBytes);
+                // Return a Prefetch object for the Prefetch file stored at filePath
+                return new Prefetch(fileBytes);
+            }
+            else
+            {
+                throw new FileNotFoundException((filePath + " does not exist.  Please enter a valid file path."));
+            }
         }
+
+        #endregion GetMethods
+
+        #region GetInstancesMethods
 
         public static Prefetch[] GetInstances(string volume)
         {
@@ -214,6 +227,8 @@ namespace InvokeIR.PowerForensics.Artifacts
             // Create a FileStream to read from the volume handle
             using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
+                VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
+
                 // Get a byte array representing the Master File Table
                 byte[] MFT = MasterFileTable.GetBytes(streamToRead, volume);
 
@@ -234,7 +249,7 @@ namespace InvokeIR.PowerForensics.Artifacts
                     {
                         if (entry.Filename.Contains(".pf"))
                         {
-                            pfArray[i] = new Prefetch(new FileRecord(NativeMethods.GetSubArray(MFT, (uint)entry.RecordNumber * 0x400, 0x400), volume, true).GetBytes());
+                            pfArray[i] = new Prefetch(new FileRecord(NativeMethods.GetSubArray(MFT, (uint)entry.RecordNumber * 0x400, 0x400), volume, true).GetBytes(VBR));
                             i++;
                         }
                     }
@@ -312,6 +327,8 @@ namespace InvokeIR.PowerForensics.Artifacts
                 return null;
             }
         }
+
+        #endregion GetInstancesMethods
 
         #endregion StaticMethods
     }

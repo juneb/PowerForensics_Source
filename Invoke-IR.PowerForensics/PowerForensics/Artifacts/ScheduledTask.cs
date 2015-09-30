@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace InvokeIR.PowerForensics.Artifacts
+namespace PowerForensics.Artifacts
 {
+    #region ScheduledTask
+
     public class ScheduledTask
     {
         #region Properties
@@ -23,4 +25,6 @@ namespace InvokeIR.PowerForensics.Artifacts
 
         #endregion Constructors
     }
+
+    #endregion ScheduledTask
 }
