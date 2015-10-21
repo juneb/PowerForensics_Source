@@ -41,7 +41,7 @@ namespace PowerForensics.Registry
         public static HiveBinHeader[] GetInstances(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
-            byte[] bytes = record.GetBytes();
+            byte[] bytes = record.GetContent();
 
             // Registry Header
             RegistryHeader header = new RegistryHeader(NativeMethods.GetSubArray(bytes, 0x00, 0x200));

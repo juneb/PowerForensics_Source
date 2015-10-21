@@ -20,7 +20,7 @@ namespace PowerForensics.Cmdlets
         /// 
         /// </summary> 
         [Parameter(Position = 0, ParameterSetName = "ByVolume")]
-        public string Volume
+        public string VolumeName
         {
             get { return volume; }
             set { volume = value; }
@@ -30,9 +30,9 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// This parameter provides the the path of the Registry Hive to parse.
         /// </summary> 
-        [Alias("HivePath")]
+        [Alias("Path")]
         [Parameter(Position = 0, ParameterSetName = "ByPath")]
-        public string Path
+        public string HivePath
         {
             get { return hivePath; }
             set { hivePath = value; }

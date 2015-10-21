@@ -9,7 +9,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-RegistryValue cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "RegistryValue", DefaultParameterSetName = "Path")]
+    [Cmdlet(VerbsCommon.Get, "RegistryValue")]
     public class GetRegistryValueCommand : PSCmdlet
     {
         #region Parameters
@@ -19,26 +19,13 @@ namespace PowerForensics.Cmdlets
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Parameter(Mandatory = true, ParameterSetName = "Path")]
+        [Parameter(Mandatory = true)]
         public string HivePath
         {
             get { return path; }
             set { path = value; }
         }
         private string path;
-
-        /// <summary> 
-        /// This parameter provides the Name of the Volume
-        /// for which the FileRecord object should be
-        /// returned.
-        /// </summary> 
-        [Parameter(Mandatory = true, ParameterSetName = "Bytes")]
-        public byte[] Bytes
-        {
-            get { return bytes; }
-            set { bytes = value; }
-        }
-        private byte[] bytes;
 
         /// <summary> 
         /// This parameter provides the FileName for the 
@@ -74,67 +61,22 @@ namespace PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-            if (ParameterSetName == "Path")
+            if (!(MyInvocation.BoundParameters.ContainsKey("Key")))
             {
-                if (!(MyInvocation.BoundParameters.ContainsKey("Key")))
-                {
-                    key = null;
-                }
-
-                if (MyInvocation.BoundParameters.ContainsKey("Value"))
-                {
-                    WriteObject(ValueKey.Get(path, key, val));
-                }
-                else
-                {
-                    foreach (ValueKey vk in ValueKey.GetInstances(path, key))
-                    {
-                        WriteObject(vk);
-                    }
-                }
+                key = null;
             }
 
-            
-            /*if (ParameterSetName == "Path")
-            {
-                bytes = Helper.GetHiveBytes(path);
-            }
-
-            NamedKey hiveroot = Helper.GetRootKey(bytes, path);
-
-            NamedKey nk = hiveroot;
-
-            if (MyInvocation.BoundParameters.ContainsKey("Key"))
-            {
-                foreach (string k in key.Split('\\'))
-                {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
-                    {
-                        if (n.Name == k)
-                        {
-                            nk = n;
-                        }
-                    }
-                }
-            }
-
-            ValueKey[] values = nk.GetValues(bytes);
-            
             if (MyInvocation.BoundParameters.ContainsKey("Value"))
             {
-                foreach (ValueKey v in values)
-                {
-                    if (v.Name == val)
-                    {
-                        WriteObject(v);
-                    }
-                }
+                WriteObject(ValueKey.Get(path, key, val), true);
             }
             else
             {
-                WriteObject(values);
+                foreach (ValueKey vk in ValueKey.GetInstances(path, key))
+                {
+                    WriteObject(vk, true);
+                }
             }
-            */
         }
 
         #endregion Cmdlet Overrides

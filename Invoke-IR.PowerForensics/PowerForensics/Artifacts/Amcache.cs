@@ -96,7 +96,7 @@ namespace PowerForensics.Artifacts
 
             foreach (NamedKey key in FileSubKey)
             {
-                foreach (NamedKey nk in key.GetSubKeys(bytes))
+                foreach (NamedKey nk in key.GetSubKeys(bytes, key.FullName))
                 {
                     amcacheList.Add(new Amcache(nk, bytes));
                 }

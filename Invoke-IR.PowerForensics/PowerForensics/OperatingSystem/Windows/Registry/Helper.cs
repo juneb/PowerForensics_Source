@@ -13,7 +13,7 @@ namespace PowerForensics.Registry
         public static byte[] GetHiveBytes(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
-            return record.GetBytes();
+            return record.GetContent();
         }
 
         public static NamedKey GetRootKey(string path)
@@ -24,7 +24,7 @@ namespace PowerForensics.Registry
             int offset = (int)header.RootKeyOffset + RegistryHeader.HBINOFFSET;
             int size = Math.Abs(BitConverter.ToInt32(bytes, offset));
 
-            return new NamedKey(NativeMethods.GetSubArray(bytes, (uint)offset, (uint)size), path);
+            return new NamedKey(NativeMethods.GetSubArray(bytes, (uint)offset, (uint)size), path, "");
         }
 
         internal static NamedKey GetRootKey(byte[] bytes, string path)
@@ -38,7 +38,7 @@ namespace PowerForensics.Registry
             int offset = (int)header.RootKeyOffset + RegistryHeader.HBINOFFSET;
             int size = Math.Abs(BitConverter.ToInt32(bytes, offset));
 
-            return new NamedKey(NativeMethods.GetSubArray(bytes, (uint)offset, (uint)size), path);
+            return new NamedKey(NativeMethods.GetSubArray(bytes, (uint)offset, (uint)size), path, "");
         }
         
         #endregion StaticMethods

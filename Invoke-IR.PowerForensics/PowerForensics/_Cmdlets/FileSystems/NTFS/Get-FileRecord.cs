@@ -12,7 +12,7 @@ namespace PowerForensics.Cmdlet
     /// <summary> 
     /// This class implements the Get-FileRecord cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "FileRecord", SupportsShouldProcess = true, DefaultParameterSetName = "Default")]
+    [Cmdlet(VerbsCommon.Get, "FileRecord", SupportsShouldProcess = true, DefaultParameterSetName = "ByIndex")]
     public class GetFileRecordCommand : PSCmdlet
     {
         #region Parameters
@@ -22,7 +22,6 @@ namespace PowerForensics.Cmdlet
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Parameter(ParameterSetName = "Default")]
         [Parameter(ParameterSetName = "ByIndex")]
         public string VolumeName
         {
@@ -31,24 +30,11 @@ namespace PowerForensics.Cmdlet
         }
         private string volume;
 
-        /// <summary>
-        /// 
-        /// </summary> 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPath")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByIndex")]
-        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByPath")]
-        public string MftPath
-        {
-            get { return mftpath; }
-            set { mftpath = value; }
-        }
-        private string mftpath;
-
         /// <summary> 
         /// This parameter provides the IndexNumber for the 
         /// FileRecord object that will be returned.
         /// </summary> 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByIndex")]
+        [Parameter(Position = 0, ParameterSetName = "ByIndex")]
         //[Parameter(Mandatory = true, Position = 1, ParameterSetName = "MFTPathByIndex")]
         public int Index
         {
@@ -56,7 +42,7 @@ namespace PowerForensics.Cmdlet
             set { indexNumber = value; }
         }
         private int indexNumber;
-
+        
         /// <summary>
         /// 
         /// </summary> 
@@ -73,10 +59,21 @@ namespace PowerForensics.Cmdlet
         /// <summary>
         /// 
         /// </summary> 
+        [Parameter(Mandatory = true, ParameterSetName = "MFTPath")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByIndex")]
+        //[Parameter(Mandatory = true, Position = 0, ParameterSetName = "MFTPathByPath")]
+        public string MftPath
+        {
+            get { return mftpath; }
+            set { mftpath = value; }
+        }
+        private string mftpath;
+
+        /// <summary>
+        /// 
+        /// </summary> 
         [Parameter(ParameterSetName = "ByIndex")]
         [Parameter(ParameterSetName = "ByPath")]
-        //[Parameter(ParameterSetName = "MFTPathByIndex")]
-        //[Parameter(ParameterSetName = "MFTPathByPath")]
         public SwitchParameter AsBytes
         {
             get { return asbytes; }
@@ -94,7 +91,7 @@ namespace PowerForensics.Cmdlet
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
-            if ((ParameterSetName == "ByIndex") || (ParameterSetName == "Default"))
+            if (ParameterSetName == "ByIndex")
             {
                 NativeMethods.getVolumeName(ref volume);
             }
@@ -109,13 +106,20 @@ namespace PowerForensics.Cmdlet
             switch (ParameterSetName)
             {
                 case "ByIndex":
-                    if (asbytes)
+                    if (MyInvocation.BoundParameters.ContainsKey("Index"))
                     {
-                        WriteObject(FileRecord.GetRecordBytes(volume, indexNumber));
+                        if (asbytes)
+                        {
+                            WriteObject(FileRecord.GetRecordBytes(volume, indexNumber));
+                        }
+                        else
+                        {
+                            WriteObject(FileRecord.Get(volume, indexNumber, false));
+                        }
                     }
                     else
                     {
-                        WriteObject(FileRecord.Get(volume, indexNumber, false));
+                        WriteObject(FileRecord.GetInstances(volume), true);
                     }
                     break;
                 case "ByPath":
@@ -150,9 +154,6 @@ namespace PowerForensics.Cmdlet
                     break;*/
                 case "MFTPath":
                     WriteObject(FileRecord.GetInstancesByPath(mftpath), true);
-                    break;
-                case "Default":
-                    WriteObject(FileRecord.GetInstances(volume), true);
                     break;
             }
         }

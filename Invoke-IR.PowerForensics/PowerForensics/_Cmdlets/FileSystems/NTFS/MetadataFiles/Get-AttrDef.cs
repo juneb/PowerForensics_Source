@@ -10,7 +10,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-AttrDef cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "AttrDef", DefaultParameterSetName = "Volume")]
+    [Cmdlet(VerbsCommon.Get, "AttrDef", DefaultParameterSetName = "ByVolume")]
     public class GetAttrDefCommand : PSCmdlet
     {
         #region Parameters
@@ -19,7 +19,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the Volume Name for the 
         /// AttrDef objects that will be returned.
         /// </summary> 
-        [Parameter(ParameterSetName = "ByVolume", Position = 0)]
+        [Parameter(ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -31,7 +31,7 @@ namespace PowerForensics.Cmdlets
         /// 
         /// </summary> 
         [Alias("FullName")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
             get { return path; }

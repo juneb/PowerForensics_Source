@@ -31,6 +31,15 @@ namespace PowerForensics.Utilities
             }
         }
 
+        internal static string Get(byte[] bytes, string algorithm)
+        {
+            // Create a hash algorithm for specified algorithm
+            HashAlgorithm hashAlgorithm = GetAlgorithm(algorithm);
+
+            //Output the computed MD5 Hash as a string to the PowerShell pipeline
+            return BitConverter.ToString(hashAlgorithm.ComputeHash(bytes)).Replace("-", "");
+        }
+
         internal static string Get(byte[] bytes, int count, string algorithm)
         {
             // Create a hash algorithm for specified algorithm

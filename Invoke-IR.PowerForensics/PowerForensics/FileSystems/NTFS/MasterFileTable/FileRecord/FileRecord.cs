@@ -2,7 +2,9 @@
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using InvokeIR.Win32;
+using PowerForensics.Utilities;
 
 namespace PowerForensics.Ntfs
 {
@@ -431,7 +433,7 @@ namespace PowerForensics.Ntfs
         public static FileRecord[] GetInstances(string volume)
         {
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(volume, 0), volume, true);
-            byte[] mftBytes = record.GetBytes();
+            byte[] mftBytes = record.GetContent();
             return GetInstances(mftBytes, volume);
         }
 
@@ -439,7 +441,7 @@ namespace PowerForensics.Ntfs
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(path), volume, true);
-            byte[] mftBytes = record.GetBytes();
+            byte[] mftBytes = record.GetContent();
             return GetInstances(mftBytes, volume);
         }
 
@@ -570,19 +572,26 @@ namespace PowerForensics.Ntfs
 
         #region InstanceMethods
 
-        public byte[] GetBytes()
+        // TODO: Add Encoding parameter
+        // TODO: Add DataStream parameter
+        #region GetContentMethods
+
+        public byte[] GetContent()
         {
             foreach (Attr attr in this.Attribute)
             {
                 if (attr.Name == Attr.ATTR_TYPE.DATA)
                 {
-                    if (attr.NonResident)
+                    if (attr.NameString == "")
                     {
-                        return (attr as NonResident).GetBytes(this.VolumePath);
-                    }
-                    else
-                    {
-                        return (attr as Data).RawData;
+                        if (attr.NonResident)
+                        {
+                            return (attr as NonResident).GetBytes(this.VolumePath);
+                        }
+                        else
+                        {
+                            return (attr as Data).RawData;
+                        }
                     }
                 }
                 else if (attr.Name == Attr.ATTR_TYPE.ATTRIBUTE_LIST)
@@ -592,8 +601,11 @@ namespace PowerForensics.Ntfs
                     {
                         if (ar.Name == "DATA")
                         {
-                            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
-                            return record.GetBytes();
+                            if (ar.NameString == "")
+                            {
+                                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
+                                return record.GetContent();
+                            }
                         }
                     }
                 }
@@ -601,7 +613,44 @@ namespace PowerForensics.Ntfs
             throw new Exception("Could not locate file contents");
         }
 
-        internal byte[] GetBytes(VolumeBootRecord VBR)
+        public byte[] GetContent(string StreamName)
+        {
+            foreach (Attr attr in this.Attribute)
+            {
+                if (attr.Name == Attr.ATTR_TYPE.DATA)
+                {
+                    if (attr.NameString == StreamName)
+                    {
+                        if (attr.NonResident)
+                        {
+                            return (attr as NonResident).GetBytes(this.VolumePath);
+                        }
+                        else
+                        {
+                            return (attr as Data).RawData;
+                        }
+                    }
+                }
+                /*else if (attr.Name == Attr.ATTR_TYPE.ATTRIBUTE_LIST)
+                {
+                    AttributeList attrlist = attr as AttributeList;
+                    foreach (AttrRef ar in attrlist.AttributeReference)
+                    {
+                        if (ar.Name == "DATA")
+                        {
+                            if (attr.NameString == StreamName)
+                            {
+                                FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
+                                return record.GetContent(StreamName);
+                            }
+                        }
+                    }
+                }*/
+            }
+            throw new Exception("Could not locate desired stream");
+        }
+
+        internal byte[] GetContent(VolumeBootRecord VBR)
         {
             foreach (Attr attr in this.Attribute)
             {
@@ -624,7 +673,7 @@ namespace PowerForensics.Ntfs
                         if (ar.Name == "DATA")
                         {
                             FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
-                            return record.GetBytes();
+                            return record.GetContent();
                         }
                     }
                 }
@@ -632,10 +681,59 @@ namespace PowerForensics.Ntfs
             throw new Exception("Could not locate file contents");
         }
 
+        #endregion GetContentMethods
+
+        #region CopyFileMethods
+
+        public void CopyFile(string Destination)
+        {
+            byte[] fileBytes = this.GetContent();
+
+            // Open file for writing
+            FileStream streamToWrite = new FileStream(Destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+            
+            // Writes a block of bytes to this stream using data from a byte array.
+            streamToWrite.Write(fileBytes, 0, fileBytes.Length);
+            
+            // Close file stream
+            streamToWrite.Close();
+        }
+
+        public void CopyFile(string Destination, string StreamName)
+        {
+            byte[] fileBytes = this.GetContent(StreamName);
+
+            // Open file for writing
+            FileStream streamToWrite = new FileStream(Destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+
+            // Writes a block of bytes to this stream using data from a byte array.
+            streamToWrite.Write(fileBytes, 0, fileBytes.Length);
+
+            // Close file stream
+            streamToWrite.Close();
+        }
+
+        #endregion CopyFileMethods
+
+        #region GetChildMethods
+
+        public IndexEntry[] GetChild()
+        {
+            return IndexEntry.GetInstances(this.FullName);
+        }
+
+        #endregion GetChildMethods
+
+        #region GetParentMethods
+
         public FileRecord GetParent()
         {
             return FileRecord.Get(this.VolumePath, (int)this.ParentRecordNumber, false);
         }
+
+        #endregion GetParentMethods
+
+        #region GetUsnJrnlMethods
 
         public UsnJrnl GetUsnJrnl()
         {
@@ -644,11 +742,130 @@ namespace PowerForensics.Ntfs
                 if (attr.Name == Attr.ATTR_TYPE.STANDARD_INFORMATION)
                 {
                     StandardInformation stdInfo = attr as StandardInformation;
-                    return UsnJrnl.Get(this.VolumePath, stdInfo.UpdateSequenceNumber);
+                    return UsnJrnl.Get(this.VolumePath.Split('\\')[3] + @"\$Extend\$UsnJrnl", stdInfo.UpdateSequenceNumber);
                 }
             }
             throw new Exception("No $STANDARD_INFORMATION Attirbute found");
         }
+
+        #endregion GetUsnJrnlMethods
+
+        #region GetSlackMethods
+
+        public byte[] GetSlack()
+        {
+            if (!(this.Directory))
+            {
+                if (this.Attribute != null)
+                {
+                    foreach (Attr attr in this.Attribute)
+                    {
+                        if (attr.Name == Attr.ATTR_TYPE.DATA)
+                        {
+                            if (attr.NonResident)
+                            {
+                                return (attr as NonResident).GetSlack(this.VolumePath);
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        /*else if (attr.Name == Attr.ATTR_TYPE.ATTRIBUTE_LIST)
+                        {
+                            AttributeList attrlist = attr as AttributeList;
+                            foreach (AttrRef ar in attrlist.AttributeReference)
+                            {
+                                if (ar.Name == "DATA")
+                                {
+                                    FileRecord record = new FileRecord(FileRecord.GetRecordBytes(this.VolumePath, (int)ar.RecordNumber), this.VolumePath, true);
+                                    return record.GetSlack();
+                                }
+                            }
+                        }*/
+                    }
+                }
+            }
+            return null;
+        }
+
+        #endregion GetSlackMethods
+
+        #region GetMftSlackMethods
+
+        public byte[] GetMftSlack()
+        {
+            byte[] bytes = FileRecord.GetRecordBytes(this.VolumePath, (int)this.RecordNumber);
+            return NativeMethods.GetSubArray(bytes, this.RealSize - 1, this.AllocatedSize - this.RealSize);
+        }
+
+        #endregion GetMftSlackMethods
+
+        #region GetHashMethods
+
+        public string GetHash(string algorithm)
+        {
+            return Hash.Get(this.GetContent(), algorithm);
+        }
+
+        public string GetHash(string algorithm, string stream)
+        {
+            return Hash.Get(this.GetContent(stream), algorithm);
+        }
+
+        #endregion GetHashMethods
+
+        #region ToStringOverride
+
+        public override string ToString()
+        {
+            if (this.Directory)
+            {
+                if (this.Deleted)
+                {
+                    return String.Format("[Directory] {0} (deleted)", this.FullName);
+                }
+                else
+                {
+                    return String.Format("[Directory] {0}", this.FullName);
+                }
+            }
+            else
+            {
+                ulong size = 0;
+
+                foreach (Attr a in this.Attribute)
+                {
+                    if (a.Name == Attr.ATTR_TYPE.DATA)
+                    {
+                        if (a.NonResident)
+                        {
+                            NonResident d = a as NonResident;
+                            size = d.RealSize;
+                            break;
+                        }
+                        else
+                        {
+                            Data data = a as Data;
+                            size = (ulong)data.RawData.Length;
+                            break;
+                        }
+                    }
+                }
+
+                if (this.Deleted)
+                {
+                    return String.Format("[{0}] {1} (deleted)", size, this.FullName);
+                }
+                else
+                {
+                    return String.Format("[{0}] {1}", size, this.FullName);
+                }
+
+            }
+        }
+
+        #endregion ToStringOverride
 
         #endregion InstanceMethods
     }

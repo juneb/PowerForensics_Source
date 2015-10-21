@@ -183,13 +183,13 @@ namespace PowerForensics.Artifacts
         public static ScheduledJob Get(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
-            return new ScheduledJob(record.GetBytes());
+            return new ScheduledJob(record.GetContent());
         }
 
         internal static ScheduledJob Get(string volume, int recordNumber)
         {
             FileRecord record = FileRecord.Get(volume, recordNumber, true);
-            return new ScheduledJob(record.GetBytes());
+            return new ScheduledJob(record.GetContent());
         }
 
         #endregion GetMethods
@@ -218,6 +218,11 @@ namespace PowerForensics.Artifacts
         }
 
         #endregion GetInstancesMethods
+
+        public override string ToString()
+        {
+            return String.Format("[PROGRAM EXECUTION] {0} executed at {1} via Scheduled Job", this.ApplicationName, this.StartTime);
+        }
 
         #endregion StaticMethods
     }

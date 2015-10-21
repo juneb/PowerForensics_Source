@@ -140,7 +140,7 @@ namespace PowerForensics.Ntfs
         public static byte[] GetBytesByPath(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
-            return record.GetBytes();
+            return record.GetContent();
         }
 
         internal static byte[] GetBytes(FileStream streamToRead)

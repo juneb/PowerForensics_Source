@@ -103,7 +103,7 @@ namespace PowerForensics
 
         #endregion Constructor
 
-        #region PublicMethods
+        #region StaticMethods
 
         public static byte[] GetBytes(string drivePath)
         {
@@ -123,10 +123,6 @@ namespace PowerForensics
             // Read Master Boot Record (first 512 bytes) from disk
             return new MasterBootRecord(MasterBootRecord.GetBytes(drivePath));
         }
-
-        #endregion PublicMethods
-
-        #region PrivateMethods
 
         private static List<PartitionEntry> GetExtended(FileStream streamToRead, uint startSector)
         {
@@ -149,7 +145,16 @@ namespace PowerForensics
             return pList;
         }
 
-        #endregion PrivateMethods
+        #endregion StaticMethods
+
+        #region InstanceMethods
+
+        public PartitionEntry[] GetPartitionTable()
+        {
+            return this.PartitionTable;
+        }
+
+        #endregion InstanceMethods
     }
 
     #endregion MasterBootRecordClass

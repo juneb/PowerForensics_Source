@@ -98,7 +98,7 @@ namespace PowerForensics.Ntfs
             NativeMethods.getVolumeName(ref volume);
             IntPtr hVolume = NativeMethods.getHandle(volume);
 
-            using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+            using (FileStream streamToRead = NativeMethods.getFileStream(hVolume))
             {
                 VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
 
@@ -130,6 +130,38 @@ namespace PowerForensics.Ntfs
                     }
                 }
                 return fileBytes;
+            }
+        }
+
+        public byte[] GetSlack(string volume)
+        {
+            NativeMethods.getVolumeName(ref volume);
+            IntPtr hVolume = NativeMethods.getHandle(volume);
+
+            using(FileStream streamToRead = NativeMethods.getFileStream(hVolume))
+            {
+                if (this.DataRun != null)
+                {
+                    VolumeBootRecord VBR = VolumeBootRecord.Get(streamToRead);
+                    ulong slackSize = this.AllocatedSize - this.RealSize;
+                    if (slackSize <= VBR.BytesPerCluster)
+                    {
+                        DataRun dr = this.DataRun[this.DataRun.Length - 1];
+                        ulong lastCluster = (ulong)dr.StartCluster + (ulong)dr.ClusterLength - 1;
+                        byte[] dataRunBytes = NativeMethods.readDrive(streamToRead, VBR.BytesPerCluster * lastCluster, VBR.BytesPerCluster);
+                        byte[] slackBytes = new byte[slackSize];
+                        Array.Copy(dataRunBytes, (long)VBR.BytesPerCluster - ((long)this.AllocatedSize - (long)this.RealSize), slackBytes, 0x00, slackBytes.Length);
+                        return slackBytes;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 

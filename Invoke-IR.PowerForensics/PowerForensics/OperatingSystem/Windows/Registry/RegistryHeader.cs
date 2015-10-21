@@ -65,7 +65,7 @@ namespace PowerForensics.Registry
         public static byte[] GetBytes(string path)
         {
             FileRecord record = FileRecord.Get(path, true); 
-            byte[] bytes = record.GetBytes();
+            byte[] bytes = record.GetContent();
 
             // Registry Header
             return NativeMethods.GetSubArray(bytes, 0x00, 0x200);

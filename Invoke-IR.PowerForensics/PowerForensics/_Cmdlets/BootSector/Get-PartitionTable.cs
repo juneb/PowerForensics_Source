@@ -52,27 +52,12 @@ namespace PowerForensics.Cmdlets
 
             if (mbr.PartitionTable[0].SystemID != "EFI_GPT_DISK")
             {
-                foreach (PartitionEntry partition in mbr.PartitionTable)
-                {
-
-                    if (partition.SystemID != "EMPTY")
-                    {
-                        WriteObject(partition);
-                    }
-
-                    else if (partition.SystemID.Contains("EXTENDED"))
-                    {
-                        // Add code to parse EXTENDED partitions
-                    }
-                }
+                WriteObject(mbr.GetPartitionTable(), true);
             }
             else
             {
                 GuidPartitionTable gpt = new GuidPartitionTable(drivePath);
-                foreach (GuidPartitionTableEntry entry in gpt.PartitionTable)
-                {
-                    WriteObject(entry);
-                }
+                WriteObject(gpt.GetPartitionTable(), true);
             }
 
         }
