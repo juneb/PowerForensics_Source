@@ -163,6 +163,15 @@ namespace PowerForensics
         }
 
         #endregion StaticMethods
+
+        #region InstanceMethods
+
+        public GuidPartitionTableEntry[] GetPartitionTable()
+        {
+            return this.PartitionTable;
+        }
+
+        #endregion InstanceMethods
     }
 
     #endregion GuidPartitionTableClass

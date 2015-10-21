@@ -4,13 +4,13 @@ using InvokeIR.Win32;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetGPTCommand
+    #region GetGuidPartitioTableCommand
     
     /// <summary> 
-    /// This class implements the Get-GPT cmdlet. 
+    /// This class implements the Get-GuidPartitioTable cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "GPT", SupportsShouldProcess = true)]
-    public class GetGPTCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "GuidPartitionTable", SupportsShouldProcess = true)]
+    public class GetGuidPartitioTableCommand : PSCmdlet
     {
         #region Parameters
 
@@ -71,5 +71,5 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetGPTCommand
+    #endregion GetGuidPartitioTableCommand
 }

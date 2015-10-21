@@ -104,13 +104,13 @@ namespace PowerForensics.Ntfs
         public static AttrDef[] GetInstances(string volume)
         {
             FileRecord record = FileRecord.Get(volume, ATTRDEF_INDEX, true);
-            return AttrDef.GetInstances(record.GetBytes());
+            return AttrDef.GetInstances(record.GetContent());
         }
 
         public static AttrDef[] GetInstancesByPath(string path)
         {
             FileRecord record = FileRecord.Get(path, true);
-            return AttrDef.GetInstances(record.GetBytes());
+            return AttrDef.GetInstances(record.GetContent());
         }
 
         #endregion StaticMethods

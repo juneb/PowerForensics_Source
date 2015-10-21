@@ -4,12 +4,12 @@ using InvokeIR.Win32;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetMBRCommand
-    
+    #region GetMasterBootRecordCommand
+
     /// <summary> 
-    /// This class implements the Get-MBR cmdlet. 
+    /// This class implements the Get-MasterBootRecord cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "MBR", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Get, "MasterBootRecord", SupportsShouldProcess = true)]
     public class GetMBRCommand : PSCmdlet
     {
         #region Parameters
@@ -102,6 +102,6 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetMBRCommand
+    #endregion GetMasterBootRecordCommand
 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
 using InvokeIR.Win32;
 
 namespace PowerForensics.Registry
@@ -43,6 +44,7 @@ namespace PowerForensics.Registry
         internal readonly uint LargestValueDataSize;
         internal readonly ushort KeyNameSize;
         internal readonly ushort ClassNameSize;
+        public readonly string FullName;
         public readonly string Name;
 
 
@@ -50,7 +52,7 @@ namespace PowerForensics.Registry
 
         #region Constructors
 
-        internal NamedKey(byte[] bytes, string hivePath)
+        internal NamedKey(byte[] bytes, string hivePath, string key)
         {
             Signature = Encoding.ASCII.GetString(bytes, 0x04, 0x02);
             
@@ -99,6 +101,15 @@ namespace PowerForensics.Registry
                 }
 
                 #endregion KeyNameString
+
+                #region FullName
+
+                string[] hivesplit = hivePath.Split('\\');
+                string hive = hivesplit[hivesplit.Length - 1];
+                string fullname = (key + "\\" + Name).TrimStart('\\');
+                FullName = fullname.Replace("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}", hive + ":");
+
+                #endregion FullName
             }
             else
             {
@@ -122,7 +133,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {
@@ -132,7 +143,7 @@ namespace PowerForensics.Registry
                 }
             }
 
-            return nk.GetSubKeys(bytes);
+            return nk.GetSubKeys(bytes, key);
         }
 
         internal static NamedKey[] GetInstances(byte[] bytes, string path, string key)
@@ -145,7 +156,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {
@@ -155,7 +166,33 @@ namespace PowerForensics.Registry
                 }
             }
 
-            return nk.GetSubKeys(bytes);
+            return nk.GetSubKeys(bytes, key);
+        }
+
+        public static NamedKey[] GetInstancesRecurse(string path)
+        {
+            byte[] bytes = Helper.GetHiveBytes(path);
+
+            NamedKey hiveroot = Helper.GetRootKey(path);
+
+            return GetInstances(bytes, hiveroot, true);
+        }
+
+        private static NamedKey[] GetInstances(byte[] bytes, NamedKey nk, bool recurse)
+        {
+            List<NamedKey> keyList = new List<NamedKey>();
+
+            foreach(NamedKey subkey in nk.GetSubKeys(bytes, nk.FullName))
+            {
+                keyList.Add(subkey);
+                
+                if (subkey.NumberOfSubKeys > 0)
+                {
+                    keyList.AddRange(GetInstances(bytes, subkey, true));
+                }
+            }
+
+            return keyList.ToArray();
         }
 
         #endregion StaticMethods
@@ -199,7 +236,7 @@ namespace PowerForensics.Registry
             if (this.NumberOfSubKeys > 0)
             {
                 byte[] bytes = Helper.GetHiveBytes(this.HivePath);
-                return this.GetSubKeys(bytes);
+                return this.GetSubKeys(bytes, this.FullName);
             }
             else
             {
@@ -207,7 +244,7 @@ namespace PowerForensics.Registry
             }
         }
 
-        internal NamedKey[] GetSubKeys(byte[] bytes)
+        internal NamedKey[] GetSubKeys(byte[] bytes, string key)
         {
             if (this.NumberOfSubKeys > 0)
             {
@@ -221,7 +258,7 @@ namespace PowerForensics.Registry
                 for (int i = 0; i < list.Count; i++)
                 {
                     int size = Math.Abs(BitConverter.ToInt32(bytes, (int)list.Offset[i]));
-                    nkArray[i] = new NamedKey(NativeMethods.GetSubArray(bytes, (uint)list.Offset[i], (uint)size), this.HivePath);
+                    nkArray[i] = new NamedKey(NativeMethods.GetSubArray(bytes, (uint)list.Offset[i], (uint)size), this.HivePath, key);
                 }
 
                 return nkArray;
@@ -244,6 +281,15 @@ namespace PowerForensics.Registry
         }
 
         #endregion InstanceMethods
+
+        #region OverrideMethods
+
+        public override string ToString()
+        {
+            return String.Format("Registry key {0} last written to at {1} [{2}]", this.FullName, this.WriteTime, this.NumberOfValues);
+        }
+
+        #endregion OverrideMethods
     }
 
     #endregion NamedKeyClass

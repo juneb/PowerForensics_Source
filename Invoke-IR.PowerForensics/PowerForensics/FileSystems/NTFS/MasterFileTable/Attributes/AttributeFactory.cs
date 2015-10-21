@@ -180,6 +180,14 @@ namespace PowerForensics.Ntfs
                     case (Int32)Attr.ATTR_TYPE.INDEX_ROOT:
                         return new IndexRoot(residentHeader, attributeBytes, attributeName);
 
+                    case (Int32)Attr.ATTR_TYPE.EA:
+                        //Console.WriteLine("EA");
+                        return null;
+
+                    case (Int32)Attr.ATTR_TYPE.EA_INFORMATION:
+                        //Console.WriteLine("EA_INFORMATION");
+                        return null;
+
                     default:
                         return null;
                 }

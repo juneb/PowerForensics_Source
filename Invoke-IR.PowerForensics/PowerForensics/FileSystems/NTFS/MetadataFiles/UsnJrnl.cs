@@ -123,60 +123,74 @@ namespace PowerForensics.Ntfs
 
             // Determine the length of the initial sparse pages
             ulong SparseLength = (ulong)J.DataRun[0].ClusterLength * VBR.BytesPerCluster;
-            // Subtract length of sparse data from desired usn offset
-            ulong usnOffset = usn - SparseLength;
 
-            // Iterate through each data run
-            for (int i = 1; i < J.DataRun.Length; i++)
+            if (usn > SparseLength)
             {
-                // Determine length of current DataRun
-                ulong dataRunLength = (ulong)J.DataRun[i].ClusterLength * VBR.BytesPerCluster;
+                // Subtract length of sparse data from desired usn offset
+                ulong usnOffset = usn - SparseLength;
 
-                // Check if usnOffset resides in current DataRun
-                if (dataRunLength <= usnOffset)
+                // Iterate through each data run
+                for (int i = 1; i < J.DataRun.Length; i++)
                 {
-                    // If not, subtract length of DataRun from usnOffset
-                    usnOffset -= dataRunLength;
-                }
+                    // Determine length of current DataRun
+                    ulong dataRunLength = (ulong)J.DataRun[i].ClusterLength * VBR.BytesPerCluster;
 
-                // If usnOffset resides within DataRun, parse associated UsnJrnl Entry
-                else
-                {
-                    // Read DataRun from disk
-                    byte[] fragmentBytes = NativeMethods.readDrive(streamToRead, ((ulong)J.DataRun[i].StartCluster * VBR.BytesPerCluster), ((ulong)J.DataRun[i].ClusterLength * VBR.BytesPerCluster));
-
-                    // Instatiate a byte array that is the size of a single cluster
-                    byte[] clusterBytes = new byte[VBR.BytesPerCluster];
-
-                    // Iterate through the clusters in the DataRun
-                    for (long j = 0; j < J.DataRun[i].ClusterLength; j++)
+                    // Check if usnOffset resides in current DataRun
+                    if (dataRunLength <= usnOffset)
                     {
-                        // If usnOffset is not in current cluster, then subtract cluster size from offset and iterate
-                        if (VBR.BytesPerCluster <= usnOffset)
-                        {
-                            usnOffset -= VBR.BytesPerCluster;
-                        }
-                        // Else if usnOffset is in current cluster
-                        else
-                        {
-                            // Copy current cluster bytes to clusterBytes variable
-                            Array.Copy(fragmentBytes, ((long)j * VBR.BytesPerCluster), clusterBytes, 0, clusterBytes.Length);
+                        // If not, subtract length of DataRun from usnOffset
+                        usnOffset -= dataRunLength;
+                    }
 
-                            // Parse desired UsnJrnl entry from cluster
-                            int offset = (int)usnOffset;
-                            return new UsnJrnl(clusterBytes, volume, ref offset);
+                    // If usnOffset resides within DataRun, parse associated UsnJrnl Entry
+                    else
+                    {
+                        // Read DataRun from disk
+                        byte[] fragmentBytes = NativeMethods.readDrive(streamToRead, ((ulong)J.DataRun[i].StartCluster * VBR.BytesPerCluster), ((ulong)J.DataRun[i].ClusterLength * VBR.BytesPerCluster));
+
+                        // Instatiate a byte array that is the size of a single cluster
+                        byte[] clusterBytes = new byte[VBR.BytesPerCluster];
+
+                        // Iterate through the clusters in the DataRun
+                        for (long j = 0; j < J.DataRun[i].ClusterLength; j++)
+                        {
+                            // If usnOffset is not in current cluster, then subtract cluster size from offset and iterate
+                            if (VBR.BytesPerCluster <= usnOffset)
+                            {
+                                usnOffset -= VBR.BytesPerCluster;
+                            }
+                            // Else if usnOffset is in current cluster
+                            else
+                            {
+                                // Copy current cluster bytes to clusterBytes variable
+                                Array.Copy(fragmentBytes, ((long)j * VBR.BytesPerCluster), clusterBytes, 0, clusterBytes.Length);
+
+                                // Parse desired UsnJrnl entry from cluster
+                                int offset = (int)usnOffset;
+                                return new UsnJrnl(clusterBytes, volume, ref offset);
+                            }
                         }
                     }
                 }
+                return null;
             }
-            return null;
+            else
+            {
+                throw new Exception("UsnJrnl entry has has been overwritten");
+            }
         }
 
         #endregion GetMethods
 
         #region GetInstancesMethods
 
-        public static UsnJrnl[] GetInstances(string path)
+        public static UsnJrnl[] GetInstances(string volume)
+        {
+            IndexEntry entry = IndexEntry.Get(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl");
+            return GetInstances(volume, (int)entry.RecordNumber);
+        }
+
+        public static UsnJrnl[] GetInstancesByPath(string path)
         {
             string volume = NativeMethods.GetVolumeFromPath(path);
             IndexEntry entry = IndexEntry.Get(path);
@@ -291,6 +305,16 @@ namespace PowerForensics.Ntfs
                 throw new Exception("Desired FileRecord has been overwritten");
             }
         }
+
+        #region ToStringOverride
+
+        public override string ToString()
+        {
+            return String.Format("UsnJrnl for {0} ({1}) Reason: {2}", this.FileName, this.RecordNumber, this.Reason); ;
+        }
+
+        #endregion ToStringOverride
+
 
         #endregion InstanceMethods
     }

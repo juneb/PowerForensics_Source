@@ -9,17 +9,15 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-RegistryKey cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "RegistryKey", DefaultParameterSetName = "Path")]
+    [Cmdlet(VerbsCommon.Get, "RegistryKey", DefaultParameterSetName = "Default")]
     public class GetRegistryKeyCommand : PSCmdlet
     {
         #region Parameters
 
         /// <summary> 
-        /// This parameter provides the Name of the Volume
-        /// for which the FileRecord object should be
-        /// returned.
+        /// 
         /// </summary> 
-        [Parameter(ParameterSetName = "Path")]
+        [Parameter(Mandatory = true)]
         public string HivePath
         {
             get { return path; }
@@ -28,29 +26,26 @@ namespace PowerForensics.Cmdlets
         private string path;
 
         /// <summary> 
-        /// This parameter provides the Name of the Volume
-        /// for which the FileRecord object should be
-        /// returned.
+        /// 
         /// </summary> 
-        [Parameter(ParameterSetName = "Bytes")]
-        public byte[] Bytes
-        {
-            get { return bytes; }
-            set { bytes = value; }
-        }
-        private byte[] bytes;
-
-        /// <summary> 
-        /// This parameter provides the FileName for the 
-        /// FileRecord object that will be returned.
-        /// </summary> 
-        [Parameter()]
+        [Parameter(ParameterSetName = "Default")]
         public string Key
         {
             get { return key; }
             set { key = value; }
         }
         private string key;
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+        [Parameter(ParameterSetName = "Recurse")]
+        public SwitchParameter Recurse
+        {
+            get { return recurse; }
+            set { recurse = value; }
+        }
+        private SwitchParameter recurse;
 
         #endregion Parameters
 
@@ -62,16 +57,19 @@ namespace PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-            if (ParameterSetName == "Path")
+            if (recurse)
+            {
+                WriteObject(NamedKey.GetInstancesRecurse(path));
+            }
+            else
             {
                 if (!(MyInvocation.BoundParameters.ContainsKey("Key")))
                 {
                     key = null;
                 }
 
-                WriteObject(NamedKey.GetInstances(path, key));
+                WriteObject(NamedKey.GetInstances(path, key), true);
             }
-
         }
 
         #endregion Cmdlet Overrides

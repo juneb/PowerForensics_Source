@@ -20,7 +20,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the VolumeName for the 
         /// Volume Boot Record that will be returned.
         /// </summary> 
-        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
+        [Parameter(ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -32,7 +32,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the path to the $Boot File or Volume Boot Record
         /// </summary>
         [Alias("FilePath")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath", Position = 0)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath")]
         public string Path
         {
             get { return path; }

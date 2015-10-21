@@ -19,6 +19,14 @@ namespace PowerForensics.Artifacts
 
         #region Enums
 
+        public enum PREFETCH_ENABLED
+        {
+            DISABLED = 0x00,
+            APPLICATION = 0x01,
+            BOOT = 0x02,
+            APPLICATION_BOOT = 0x03
+        }
+
         public enum PREFETCH_VERSION
         {
             WINDOWS_8 = 0x1A,
@@ -107,7 +115,7 @@ namespace PowerForensics.Artifacts
                 PrefetchAccessTime = pfAccessTimeList.ToArray();
 
                 #endregion PrefetchAccessTime
-                Name = System.Text.Encoding.Unicode.GetString(bytes, 0x10, 0x3C).TrimEnd('\0');
+                Name = System.Text.Encoding.Unicode.GetString(bytes, 0x10, 0x3C).Split('\0')[0];
                 #region DependencyFiles
 
                 string dependencyString = Encoding.Unicode.GetString(bytes, BitConverter.ToInt32(bytes, 0x64), BitConverter.ToInt32(bytes, 0x68));
@@ -157,7 +165,7 @@ namespace PowerForensics.Artifacts
             if (File.Exists(filePath))
             {
                 // Get bytes for specific Prefetch file
-                byte[] fileBytes = FileRecord.Get(filePath, true).GetBytes();
+                byte[] fileBytes = FileRecord.Get(filePath, true).GetContent();
 
                 // Return a Prefetch object for the Prefetch file stored at filePath
                 return new Prefetch(fileBytes);
@@ -218,9 +226,6 @@ namespace PowerForensics.Artifacts
             // Get current volume
             NativeMethods.getVolumeName(ref volume);
 
-            // Get volume letter
-            string volLetter = volume.Split('\\')[3];
-
             // Get a handle to the volume
             IntPtr hVolume = NativeMethods.getHandle(volume);
 
@@ -233,15 +238,13 @@ namespace PowerForensics.Artifacts
                 byte[] MFT = MasterFileTable.GetBytes(streamToRead, volume);
 
                 // Build Prefetch directory path
-                string pfPath = volLetter + @"\Windows\Prefetch";
+                string pfPath = volume.Split('\\')[3] + @"\Windows\Prefetch";
 
-                if (Directory.Exists(pfPath))
-                {
-                    var pfFiles = System.IO.Directory.GetFiles(pfPath, "*.pf");
-                    Prefetch[] pfArray = new Prefetch[pfFiles.Length];
-
+                /*if(CheckStatus(volume.Split('\\')[3] + @"\Windows\system32\config\SAM") != PREFETCH_ENABLED.DISABLED)
+                {*/
                     // Get IndexEntry 
                     IndexEntry[] pfEntries = IndexEntry.GetInstances(pfPath);
+                    Prefetch[] pfArray = new Prefetch[pfEntries.Length];
 
                     int i = 0;
 
@@ -249,17 +252,17 @@ namespace PowerForensics.Artifacts
                     {
                         if (entry.Filename.Contains(".pf"))
                         {
-                            pfArray[i] = new Prefetch(new FileRecord(NativeMethods.GetSubArray(MFT, (uint)entry.RecordNumber * 0x400, 0x400), volume, true).GetBytes(VBR));
+                            pfArray[i] = new Prefetch(new FileRecord(NativeMethods.GetSubArray(MFT, (uint)entry.RecordNumber * 0x400, 0x400), volume, true).GetContent(VBR));
                             i++;
                         }
                     }
 
                     return pfArray;
-                }
+                /*}
                 else
                 {
-                    throw new Exception("Prefetch Directory does not exist. Check registry to ensure Prefetching is enabled.");
-                }
+                    throw new Exception("Prefetching is disabled. Check registry to ensure Prefetching is enabled.");
+                }*/
             }
         }
 
@@ -330,7 +333,23 @@ namespace PowerForensics.Artifacts
 
         #endregion GetInstancesMethods
 
+        public static PREFETCH_ENABLED CheckStatus(string path)
+        {
+            byte[] bytes = Registry.Helper.GetHiveBytes(path);
+            Registry.ValueKey vk = Registry.ValueKey.Get(bytes, path, @"ControlSet001\Control\Session Manager\Memory Management\PrefetchParameters", @"EnablePrefetcher");
+            return (PREFETCH_ENABLED)BitConverter.ToInt32(vk.GetData(bytes), 0x00);
+        }
+
         #endregion StaticMethods
+
+        #region InstanceMethods
+
+        public override string ToString()
+        {
+            return String.Format("[PROGRAM EXECUTION] Prefetch {0} was executed - run count {1} - path {2}", this.Name, this.RunCount, this.Path);
+        }
+
+        #endregion InstanceMethods
     }
 
     #endregion PrefetchClass

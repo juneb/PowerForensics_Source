@@ -80,7 +80,7 @@ namespace PowerForensics.Artifacts
             {
                 if (key.NumberOfSubKeys != 0)
                 {
-                    foreach (NamedKey nk in key.GetSubKeys(bytes))
+                    foreach (NamedKey nk in key.GetSubKeys(bytes, key.FullName))
                     {
                         nlList.Add(new NetworkList(nk, bytes));
                     }

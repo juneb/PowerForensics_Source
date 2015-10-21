@@ -157,7 +157,7 @@ namespace PowerForensics.Artifacts
 
             foreach (NamedKey key in FileSubKey)
             {
-                foreach (NamedKey nk in key.GetSubKeys(bytes))
+                foreach (NamedKey nk in key.GetSubKeys(bytes, key.FullName))
                 {
                     if (nk.NumberOfValues != 0)
                     {
@@ -169,6 +169,11 @@ namespace PowerForensics.Artifacts
                 }
             }
             return uaList.ToArray();
+        }
+
+        public override string ToString()
+        {
+            return String.Format("[PROGRAM EXECUTION] {0} run {1} times", this.Path, this.RunCount);    
         }
 
         #endregion StaticMethods

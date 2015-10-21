@@ -18,8 +18,7 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// This parameter provides the the name of the target volume.
         /// </summary> 
-        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
-        [Parameter(Position = 0, ParameterSetName = "ByVolumeUsn")]
+        [Parameter(ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -31,8 +30,7 @@ namespace PowerForensics.Cmdlets
         /// 
         /// </summary> 
         [Alias("FullName")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPathUsn", ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
             get { return path; }
@@ -43,9 +41,8 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// 
         /// </summary> 
-        [Parameter(Mandatory = true, ParameterSetName = "ByVolumeUsn")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPathUsn")]
-        public ulong USN
+        [Parameter()]
+        public ulong Usn
         {
             get { return usn; }
             set { usn = value; }
@@ -75,7 +72,7 @@ namespace PowerForensics.Cmdlets
         {
             NativeMethods.checkAdmin();
             
-            if (ParameterSetName.Contains("Volume"))
+            if (ParameterSetName == "ByVolume")
             {
                 NativeMethods.getVolumeName(ref volume);
             }
@@ -89,16 +86,24 @@ namespace PowerForensics.Cmdlets
             switch (ParameterSetName)
             {
                 case "ByVolume":
-                    WriteObject(UsnJrnl.GetInstances(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl"), true);
-                    break;
-                case "ByVolumeUsn":
-                    WriteObject(UsnJrnl.Get(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl", usn));
+                    if (MyInvocation.BoundParameters.ContainsKey("Usn"))
+                    {
+                        WriteObject(UsnJrnl.Get(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl", usn));
+                    }
+                    else
+                    {
+                        WriteObject(UsnJrnl.GetInstancesByPath(volume.Split('\\')[3] + "\\$Extend\\$UsnJrnl"), true); 
+                    }
                     break;
                 case "ByPath":
-                    WriteObject(UsnJrnl.GetInstances(path), true);
-                    break;
-                case "ByPathUsn":
-                    WriteObject(UsnJrnl.Get(path, usn));
+                    if (MyInvocation.BoundParameters.ContainsKey("Usn"))
+                    {
+                        WriteObject(UsnJrnl.Get(path, usn));
+                    }
+                    else
+                    {
+                        WriteObject(UsnJrnl.GetInstancesByPath(path), true);
+                    }
                     break;
             }
         }

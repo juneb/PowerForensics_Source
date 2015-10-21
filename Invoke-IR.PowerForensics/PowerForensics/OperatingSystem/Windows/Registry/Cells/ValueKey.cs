@@ -138,7 +138,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {
@@ -171,7 +171,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {
@@ -206,7 +206,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {
@@ -229,7 +229,7 @@ namespace PowerForensics.Registry
             {
                 foreach (string k in key.Split('\\'))
                 {
-                    foreach (NamedKey n in nk.GetSubKeys(bytes))
+                    foreach (NamedKey n in nk.GetSubKeys(bytes, key))
                     {
                         if (n.Name.ToUpper() == k.ToUpper())
                         {

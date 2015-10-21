@@ -21,8 +21,8 @@ namespace PowerForensics.Cmdlets
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Alias("FilePath")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Path")]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath")]
         public string Path
         {
             get { return path; }
@@ -34,13 +34,24 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the MFTIndexNumber for the 
         /// FileRecord object that will be returned.
         /// </summary> 
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Index")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByIndex")]
         public int Index
         {
             get { return index; }
             set { index = value; }
         }
         private int index;
+
+        /// <summary> 
+        /// 
+        /// </summary> 
+        [Parameter(ParameterSetName = "ByIndex")]
+        public string VolumeName
+        {
+            get { return volume; }
+            set { volume = value; }
+        }
+        private string volume;
 
         /// <summary> 
         /// This parameter provides the MFTIndexNumber for the 
@@ -64,6 +75,11 @@ namespace PowerForensics.Cmdlets
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
+            
+            if (ParameterSetName == "ByIndex")
+            {
+                NativeMethods.getVolumeName(ref volume);
+            }
         }
 
         /// <summary> 
@@ -72,31 +88,17 @@ namespace PowerForensics.Cmdlets
         /// </summary> 
         protected override void ProcessRecord()
         {
-            // Determine Volume Name
-            string volume = @"\\.\" + path.Split('\\')[0];
-
-            int indexNumber = 0;
-
-            if (ParameterSetName == "Path")
+            switch (ParameterSetName)
             {
-                IndexEntry indexEntry = IndexEntry.Get(path);
-                indexNumber = (int)indexEntry.RecordNumber;
+                case "ByPath":
+                    FileRecord record = FileRecord.Get(path, true);
+                    record.CopyFile(destination);
+                    break;
+                case "ByVolume":
+                    FileRecord rec = FileRecord.Get(volume, index, true);
+                    rec.CopyFile(destination);
+                    break;
             }
-            else
-            {
-                indexNumber = index;
-            }
-
-            FileRecord record = FileRecord.Get(volume, indexNumber, true);
-
-            byte[] fileBytes = record.GetBytes();
-
-            // Open file for writing
-            FileStream streamToWrite = new FileStream(destination, System.IO.FileMode.Create, System.IO.FileAccess.Write);
-            // Writes a block of bytes to this stream using data from a byte array.
-            streamToWrite.Write(fileBytes, 0, fileBytes.Length);
-            // Close file stream
-            streamToWrite.Close();
         }
 
         #endregion Cmdlet Overrides

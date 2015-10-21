@@ -139,13 +139,13 @@ namespace PowerForensics.Cmdlets
 
             if (this.MyInvocation.BoundParameters.ContainsKey("Path"))
             {
-                contentArray = FileRecord.Get(filePath, true).GetBytes();
+                contentArray = FileRecord.Get(filePath, true).GetContent();
             }
 
             else if(this.MyInvocation.BoundParameters.ContainsKey("IndexNumber"))
             {
                 NativeMethods.getVolumeName(ref volume);
-                contentArray = FileRecord.Get(volume, index, true).GetBytes();
+                contentArray = FileRecord.Get(volume, index, true).GetContent();
             }
 
             if (asBytes)

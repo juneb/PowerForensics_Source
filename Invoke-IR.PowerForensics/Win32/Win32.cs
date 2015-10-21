@@ -146,6 +146,12 @@ namespace InvokeIR.Win32
 
         internal static IntPtr getHandle(string FileName)
         {
+            Regex physicalDrive = new Regex(@"\\\\\.\\PHYSICALDRIVE\d");
+            if (physicalDrive.IsMatch(FileName))
+            {
+                FileName = FileName.TrimEnd(':');
+            }
+
             // Get Handle to specified Volume/File/Directory
             IntPtr hDrive = CreateFile(
                 fileName: FileName,
@@ -308,6 +314,11 @@ namespace InvokeIR.Win32
         internal static string GetVolumeFromPath(string path)
         {
             return "\\\\.\\" + path.Split('\\')[0];
+        }
+
+        internal static string GetVolumeLetter(string volume)
+        {
+            return volume.Split('\\')[3];
         }
 
         internal static byte[] GetSubArray(byte[] InputBytes, uint offset, uint length)
