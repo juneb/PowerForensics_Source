@@ -79,13 +79,6 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\Volume.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\Bitmap.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\BadClus.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Header.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\BranchPage.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\DataTag.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\LeafPage.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\Page.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\RootPage.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\ExtensibleStorageEngine\Pages\SpaceTreePage.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\Cell.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityDescriptor.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityKey.cs" />
@@ -99,7 +92,6 @@
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\OffsetRecord.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ReferenceItem.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\List\ValuesList.cs" />
-    <Compile Include="PowerForensics\OperatingSystem\Windows\WmiResponsitory\Index.cs" />
     <Compile Include="PowerForensics\Utilities\Rot13.cs" />
     <Compile Include="PowerForensics\_Cmdlets\Analytics\Get-AlternateDataStream.cs" />
     <Compile Include="PowerForensics\_Cmdlets\Analytics\Get-UnallocatedSpace.cs" />
