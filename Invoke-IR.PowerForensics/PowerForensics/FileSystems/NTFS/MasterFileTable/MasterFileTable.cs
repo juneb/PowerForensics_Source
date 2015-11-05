@@ -23,11 +23,6 @@ namespace PowerForensics.Ntfs
             }
         }
 
-        /*public static FileRecord GetRecord(string path)
-        {
-
-        }*/
-
         internal static FileRecord GetRecord(FileStream streamToRead, string volume)
         {
             // Instantiate VolumeBootRecord object

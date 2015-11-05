@@ -259,7 +259,7 @@ namespace PowerForensics.Registry
             }
         }
 
-        public byte[] GetData(byte[] bytes)
+        internal byte[] GetData(byte[] bytes)
         {
             if (this.ResidentData)
             {

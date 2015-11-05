@@ -7,13 +7,13 @@ using PowerForensics.Registry;
 
 namespace PowerForensics.Cmdlets
 {
-    #region FormatForensicTimelineCommand
+    #region ConvertToForensicTimelineCommand
     
     /// <summary> 
-    /// This class implements the Format-ForensicTimeline cmdlet. 
+    /// This class implements the ConvertTo-ForensicTimeline cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Format, "ForensicTimeline")]
-    public class FormatForensicTimelineCommand : PSCmdlet
+    [Cmdlet(VerbsData.ConvertTo, "ForensicTimeline")]
+    public class ConvertToForensicTimelineCommand : PSCmdlet
     {
         #region Parameters
 
@@ -77,5 +77,5 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion FormatForensicTimelineCommand
+    #endregion ConvertToForensicTimelineCommand
 }

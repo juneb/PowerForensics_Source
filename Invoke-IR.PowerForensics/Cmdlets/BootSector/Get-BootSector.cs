@@ -60,7 +60,7 @@ namespace PowerForensics.Cmdlets
         {
             MasterBootRecord mbr = MasterBootRecord.Get(drivePath);
 
-            if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
+            if (mbr.PartitionTable[0].SystemId == "EFI_GPT_DISK")
             {
                 if (asBytes)
                 {

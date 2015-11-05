@@ -66,7 +66,7 @@ namespace PowerForensics.Artifacts
         // FIXDLEN_DATA
         public readonly PRODUCT_VERSION ProductVersion;
         public readonly ushort FileVersion;
-        public readonly Guid UUID;
+        public readonly Guid Uuid;
         private readonly ushort ApplicationNameOffset;
         private readonly ushort TriggerOffset;
         public readonly ushort ErrorRetryCount;
@@ -104,7 +104,7 @@ namespace PowerForensics.Artifacts
 
             ProductVersion = (PRODUCT_VERSION)BitConverter.ToUInt16(bytes, 0x00);
             FileVersion = BitConverter.ToUInt16(bytes, 0x02);
-            UUID = new Guid(BitConverter.ToInt32(bytes, 0x04), BitConverter.ToInt16(bytes, 0x08), BitConverter.ToInt16(bytes, 0x0A), NativeMethods.GetSubArray(bytes, 0x0C, 0x08));
+            Uuid = new Guid(BitConverter.ToInt32(bytes, 0x04), BitConverter.ToInt16(bytes, 0x08), BitConverter.ToInt16(bytes, 0x0A), NativeMethods.GetSubArray(bytes, 0x0C, 0x08));
             ApplicationNameOffset = BitConverter.ToUInt16(bytes, 0x14);
             TriggerOffset = BitConverter.ToUInt16(bytes, 0x16);
             ErrorRetryCount = BitConverter.ToUInt16(bytes, 0x18);
@@ -219,12 +219,12 @@ namespace PowerForensics.Artifacts
 
         #endregion GetInstancesMethods
 
+        #endregion StaticMethods
+
         public override string ToString()
         {
             return String.Format("[PROGRAM EXECUTION] {0} executed at {1} via Scheduled Job", this.ApplicationName, this.StartTime);
         }
-
-        #endregion StaticMethods
     }
 
     #endregion ScheduledJobClass

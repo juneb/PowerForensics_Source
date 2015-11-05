@@ -5,6 +5,8 @@ using System.Text;
 
 namespace PowerForensics.Utilities
 {
+    #region Rot13Class
+
     static class Rot13
     {
         /// <summary>
@@ -44,4 +46,6 @@ namespace PowerForensics.Utilities
             return new string(array);
         }
     }
+
+    #endregion Rot13Class
 }

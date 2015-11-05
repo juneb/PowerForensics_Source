@@ -6,6 +6,8 @@ using PowerForensics.Registry;
 
 namespace PowerForensics.Artifacts
 {
+    #region NetworkListClass
+
     public class NetworkList
     {
         #region Properties
@@ -93,4 +95,6 @@ namespace PowerForensics.Artifacts
 
         #endregion StaticMethods
     }
+
+    #endregion NetworkListClass
 }

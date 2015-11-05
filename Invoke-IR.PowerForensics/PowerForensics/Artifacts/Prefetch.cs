@@ -36,23 +36,23 @@ namespace PowerForensics.Artifacts
 
         #endregion Enums
 
-        #region Parameters
+        #region Properties
 
         public readonly PREFETCH_VERSION Version;
         public readonly string Name;
         public readonly string Path;
-//        public string MD5
+    //        public string MD5
         public readonly string PathHash;
         public readonly int DependencyCount;
         public readonly DateTime[] PrefetchAccessTime;
-//        public readonly DateTime PrefetchBornTime;
-//        public readonly string ProgramBornTime;
-//        public readonly string ProgramChangeTime;
+    //        public readonly DateTime PrefetchBornTime;
+    //        public readonly string ProgramBornTime;
+    //        public readonly string ProgramChangeTime;
         public readonly int DeviceCount;
         public readonly int RunCount;
         public readonly string[] DependencyFiles;
 
-        #endregion Parameters
+        #endregion Properties
 
         #region Constructors
 

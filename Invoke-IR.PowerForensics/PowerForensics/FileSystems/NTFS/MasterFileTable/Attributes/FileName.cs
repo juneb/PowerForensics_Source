@@ -59,7 +59,7 @@ namespace PowerForensics.Ntfs
 
         #region Constructors
 
-        public FileName(byte[] bytes)
+        internal FileName(byte[] bytes)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace PowerForensics.Ntfs
             }
         }
 
-        public FileName(byte[] bytes, int offset)
+        internal FileName(byte[] bytes, int offset)
         {
             try
             {

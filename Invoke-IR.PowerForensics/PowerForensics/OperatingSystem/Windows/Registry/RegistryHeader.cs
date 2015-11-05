@@ -5,6 +5,8 @@ using InvokeIR.Win32;
 
 namespace PowerForensics.Registry
 {
+    #region RegistryHeader
+
     public class RegistryHeader
     {
         #region Constants
@@ -78,4 +80,6 @@ namespace PowerForensics.Registry
 
         #endregion StaticMethods
     }
+
+    #endregion RegistryHeader
 }

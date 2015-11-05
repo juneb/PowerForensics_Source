@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace InvokeIR.Win32
 {
-
     public static class NativeMethods
     {
         #region Constants
@@ -36,28 +35,9 @@ namespace InvokeIR.Win32
 
         #endregion Constants
 
-        #region structs
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        internal struct BY_HANDLE_FILE_INFORMATION
-        {
-            internal uint dwFileAttributes;
-            internal DateTime ftCreationTime;
-            internal DateTime ftLastAccessTime;
-            internal DateTime ftLastWriteTime;
-            internal uint dwVolumeSerialNumber;
-            internal uint nFileSizeHigh;
-            internal uint nFileSizeLow;
-            internal uint nNumberOfLinks;
-            internal uint nFileIndexHigh;
-            internal uint nFileIndexLow;
-        }
-
-        #endregion structs
-
         #region PInvoke
 
-        [DllImport(ExternDll.Kernel32, CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern IntPtr CreateFile
             (
                 string fileName,
@@ -69,7 +49,7 @@ namespace InvokeIR.Win32
                 IntPtr template
             );
 
-        [DllImport(ExternDll.Kernel32, SetLastError = true)]
+        [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern bool CloseHandle
             (
                 IntPtr hObject

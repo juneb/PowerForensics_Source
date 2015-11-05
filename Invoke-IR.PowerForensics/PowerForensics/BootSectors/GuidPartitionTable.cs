@@ -26,7 +26,7 @@ namespace PowerForensics
         public readonly ulong AlternateLBA;
         public readonly ulong FirstUsableLBA;
         public readonly ulong LastUsableLBA;
-        public readonly Guid DiskGUID;
+        public readonly Guid DiskGuid;
         public readonly ulong PartitionEntryLBA;
         public readonly uint NumberOfPartitionEntries;
         public readonly uint SizeOfPartitionEntry;
@@ -36,10 +36,10 @@ namespace PowerForensics
 
         #region Constructors
 
-        public GuidPartitionTable(string devicePath)
+        internal GuidPartitionTable(string devicePath)
         {
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
-            if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
+            if (mbr.PartitionTable[0].SystemId == "EFI_GPT_DISK")
             {
                 IntPtr hDevice = NativeMethods.getHandle(devicePath);
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
@@ -52,7 +52,7 @@ namespace PowerForensics
                     AlternateLBA = GPTHeader.AlternateLBA;
                     FirstUsableLBA = GPTHeader.FirstUsableLBA;
                     LastUsableLBA = GPTHeader.LastUsableLBA;
-                    DiskGUID = GPTHeader.DiskGUID;
+                    DiskGuid = GPTHeader.DiskGUID;
                     PartitionEntryLBA = GPTHeader.PartitionEntryLBA;
                     NumberOfPartitionEntries = GPTHeader.NumberOfPartitionEntries;
                     SizeOfPartitionEntry = GPTHeader.SizeOfPartitionEntry;
@@ -76,7 +76,7 @@ namespace PowerForensics
                             GuidPartitionTableEntry entry = new GuidPartitionTableEntry(NativeMethods.GetSubArray(partitionSectorBytes, i, GPTHeader.SizeOfPartitionEntry));
                             
                             // If entry's PartitionTypeGUID is 00000000-0000-0000-0000-000000000000 then it is not a partition
-                            if (entry.PartitionTypeGUID == new Guid("00000000-0000-0000-0000-000000000000"))
+                            if (entry.PartitionTypeGuid == new Guid("00000000-0000-0000-0000-000000000000"))
                             {
                                 Continue = false;
                                 break;
@@ -111,7 +111,7 @@ namespace PowerForensics
             AlternateLBA = GPTHeader.AlternateLBA;
             FirstUsableLBA = GPTHeader.FirstUsableLBA;
             LastUsableLBA = GPTHeader.LastUsableLBA;
-            DiskGUID = GPTHeader.DiskGUID;
+            DiskGuid = GPTHeader.DiskGUID;
             PartitionEntryLBA = GPTHeader.PartitionEntryLBA;
             NumberOfPartitionEntries = GPTHeader.NumberOfPartitionEntries;
             SizeOfPartitionEntry = GPTHeader.SizeOfPartitionEntry;
@@ -126,7 +126,7 @@ namespace PowerForensics
                 // Instantiate a GuidPartitionTableEntry object
                 GuidPartitionTableEntry entry = new GuidPartitionTableEntry(NativeMethods.GetSubArray(bytes, (i + (uint)SECTOR_SIZE), GPTHeader.SizeOfPartitionEntry));
                 // If entry's PartitionTypeGUID is 00000000-0000-0000-0000-000000000000 then it is not a partition
-                if (entry.PartitionTypeGUID == new Guid("00000000-0000-0000-0000-000000000000"))
+                if (entry.PartitionTypeGuid == new Guid("00000000-0000-0000-0000-000000000000"))
                 {
                     break;
                 }
@@ -143,7 +143,7 @@ namespace PowerForensics
         public static byte[] GetBytes(string devicePath)
         {
             MasterBootRecord mbr = MasterBootRecord.Get(devicePath);
-            if (mbr.PartitionTable[0].SystemID == "EFI_GPT_DISK")
+            if (mbr.PartitionTable[0].SystemId == "EFI_GPT_DISK")
             {
                 IntPtr hDevice = NativeMethods.getHandle(devicePath);
                 using (FileStream streamToRead = NativeMethods.getFileStream(hDevice))
@@ -270,8 +270,8 @@ namespace PowerForensics
 
         #region Properties
 
-        public readonly Guid PartitionTypeGUID;
-        public readonly Guid UniquePartitionGUID;
+        public readonly Guid PartitionTypeGuid;
+        public readonly Guid UniquePartitionGuid;
         public readonly ulong StartingLBA;
         public readonly ulong EndingLBA;
         public readonly PARTITION_ATTRIBUTE Attributes;
@@ -283,8 +283,8 @@ namespace PowerForensics
 
         internal GuidPartitionTableEntry(byte[] bytes)
         {
-            PartitionTypeGUID = new Guid(NativeMethods.GetSubArray(bytes, 0x00, 0x10));
-            UniquePartitionGUID = new Guid(NativeMethods.GetSubArray(bytes, 0x10, 0x10));
+            PartitionTypeGuid = new Guid(NativeMethods.GetSubArray(bytes, 0x00, 0x10));
+            UniquePartitionGuid = new Guid(NativeMethods.GetSubArray(bytes, 0x10, 0x10));
             StartingLBA = BitConverter.ToUInt64(bytes, 32);
             EndingLBA = BitConverter.ToUInt64(bytes, 40);
             Attributes = (PARTITION_ATTRIBUTE)BitConverter.ToUInt64(bytes, 48);

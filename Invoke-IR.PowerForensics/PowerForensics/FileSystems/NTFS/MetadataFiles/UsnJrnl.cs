@@ -315,7 +315,6 @@ namespace PowerForensics.Ntfs
 
         #endregion ToStringOverride
 
-
         #endregion InstanceMethods
     }
 

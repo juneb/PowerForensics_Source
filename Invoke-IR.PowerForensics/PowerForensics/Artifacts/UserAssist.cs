@@ -5,6 +5,8 @@ using PowerForensics.Utilities;
 
 namespace PowerForensics.Artifacts
 {
+    #region UserAssistClass
+
     public class UserAssist
     {
         #region Enums
@@ -171,11 +173,13 @@ namespace PowerForensics.Artifacts
             return uaList.ToArray();
         }
 
+        #endregion StaticMethods
+
         public override string ToString()
         {
-            return String.Format("[PROGRAM EXECUTION] {0} run {1} times", this.Path, this.RunCount);    
+            return String.Format("[PROGRAM EXECUTION] {0} run {1} times", this.Path, this.RunCount);
         }
-
-        #endregion StaticMethods
     }
+
+    #endregion UserAssistClass
 }

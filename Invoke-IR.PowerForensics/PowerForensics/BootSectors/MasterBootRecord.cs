@@ -10,7 +10,7 @@ namespace PowerForensics
 
     class MasterBootRecord
     {
-        #region MBRSignatures
+        #region MbrSignatures
 
         private const string WINDOWS5_X = "8F558EB6672622401DA993E1E865C861";
         private const string WINDOWS6_0 = "5C616939100B85E558DA92B899A0FC36";
@@ -21,7 +21,7 @@ namespace PowerForensics
         private const string STONEDv2 = "72B8CE41AF0DE751C946802B3ED844B4";
         private const string STONEDv2_TRUE_CRYPT = "5C7DE5F58B276CBE84B8B7E25F08318E";
 
-        #endregion MBRSignatures
+        #endregion MbrSignatures
 
         #region Constants
 
@@ -31,7 +31,7 @@ namespace PowerForensics
 
         #region Properties
 
-        public readonly string MBRSignature;
+        public readonly string MbrSignature;
         public readonly string DiskSignature;
         public readonly byte[] BootCode;
         public readonly PartitionEntry[] PartitionTable;
@@ -86,13 +86,13 @@ namespace PowerForensics
 
             // Set object properties
             DiskSignature = BitConverter.ToString(NativeMethods.GetSubArray(bytes, 0x1B8, 0x04)).Replace("-", "");
-            MBRSignature = MD5Signature;
+            MbrSignature = MD5Signature;
 
             for (uint i = 0x1BE; i <= 0x1DE; i += PARTITION_ENTRY_SIZE)
             {
                 PartitionEntry entry = new PartitionEntry(NativeMethods.GetSubArray(bytes, i, PARTITION_ENTRY_SIZE));
 
-                if (entry.SystemID != "EMPTY")
+                if (entry.SystemId != "EMPTY")
                 {
                     partitionList.Add(entry);
                 }
@@ -137,7 +137,7 @@ namespace PowerForensics
             PartitionEntry secondEntry = new PartitionEntry(NativeMethods.GetSubArray(extendedMBR, 0x1CE, PARTITION_ENTRY_SIZE), startSector);
             pList.Add(secondEntry);
 
-            if (secondEntry.SystemID == "MS_EXTENDED")
+            if (secondEntry.SystemId == "MS_EXTENDED")
             {
                 pList.AddRange(GetExtended(streamToRead, secondEntry.StartSector));
             }
@@ -159,7 +159,7 @@ namespace PowerForensics
 
     #endregion MasterBootRecordClass
 
-    #region PartitionClass
+    #region PartitionEntryClass
 
     internal class PartitionEntry
     {
@@ -222,7 +222,7 @@ namespace PowerForensics
         internal readonly byte startingSectorNumber;
         internal readonly byte startingCylinderHigh2;
         internal readonly byte startingCylinderLow8;
-        public readonly string SystemID;
+        public readonly string SystemId;
         internal readonly byte endingHeadNumber;
         internal readonly byte endingSectorNumber;
         internal readonly byte endingCylinderHigh2;
@@ -243,7 +243,7 @@ namespace PowerForensics
             startingSectorNumber = bytes[2];// &0xFC;
             startingCylinderHigh2 = bytes[2];// &0x03;
             startingCylinderLow8 = bytes[3];
-            SystemID = Enum.GetName(typeof(PARTITION_TYPE), bytes[4]);
+            SystemId = Enum.GetName(typeof(PARTITION_TYPE), bytes[4]);
             endingHeadNumber = bytes[5];
             endingSectorNumber = bytes[6];// &0xFC;
             endingCylinderHigh2 = bytes[6];// &0x03;
@@ -261,14 +261,14 @@ namespace PowerForensics
             startingSectorNumber = bytes[2];// &0xFC;
             startingCylinderHigh2 = bytes[2];// &0x03;
             startingCylinderLow8 = bytes[3];
-            SystemID = Enum.GetName(typeof(PARTITION_TYPE), bytes[4]);
+            SystemId = Enum.GetName(typeof(PARTITION_TYPE), bytes[4]);
             endingHeadNumber = bytes[5];
             endingSectorNumber = bytes[6];// &0xFC;
             endingCylinderHigh2 = bytes[6];// &0x03;
             endingCylinderHigh8 = bytes[7];
             RelativeSector = BitConverter.ToUInt32(bytes, 8);
             TotalSectors = BitConverter.ToUInt32(bytes, 12);
-            if (SystemID != "EMPTY")
+            if (SystemId != "EMPTY")
             {
                 StartSector = extendedStartSector + RelativeSector;
             }
@@ -282,5 +282,5 @@ namespace PowerForensics
         #endregion Constructors
     }
 
-    #endregion MBRPartition
+    #endregion PartitionEntryClass
 }

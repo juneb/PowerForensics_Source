@@ -3,6 +3,8 @@ using PowerForensics.Registry;
 
 namespace PowerForensics.Artifacts
 {
+    #region TimezoneClass
+
     public class Timezone
     {
         #region Properties
@@ -43,4 +45,6 @@ namespace PowerForensics.Artifacts
 
         #endregion StaticMethods
     }
+
+    #endregion TimezoneClass
 }
