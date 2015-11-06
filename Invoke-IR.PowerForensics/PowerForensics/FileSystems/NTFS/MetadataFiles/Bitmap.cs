@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using InvokeIR.Win32;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
@@ -8,12 +9,6 @@ namespace PowerForensics.Ntfs
     
     public class Bitmap
     {
-        #region Constants
-
-        public const int BITMAP_INDEX = 6;
-        
-        #endregion Constants
-
         #region Properties
 
         public ulong Cluster;
@@ -37,7 +32,7 @@ namespace PowerForensics.Ntfs
 
         public static Bitmap Get(string volume, ulong cluster)
         {
-            return Get(volume, BITMAP_INDEX, cluster);
+            return Get(volume, MftIndex.BITMAP_INDEX, cluster);
         }
 
         public static Bitmap GetByPath(string path, ulong cluster)
@@ -137,7 +132,7 @@ namespace PowerForensics.Ntfs
         public static Bitmap[] GetInstances(string volume)
         {
             // Get the proper data stream from the FileRecord
-            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, BITMAP_INDEX), volume, true));
+            NonResident dataStream = Bitmap.GetDataStream(new FileRecord(FileRecord.GetRecordBytes(volume, MftIndex.BITMAP_INDEX), volume, true));
 
             // Call GetInstances to return all associated Bitmap Values
             return GetInstances(dataStream.GetBytes(volume));

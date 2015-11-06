@@ -48,6 +48,7 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cmdlets\Artifacts\Get-ShellLink.cs" />
     <Compile Include="PowerForensics\Artifacts\AlternateDataStream.cs" />
     <Compile Include="PowerForensics\Artifacts\Amcache.cs" />
     <Compile Include="PowerForensics\Artifacts\NetworkList.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="PowerForensics\Artifacts\SamHive\UserDetails.cs" />
     <Compile Include="PowerForensics\Artifacts\ScheduledJob.cs" />
     <Compile Include="PowerForensics\Artifacts\ScheduledTask.cs" />
+    <Compile Include="PowerForensics\Artifacts\ShellLink.cs" />
     <Compile Include="PowerForensics\Artifacts\Timezone.cs" />
     <Compile Include="PowerForensics\Artifacts\UserAssist.cs" />
     <Compile Include="PowerForensics\Artifacts\VolumeShadowCopy.cs" />
@@ -65,7 +67,6 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\Headers\NonResidentHeader.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\Headers\ResidentHeader.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\Headers\CommonHeader.cs" />
-    <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\Volume.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\Bitmap.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\BadClus.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\Cell.cs" />
@@ -119,7 +120,7 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\AttrDef.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\MetadataFiles\Get-AttrDef.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\MetadataFiles\Get-VolumeBootRecord.cs" />
-    <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\LogFile.cs" />
+    <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\LogFile\LogFile.cs" />
     <Compile Include="Cmdlets\BootSector\Get-MasterBootRecord.cs" />
     <Compile Include="PowerForensics\BootSectors\MasterBootRecord.cs" />
     <Compile Include="Cmdlets\Utilities\Copy-FileRaw.cs" />
@@ -145,7 +146,8 @@
     <Compile Include="Cmdlets\Utilities\Get-ContentRaw.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\MasterFileTable.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\VolumeBootRecord.cs" />
-    <Compile Include="Helper\Win32.cs" />
+    <Compile Include="Win32\MftIndex.cs" />
+    <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

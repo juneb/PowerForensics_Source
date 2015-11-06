@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using InvokeIR.Win32;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
@@ -37,6 +38,34 @@ namespace PowerForensics.Ntfs
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        public static VolumeName Get(string volume)
+        {
+            FileRecord record = FileRecord.Get(volume, MftIndex.VOLUME_INDEX, true);
+            return Get(record);
+        }
+
+        public static VolumeName GetByPath(string path)
+        {
+            FileRecord record = FileRecord.Get(path, true);
+            return Get(record);
+        }
+
+        private static VolumeName Get(FileRecord fileRecord)
+        {
+            foreach (Attr attr in fileRecord.Attribute)
+            {
+                if (attr.Name == Attr.ATTR_TYPE.VOLUME_NAME)
+                {
+                    return attr as VolumeName;
+                }
+            }
+            throw new Exception("No VOLUME_NAME attribute found.");
+        }
+
+        #endregion StaticMethods
     }
     
     #endregion VolumeNameClass

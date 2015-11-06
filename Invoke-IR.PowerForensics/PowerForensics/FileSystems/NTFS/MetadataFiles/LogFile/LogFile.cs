@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using InvokeIR.Win32;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
@@ -9,17 +10,11 @@ namespace PowerForensics.Ntfs
 
     public class LogFile
     {
-        #region Constants
-
-        public const int LOGFILE_INDEX = 2;
-
-        #endregion Constants
-
         #region StaticMethods
 
         internal static FileRecord GetFileRecord(string volume)
         {
-            return FileRecord.Get(volume, LOGFILE_INDEX, true);
+            return FileRecord.Get(volume, MftIndex.LOGFILE_INDEX, true);
         }
 
         internal static NonResident GetDataAttr(FileRecord fileRecord)

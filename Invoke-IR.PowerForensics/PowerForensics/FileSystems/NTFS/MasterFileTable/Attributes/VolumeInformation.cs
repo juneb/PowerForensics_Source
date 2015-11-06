@@ -1,4 +1,5 @@
 ﻿using System;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
@@ -54,6 +55,34 @@ namespace PowerForensics.Ntfs
         }
 
         #endregion Constructors
+
+        #region StaticMethods
+
+        public static VolumeInformation Get(string volume)
+        {
+            FileRecord record = FileRecord.Get(volume, MftIndex.VOLUME_INDEX, true);
+            return Get(record);
+        }
+
+        public static VolumeInformation GetByPath(string path)
+        {
+            FileRecord record = FileRecord.Get(path, true);
+            return Get(record);
+        }
+
+        private static VolumeInformation Get(FileRecord fileRecord)
+        {
+            foreach (Attr attr in fileRecord.Attribute)
+            {
+                if (attr.Name == Attr.ATTR_TYPE.VOLUME_INFORMATION)
+                {
+                    return attr as VolumeInformation;
+                }
+            }
+            throw new Exception("No VOLUME_INFORMATION attribute found.");
+        }
+
+        #endregion StaticMethods
     }
 
     #endregion VolumeInformationClass

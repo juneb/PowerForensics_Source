@@ -64,10 +64,10 @@ namespace PowerForensics.Cmdlets
             switch (ParameterSetName)
             {
                 case "ByVolume":
-                    WriteObject(Volume.GetVolumeInformation(volume));
+                    WriteObject(VolumeInformation.Get(volume));
                     break;
                 case "ByPath":
-                    WriteObject(Volume.GetVolumeInformationByPath(path));
+                    WriteObject(VolumeInformation.GetByPath(path));
                     break;
             }
         }

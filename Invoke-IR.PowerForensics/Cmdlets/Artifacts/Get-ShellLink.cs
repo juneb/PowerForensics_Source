@@ -2,24 +2,24 @@
 using System.IO;
 using System.Management.Automation;
 using InvokeIR.Win32;
-using PowerForensics.Ntfs;
+using PowerForensics.Artifacts;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetVolumeNameCommand
+    #region GetShellLinkCommand
     
     /// <summary> 
-    /// This class implements the Get-VolumeName cmdlet. 
+    /// This class implements the Get-ShellLink cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "VolumeName", DefaultParameterSetName = "ByVolume")]
-    public class GetVolumeNameCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "ShellLink", DefaultParameterSetName = "ByVolume")]
+    public class GetShellLinkCommand : PSCmdlet
     {
         #region Parameters
 
         /// <summary> 
-        /// This parameter provides the the name of the target volume.
+        ///
         /// </summary> 
-        [Parameter(ParameterSetName = "ByVolume")]
+        [Parameter(ParameterSetName = "ByVolume", Position = 0)]
         public string VolumeName
         {
             get { return volume; }
@@ -30,14 +30,14 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// 
         /// </summary> 
-        [Alias("FullName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        [Alias("FilePath")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", Position = 0)]
         public string Path
         {
-            get { return path; }
-            set { path = value; }
+            get { return filePath; }
+            set { filePath = value; }
         }
-        private string path;
+        private string filePath;
 
         #endregion Parameters
 
@@ -49,7 +49,7 @@ namespace PowerForensics.Cmdlets
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
-            
+
             if (ParameterSetName == "ByVolume")
             {
                 NativeMethods.getVolumeName(ref volume);
@@ -64,17 +64,16 @@ namespace PowerForensics.Cmdlets
             switch (ParameterSetName)
             {
                 case "ByVolume":
-                    WriteObject(Ntfs.VolumeName.Get(volume));
+                    WriteObject(ShellLink.GetInstances(volume), true);
                     break;
                 case "ByPath":
-                    WriteObject(Ntfs.VolumeName.GetByPath(path));
+                    WriteObject(ShellLink.Get(filePath));
                     break;
             }
-
-        } 
+        }  
 
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetVolumeNameCommand
+    #endregion GetShellLinkCommand
 }

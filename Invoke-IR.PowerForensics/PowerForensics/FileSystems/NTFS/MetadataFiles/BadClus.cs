@@ -1,15 +1,12 @@
 ﻿using System;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
+    #region BadClusClass
+
     public class BadClus
     {
-        #region Constants
-
-        public const int BADCLUS_INDEX = 8;
-
-        #endregion Constants
-
         #region Properties
 
         public readonly long Cluster;
@@ -31,7 +28,7 @@ namespace PowerForensics.Ntfs
         
         internal static FileRecord GetFileRecord(string volume)
         {
-            return FileRecord.Get(volume, BADCLUS_INDEX, true);
+            return FileRecord.Get(volume, MftIndex.BADCLUS_INDEX, true);
         }
 
         internal static NonResident GetBadStream(FileRecord fileRecord)
@@ -48,4 +45,6 @@ namespace PowerForensics.Ntfs
 
         #endregion StaticMethods
     }
+
+    #endregion BadClusClass
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using InvokeIR.Win32;
+using PowerForensics.Helper;
 
 namespace PowerForensics.Ntfs
 {
@@ -10,12 +11,6 @@ namespace PowerForensics.Ntfs
 
     public class AttrDef
     {
-        #region Constants
-
-        internal const int ATTRDEF_INDEX = 4;
-
-        #endregion Constants
-
         #region Enums
 
         [FlagsAttribute]
@@ -87,7 +82,19 @@ namespace PowerForensics.Ntfs
 
         #region StaticMethods
 
-        internal static AttrDef[] GetInstances(byte[] bytes)
+        public static AttrDef[] GetInstances(string volume)
+        {
+            FileRecord record = FileRecord.Get(volume, MftIndex.ATTRDEF_INDEX, true);
+            return AttrDef.GetInstances(record.GetContent());
+        }
+
+        public static AttrDef[] GetInstancesByPath(string path)
+        {
+            FileRecord record = FileRecord.Get(path, true);
+            return AttrDef.GetInstances(record.GetContent());
+        }
+
+        private static AttrDef[] GetInstances(byte[] bytes)
         {
             // Instantiate a List of AttrDef objects for output
             List<AttrDef> adList = new List<AttrDef>();
@@ -99,18 +106,6 @@ namespace PowerForensics.Ntfs
                 adList.Add(new AttrDef(NativeMethods.GetSubArray(bytes, i, 0xA0)));
             }
             return adList.ToArray();
-        }
-
-        public static AttrDef[] GetInstances(string volume)
-        {
-            FileRecord record = FileRecord.Get(volume, ATTRDEF_INDEX, true);
-            return AttrDef.GetInstances(record.GetContent());
-        }
-
-        public static AttrDef[] GetInstancesByPath(string path)
-        {
-            FileRecord record = FileRecord.Get(path, true);
-            return AttrDef.GetInstances(record.GetContent());
         }
 
         #endregion StaticMethods
