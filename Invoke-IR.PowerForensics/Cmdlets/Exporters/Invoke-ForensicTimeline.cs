@@ -54,6 +54,7 @@ namespace PowerForensics.Cmdlets
         {
             //WriteObject(ForensicTimeline.GetInstances(Prefetch.GetInstances(volume)), true);
             WriteObject(ForensicTimeline.GetInstances(ScheduledJob.GetInstances(volume)), true);
+            WriteObject(ForensicTimeline.GetInstances(ShellLink.GetInstances(volume)), true);
             WriteObject(ForensicTimeline.GetInstances(FileRecord.GetInstances(volume)), true);
             WriteObject(ForensicTimeline.GetInstances(UsnJrnl.GetInstances(volume)), true);
             WriteObject(ForensicTimeline.GetInstances(NamedKey.GetInstancesRecurse(volLetter + "\\Windows\\system32\\config\\DRIVERS")), true);

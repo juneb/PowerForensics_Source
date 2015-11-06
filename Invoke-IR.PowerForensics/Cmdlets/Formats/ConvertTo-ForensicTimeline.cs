@@ -51,6 +51,9 @@ namespace PowerForensics.Cmdlets
                 case "PowerForensics.Artifacts.UserAssist":
                     WriteObject(ForensicTimeline.Get(inputobject.BaseObject as UserAssist), true);
                     break;
+                case "PowerForensics.Artifacts.ShellLink":
+                    WriteObject(ForensicTimeline.Get(inputobject.BaseObject as ShellLink), true);
+                    break;
                 case "PowerForensics.Ntfs.FileRecord":
                     FileRecord r = inputobject.BaseObject as FileRecord;
                     try

@@ -150,6 +150,8 @@ namespace PowerForensics.Artifacts
 
         #region Properties
 
+        public readonly string Path;
+
         // SHELL_LINK_HEADER
         private readonly int HeaderSize;
         private readonly Guid LinkCLSID;
@@ -203,8 +205,10 @@ namespace PowerForensics.Artifacts
 
         #region Constructors
 
-        private ShellLink(byte[] bytes)
+        private ShellLink(byte[] bytes, FileRecord record)
         {
+            Path = record.FullName;
+
             HeaderSize = BitConverter.ToInt32(bytes, 0x00);
             
             if (HeaderSize == 0x4C)
@@ -391,7 +395,7 @@ namespace PowerForensics.Artifacts
         public static ShellLink Get(string filePath)
         {
             FileRecord record = FileRecord.Get(filePath, true);
-            return new ShellLink(record.GetContent());
+            return new ShellLink(record.GetContent(), record);
         }
 
         public static ShellLink[] GetInstances(string volume)
@@ -406,7 +410,7 @@ namespace PowerForensics.Artifacts
                 {
                     if (r.Name.Contains(".lnk"))
                     {
-                        slList.Add(new ShellLink(r.GetContent(VBR)));
+                        slList.Add(new ShellLink(r.GetContent(VBR), r));
                     }
                 }
                 catch
@@ -419,6 +423,15 @@ namespace PowerForensics.Artifacts
         }
 
         #endregion StaticMethods
+
+        #region OverrideMethods
+
+        public override string ToString()
+        {
+            return String.Format("[{0}] {1} {2}", FileSize, LocalBasePath, CommandLineArguments);
+        }
+
+        #endregion OverrideMethods
     }
 
     #region LINKTARGET_IDLIST Classes

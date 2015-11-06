@@ -125,6 +125,61 @@ namespace PowerForensics.Formats
             return list.ToArray();
         }
 
+        public static ForensicTimeline[] Get(ShellLink input)
+        {
+            List<ForensicTimeline> macs = new List<ForensicTimeline>();
+            
+            #region DetermineTime
+
+            Dictionary<DateTime, ACTIVITY_TYPE> dictionary = new Dictionary<DateTime, ACTIVITY_TYPE>();
+
+            // Creation Time
+            dictionary[input.CreationTime] = ACTIVITY_TYPE.b;
+
+            // Access Time
+            if (dictionary.ContainsKey(input.AccessTime))
+            {
+                dictionary[input.AccessTime] = dictionary[input.AccessTime] | ACTIVITY_TYPE.a;
+            }
+            else
+            {
+                dictionary.Add(input.AccessTime, ACTIVITY_TYPE.a);
+            }
+
+            // Modified Time
+            if (dictionary.ContainsKey(input.WriteTime))
+            {
+                dictionary[input.WriteTime] = dictionary[input.WriteTime] | ACTIVITY_TYPE.m;
+            }
+            else
+            {
+                dictionary.Add(input.WriteTime, ACTIVITY_TYPE.m);
+            }
+
+            #endregion DetermineTime
+
+            foreach (var time in dictionary)
+            {
+                string activity = ToFriendlyString(time.Value);
+                macs.Add(new ForensicTimeline(time.Key, activity, "ShellLink", "", "", input.LocalBasePath, 0, input.ToString()));
+            }
+
+            return macs.ToArray();
+        }
+
+        public static ForensicTimeline[] GetInstances(ShellLink[] input)
+        {
+            List<ForensicTimeline> list = new List<ForensicTimeline>();
+            foreach (ShellLink s in input)
+            {
+                foreach (ForensicTimeline t in Get(s))
+                {
+                    list.Add(t);
+                }
+            }
+            return list.ToArray();
+        }
+
         public static ForensicTimeline[] Get(FileRecord input)
         {
             List<ForensicTimeline> macs = new List<ForensicTimeline>();
