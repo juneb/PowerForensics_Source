@@ -2,21 +2,22 @@
 using System.Management.Automation;
 using InvokeIR.Win32;
 using PowerForensics.Ntfs;
+using PowerForensics.Artifacts;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetBitmapCommand
+    #region GetScheduledJobCommand
     
     /// <summary> 
-    /// This class implements the Get-Bitmap cmdlet. 
+    /// This class implements the Get-ScheduledJob cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "Bitmap", DefaultParameterSetName = "ByVolume")]
-    public class GetBitmapCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "ScheduledJob", DefaultParameterSetName = "ByVolume")]
+    public class GetScheduledJobCommand : PSCmdlet
     {
         #region Parameters
 
         /// <summary> 
-        /// This parameter provides the the name of the target volume.
+        ///
         /// </summary> 
         [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
@@ -27,7 +28,7 @@ namespace PowerForensics.Cmdlets
         private string volume;
 
         /// <summary> 
-        ///
+        /// This parameter provides the the path of the Prefetch file to parse.
         /// </summary> 
         [Alias("FullName")]
         [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
@@ -38,24 +39,12 @@ namespace PowerForensics.Cmdlets
         }
         private string path;
 
-        /// <summary> 
-        ///
-        /// </summary> 
-        [Parameter(Mandatory = true, ParameterSetName = "ByVolume")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
-        public ulong Cluster
-        {
-            get { return cluster; }
-            set { cluster = value; }
-        }
-        private ulong cluster;
-
         #endregion Parameters
 
         #region Cmdlet Overrides
 
         /// <summary> 
-        /// The BeginProcessing method returns.
+        ///
         /// </summary> 
         protected override void BeginProcessing()
         {
@@ -68,17 +57,17 @@ namespace PowerForensics.Cmdlets
         }
 
         /// <summary> 
-        /// The ProcessRecord method returns.
+        /// The ProcessRecord method calls TimeZone.CurrentTimeZone to return a TimeZone object.
         /// </summary> 
         protected override void ProcessRecord()
         {
             switch (ParameterSetName)
             {
                 case "ByVolume":
-                    WriteObject(Bitmap.Get(volume, cluster));
+                    WriteObject(ScheduledJob.GetInstances(volume), true);
                     break;
                 case "ByPath":
-                    WriteObject(Bitmap.GetByPath(path, cluster));
+                    WriteObject(ScheduledJob.Get(path));
                     break;
             }
         }
@@ -86,5 +75,5 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetBitmapCommand
+    #endregion GetScheduledJobCommand
 }

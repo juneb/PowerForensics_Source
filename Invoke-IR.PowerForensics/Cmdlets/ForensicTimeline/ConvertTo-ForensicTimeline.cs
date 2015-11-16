@@ -3,6 +3,7 @@ using System.Management.Automation;
 using PowerForensics.Artifacts;
 using PowerForensics.Formats;
 using PowerForensics.Ntfs;
+using PowerForensics.EventLog;
 using PowerForensics.Registry;
 
 namespace PowerForensics.Cmdlets
@@ -21,7 +22,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the MFTRecord object(s) to
         /// derive Mactime objects from.
         /// </summary> 
-        [Parameter(Mandatory = true, ValueFromPipeline = true)]
+        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
         public PSObject InputObject
         {
             get { return inputobject; }
@@ -48,11 +49,14 @@ namespace PowerForensics.Cmdlets
                 case "PowerForensics.Artifacts.ScheduledJob":
                     WriteObject(ForensicTimeline.Get(inputobject.BaseObject as ScheduledJob), true);
                     break;
+                case "PowerForensics.Artifacts.ShellLink":
+                    WriteObject(ForensicTimeline.Get(inputobject.BaseObject as ShellLink), true);
+                    break;
                 case "PowerForensics.Artifacts.UserAssist":
                     WriteObject(ForensicTimeline.Get(inputobject.BaseObject as UserAssist), true);
                     break;
-                case "PowerForensics.Artifacts.ShellLink":
-                    WriteObject(ForensicTimeline.Get(inputobject.BaseObject as ShellLink), true);
+                case "PowerForensics.EventLog.EventRecord":
+                    WriteObject(ForensicTimeline.Get(inputobject.BaseObject as EventRecord), true);
                     break;
                 case "PowerForensics.Ntfs.FileRecord":
                     FileRecord r = inputobject.BaseObject as FileRecord;

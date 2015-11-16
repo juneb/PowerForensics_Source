@@ -19,6 +19,7 @@ namespace PowerForensics.Cmdlets
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
+        [Alias("Path")]
         [Parameter(Mandatory = true)]
         public string HivePath
         {

@@ -19,7 +19,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the byte array to
         /// derive HexDump objects from.
         /// </summary> 
-        [Parameter(Mandatory = true, ValueFromPipeline = true)]
+        [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
         public byte Bytes
         {
             get { return bytes; }

@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cmdlets\Artifacts\Get-ShellLink.cs" />
+    <Compile Include="Cmdlets\Artifacts\NTUSER.DAT\Get-TypedUrl.cs" />
+    <Compile Include="Cmdlets\OperatingSystem\Windows\EventLog\Get-PFEventLog.cs" />
     <Compile Include="PowerForensics\Artifacts\AlternateDataStream.cs" />
     <Compile Include="PowerForensics\Artifacts\Amcache.cs" />
     <Compile Include="PowerForensics\Artifacts\NetworkList.cs" />
@@ -59,7 +61,8 @@
     <Compile Include="PowerForensics\Artifacts\ScheduledTask.cs" />
     <Compile Include="PowerForensics\Artifacts\ShellLink.cs" />
     <Compile Include="PowerForensics\Artifacts\Timezone.cs" />
-    <Compile Include="PowerForensics\Artifacts\UserAssist.cs" />
+    <Compile Include="PowerForensics\Artifacts\NTUSER.DAT\TypedUrls.cs" />
+    <Compile Include="PowerForensics\Artifacts\NTUSER.DAT\UserAssist.cs" />
     <Compile Include="PowerForensics\Artifacts\VolumeShadowCopy.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\AttributeList.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\EA.cs" />
@@ -69,6 +72,8 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\Headers\CommonHeader.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\Bitmap.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\BadClus.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\EventLog\BinaryXml.cs" />
+    <Compile Include="PowerForensics\OperatingSystem\Windows\EventLog\EventRecord.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\Cell.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityDescriptor.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\SecurityKey.cs" />
@@ -88,7 +93,7 @@
     <Compile Include="Cmdlets\Artifacts\Get-Amcache.cs" />
     <Compile Include="Cmdlets\Artifacts\Get-NetworkList.cs" />
     <Compile Include="Cmdlets\Artifacts\Get-ScheduledJobRaw.cs" />
-    <Compile Include="Cmdlets\Artifacts\Get-UserAssist.cs" />
+    <Compile Include="Cmdlets\Artifacts\NTUSER.DAT\Get-UserAssist.cs" />
     <Compile Include="Cmdlets\Artifacts\SamHive\Get-Sid.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\Get-FileSlack.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\Get-MftSlack.cs" />
@@ -150,7 +155,10 @@
     <Compile Include="Win32\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="PowerForensics\OperatingSystem\Windows\EventLog\TextFile2.txt" />
+    <Content Include="PowerForensics\OperatingSystem\Windows\EventLog\TextFile1.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

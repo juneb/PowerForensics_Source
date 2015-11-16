@@ -20,7 +20,7 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         ///
         /// </summary> 
-        [Parameter(ParameterSetName = "ByVolume", Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -31,8 +31,8 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// This parameter provides the the path of the Prefetch file to parse.
         /// </summary> 
-        [Alias("FilePath")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath", Position = 0)]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
         public string Path
         {
             get { return filePath; }

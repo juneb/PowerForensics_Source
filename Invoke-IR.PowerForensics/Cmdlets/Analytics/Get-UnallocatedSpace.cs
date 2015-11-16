@@ -30,6 +30,7 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         ///
         /// </summary> 
+        [Alias("FullName")]
         [Parameter(Mandatory = false)]
         public ulong Path
         {

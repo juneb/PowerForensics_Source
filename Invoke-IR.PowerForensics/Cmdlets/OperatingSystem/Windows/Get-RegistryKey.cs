@@ -17,6 +17,7 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// 
         /// </summary> 
+        [Alias("Path")]
         [Parameter(Mandatory = true)]
         public string HivePath
         {

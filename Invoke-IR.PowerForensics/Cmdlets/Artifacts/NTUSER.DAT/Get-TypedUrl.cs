@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Management.Automation;
-using PowerForensics.Registry;
 using PowerForensics.Artifacts;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetSidCommand
-
+    #region GetTypedUrlCommand
+    
     /// <summary> 
-    /// This class implements the Get-Sid cmdlet. 
+    /// This class implements the Get-TypedUrl cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "Sid")]
-    public class GetSidCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "TypedUrl")]
+    public class GetTypedUrlCommand : PSCmdlet
     {
         #region Parameters
 
@@ -19,7 +18,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the the path of the Registry Hive to parse.
         /// </summary> 
         [Alias("Path")]
-        [Parameter(Position = 0)]
+        [Parameter(Mandatory = true, Position = 0)]
         public string HivePath
         {
             get { return hivePath; }
@@ -33,21 +32,14 @@ namespace PowerForensics.Cmdlets
 
         /// <summary> 
         /// 
-        /// </summary> 
+        /// </summary>  
         protected override void ProcessRecord()
         {
-            if (MyInvocation.BoundParameters.ContainsKey("Path"))
-            {
-                WriteObject(Sid.Get(hivePath));
-            }
-            else
-            {
-                WriteObject(Sid.Get());
-            }
-        }
+            WriteObject(TypedUrls.GetInstances(hivePath), true);
+        } 
 
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetSidCommand
+    #endregion GetTypedUrlCommand
 }

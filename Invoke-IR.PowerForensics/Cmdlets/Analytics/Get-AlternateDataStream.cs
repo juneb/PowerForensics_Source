@@ -12,7 +12,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-AlternateDataStream cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "AlternateDataStream", DefaultParameterSetName = "Zero", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Get, "AlternateDataStream", DefaultParameterSetName = "ByVolume")]
     public class GetAlternateDataStreamCommand : PSCmdlet
     {
         #region Parameters
@@ -22,7 +22,7 @@ namespace PowerForensics.Cmdlets
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Parameter(ParameterSetName = "Zero")]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -34,8 +34,8 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the FileName for the 
         /// FileRecord object that will be returned.
         /// </summary> 
-        [Alias("FilePath")]
-        [Parameter(Mandatory = true, ParameterSetName = "Path")]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
         public string Path
         {
             get { return filePath; }

@@ -12,7 +12,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-ContentRaw cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "ContentRaw", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Get, "ContentRaw", DefaultParameterSetName = "ByPath")]
     public class GetContentRawCommand : PSCmdlet
     {
         #region Parameters
@@ -22,8 +22,8 @@ namespace PowerForensics.Cmdlets
         /// raw bytes that will be returned.
         /// </summary> 
 
-        [Alias("FilePath")]
-        [Parameter(Mandatory = true, ParameterSetName = "Path", Position = 0)]
+        [Alias("FullName")]
+        [Parameter(Mandatory = true, Position = 0 , ParameterSetName = "ByPath")]
         public string Path
         {
             get { return filePath; }
@@ -31,7 +31,7 @@ namespace PowerForensics.Cmdlets
         }
         private string filePath;
 
-        [Parameter(Mandatory = true, ParameterSetName = "Index")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByIndex")]
         public string VolumeName
         {
             get { return volume; }
@@ -39,8 +39,8 @@ namespace PowerForensics.Cmdlets
         }
         private string volume;
 
-        [Parameter(Mandatory = true, ParameterSetName = "Index")]
-        public int IndexNumber
+        [Parameter(Mandatory = true, ParameterSetName = "ByIndex")]
+        public int Index
         {
             get { return index; }
             set { index = value; }

@@ -18,7 +18,7 @@ namespace PowerForensics.Cmdlets
         /// <summary> 
         /// This parameter provides the the name of the target volume.
         /// </summary> 
-        [Parameter(ParameterSetName = "ByVolume")]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -30,7 +30,7 @@ namespace PowerForensics.Cmdlets
         /// 
         /// </summary> 
         [Alias("FullName")]
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath", ValueFromPipelineByPropertyName = true)]
         public string Path
         {
             get { return path; }

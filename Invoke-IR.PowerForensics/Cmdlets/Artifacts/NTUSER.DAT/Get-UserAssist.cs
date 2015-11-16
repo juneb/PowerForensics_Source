@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
 using PowerForensics.Artifacts;
-using PowerForensics.Registry;
-using PowerForensics.Utilities;
 
 namespace PowerForensics.Cmdlets
 {

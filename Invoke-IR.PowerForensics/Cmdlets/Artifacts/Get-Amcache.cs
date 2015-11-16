@@ -31,7 +31,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the the path of the Registry Hive to parse.
         /// </summary> 
         [Alias("Path")]
-        [Parameter(Position = 0, ParameterSetName = "ByPath")]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
         public string HivePath
         {
             get { return hivePath; }

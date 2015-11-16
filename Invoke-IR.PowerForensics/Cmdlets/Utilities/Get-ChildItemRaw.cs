@@ -21,7 +21,7 @@ namespace PowerForensics.Ntfs
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Alias("FilePath")]
+        [Alias("FullName")]
         [Parameter(Position = 0)]
         public string Path
         {

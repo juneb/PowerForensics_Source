@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Management.Automation;
+using PowerForensics.EventLog;
 using InvokeIR.Win32;
-using PowerForensics.Ntfs;
-using PowerForensics.Artifacts;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetScheduledJobCommand
+    #region GetEventLogCommand
     
     /// <summary> 
-    /// This class implements the Get-ScheduledJob cmdlet. 
+    /// This class implements the Get-EventLog cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "ScheduledJobRaw", DefaultParameterSetName = "ByVolume")]
-    public class GetScheduledJobCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "EventLog", DefaultParameterSetName = "ByVolume")]
+    public class GetEventLogCommand : PSCmdlet
     {
         #region Parameters
 
         /// <summary> 
-        ///
+        /// 
         /// </summary> 
-        [Parameter(ParameterSetName = "ByVolume", Position = 0)]
+        [Parameter(Position = 0, ParameterSetName = "ByVolume")]
         public string VolumeName
         {
             get { return volume; }
@@ -28,10 +27,10 @@ namespace PowerForensics.Cmdlets
         private string volume;
 
         /// <summary> 
-        /// This parameter provides the the path of the Prefetch file to parse.
+        /// 
         /// </summary> 
         [Alias("FullName")]
-        [Parameter(Mandatory = true, ParameterSetName = "ByPath", Position = 0, ValueFromPipelineByPropertyName = true)]
+        [Parameter(Mandatory = true, ParameterSetName = "ByPath")]
         public string Path
         {
             get { return path; }
@@ -44,12 +43,11 @@ namespace PowerForensics.Cmdlets
         #region Cmdlet Overrides
 
         /// <summary> 
-        ///
+        /// 
         /// </summary> 
         protected override void BeginProcessing()
         {
             NativeMethods.checkAdmin();
-
             if (ParameterSetName == "ByVolume")
             {
                 NativeMethods.getVolumeName(ref volume);
@@ -57,17 +55,17 @@ namespace PowerForensics.Cmdlets
         }
 
         /// <summary> 
-        /// The ProcessRecord method calls TimeZone.CurrentTimeZone to return a TimeZone object.
+        /// The ProcessRecord instantiates a 
         /// </summary> 
         protected override void ProcessRecord()
         {
             switch (ParameterSetName)
             {
                 case "ByVolume":
-                    WriteObject(ScheduledJob.GetInstances(volume), true);
+                    WriteObject(EventLog.EventRecord.GetInstances(volume), true);
                     break;
                 case "ByPath":
-                    WriteObject(ScheduledJob.Get(path));
+                    WriteObject(EventLog.EventRecord.Get(path), true);
                     break;
             }
         }
@@ -75,5 +73,5 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetScheduledJobCommand
+    #endregion GetEventLogCommand
 }

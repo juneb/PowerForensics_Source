@@ -20,7 +20,7 @@ namespace PowerForensics.Cmdlets
         /// that will be hashed
         /// </summary> 
 
-        [Alias("FilePath")]
+        [Alias("FullName")]
         [Parameter(Mandatory = true, Position = 0)]
         public string Path
         {

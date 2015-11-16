@@ -21,7 +21,7 @@ namespace PowerForensics.Cmdlet
         /// for which the FileRecord object should be
         /// returned.
         /// </summary> 
-        [Alias("FilePath")]
+        [Alias("FullName")]
         [Parameter(Mandatory = true, Position = 0)]
         public string Path
         {

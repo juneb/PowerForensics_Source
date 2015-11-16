@@ -9,7 +9,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Get-MasterBootRecord cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "MasterBootRecord", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Get, "MasterBootRecord")]
     public class GetMBRCommand : PSCmdlet
     {
         #region Parameters
@@ -18,7 +18,7 @@ namespace PowerForensics.Cmdlets
         /// This parameter provides the Path of the Drive  
         /// for the MBR that will be returned.
         /// </summary> 
-        [Parameter(Mandatory = false, Position = 0, ParameterSetName = "Remote")]
+        [Parameter(Mandatory = false, ParameterSetName = "Remote")]
         public string ComputerName
         {
             get { return computerName; }
