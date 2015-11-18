@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>InvokeIR</RootNamespace>
     <AssemblyName>PowerForensics</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -24,6 +24,7 @@
     <CodeAnalysisRuleSet>BasicDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,8 +36,12 @@
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime">
+      <HintPath>Dependencies\Antlr4.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -48,9 +53,20 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cmdlets\Artifacts\Get-ScheduledJob.cs" />
     <Compile Include="Cmdlets\Artifacts\Get-ShellLink.cs" />
     <Compile Include="Cmdlets\Artifacts\NTUSER.DAT\Get-TypedUrl.cs" />
-    <Compile Include="Cmdlets\OperatingSystem\Windows\EventLog\Get-PFEventLog.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShred.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShredBaseListener.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShredCommand.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShredLexer.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShredListener.cs" />
+    <Compile Include="Cmdlets\BinShred\BinShredParser.cs" />
+    <Compile Include="Cmdlets\ForensicTimeline\ConvertTo-ForensicTimeline.cs" />
+    <Compile Include="Cmdlets\ForensicTimeline\Invoke-ForensicTimeline.cs" />
+    <Compile Include="Cmdlets\OperatingSystem\Windows\Get-EventLog.cs" />
+    <Compile Include="Cmdlets\OperatingSystem\Windows\Get-RegistryKey.cs" />
+    <Compile Include="Cmdlets\OperatingSystem\Windows\Get-RegistryValue.cs" />
     <Compile Include="PowerForensics\Artifacts\AlternateDataStream.cs" />
     <Compile Include="PowerForensics\Artifacts\Amcache.cs" />
     <Compile Include="PowerForensics\Artifacts\NetworkList.cs" />
@@ -89,10 +105,8 @@
     <Compile Include="PowerForensics\Utilities\Rot13.cs" />
     <Compile Include="Cmdlets\Analytics\Get-AlternateDataStream.cs" />
     <Compile Include="Cmdlets\Analytics\Get-UnallocatedSpace.cs" />
-    <Compile Include="Cmdlets\Exporters\Invoke-ForensicTimeline.cs" />
     <Compile Include="Cmdlets\Artifacts\Get-Amcache.cs" />
     <Compile Include="Cmdlets\Artifacts\Get-NetworkList.cs" />
-    <Compile Include="Cmdlets\Artifacts\Get-ScheduledJobRaw.cs" />
     <Compile Include="Cmdlets\Artifacts\NTUSER.DAT\Get-UserAssist.cs" />
     <Compile Include="Cmdlets\Artifacts\SamHive\Get-Sid.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\Get-FileSlack.cs" />
@@ -106,8 +120,6 @@
     <Compile Include="Cmdlets\FileSystems\Ntfs\MetadataFiles\Get-VolumeName.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\Cells\NamedKey.cs" />
     <Compile Include="PowerForensics\OperatingSystem\Windows\Registry\RegistryHeader.cs" />
-    <Compile Include="Cmdlets\OperatingSystem\Windows\Registry\Get-RegistryKey.cs" />
-    <Compile Include="Cmdlets\OperatingSystem\Windows\Registry\Get-RegistryValue.cs" />
     <Compile Include="Cmdlets\Utilities\Get-VolumeShadowCopy.cs" />
     <Compile Include="Cmdlets\Utilities\Get-Hash.cs" />
     <Compile Include="PowerForensics\Utilities\Hash.cs" />
@@ -117,7 +129,6 @@
     <Compile Include="Cmdlets\BootSector\Get-BootSector.cs" />
     <Compile Include="PowerForensics\Utilities\DD.cs" />
     <Compile Include="Cmdlets\Formats\Format-Hex.cs" />
-    <Compile Include="Cmdlets\Formats\ConvertTo-ForensicTimeline.cs" />
     <Compile Include="PowerForensics\Formats\HexDump.cs" />
     <Compile Include="PowerForensics\Formats\ForensicTimeline.cs" />
     <Compile Include="Cmdlets\BootSector\Get-GuidPartitionTable.cs" />
@@ -158,6 +169,9 @@
   <ItemGroup>
     <Content Include="PowerForensics\OperatingSystem\Windows\EventLog\TextFile2.txt" />
     <Content Include="PowerForensics\OperatingSystem\Windows\EventLog\TextFile1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Dependencies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
