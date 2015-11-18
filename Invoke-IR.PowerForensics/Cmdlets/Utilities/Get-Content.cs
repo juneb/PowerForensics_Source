@@ -7,12 +7,12 @@ using PowerForensics.Ntfs;
 
 namespace PowerForensics.Cmdlets
 {
-    #region GetContentRawCommand
+    #region GetContentCommand
 
     /// <summary> 
-    /// This class implements the Get-ContentRaw cmdlet. 
+    /// This class implements the Get-Content cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Get, "ContentRaw", DefaultParameterSetName = "ByPath")]
+    [Cmdlet(VerbsCommon.Get, "Content", DefaultParameterSetName = "ByPath")]
     public class GetContentRawCommand : PSCmdlet
     {
         #region Parameters
@@ -31,7 +31,7 @@ namespace PowerForensics.Cmdlets
         }
         private string filePath;
 
-        [Parameter(Mandatory = true, ParameterSetName = "ByIndex")]
+        [Parameter(ParameterSetName = "ByIndex")]
         public string VolumeName
         {
             get { return volume; }
@@ -142,7 +142,7 @@ namespace PowerForensics.Cmdlets
                 contentArray = FileRecord.Get(filePath, true).GetContent();
             }
 
-            else if(this.MyInvocation.BoundParameters.ContainsKey("IndexNumber"))
+            else if(this.MyInvocation.BoundParameters.ContainsKey("Index"))
             {
                 NativeMethods.getVolumeName(ref volume);
                 contentArray = FileRecord.Get(volume, index, true).GetContent();
@@ -190,5 +190,5 @@ namespace PowerForensics.Cmdlets
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetContentRawCommand
+    #endregion GetContentCommand
 }

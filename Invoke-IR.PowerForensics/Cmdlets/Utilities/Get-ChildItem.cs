@@ -1,18 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 using InvokeIR.Win32;
 
 namespace PowerForensics.Ntfs
 {
-    #region GetChildItemRawCommand
+    #region GetChildItemCommand
     /// <summary> 
-    /// This class implements the Get-ChildItemRaw cmdlet. 
+    /// This class implements the Get-ChildItem cmdlet. 
     /// </summary> 
 
-    [Cmdlet(VerbsCommon.Get, "ChildItemRaw")]
-    public class GetChildItemRawCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "ChildItem")]
+    public class GetChildItemCommand : PSCmdlet
     {
         #region Parameters
 
@@ -69,5 +66,5 @@ namespace PowerForensics.Ntfs
         #endregion Cmdlet Overrides
     }
 
-    #endregion GetChildItemRawCommand
+    #endregion GetChildItemCommand
 }

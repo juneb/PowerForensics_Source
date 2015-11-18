@@ -6,13 +6,13 @@ using PowerForensics.Ntfs;
 
 namespace PowerForensics.Cmdlets
 {
-    #region CopyFileRawCommand
+    #region CopyFileCommand
     
     /// <summary> 
-    /// This class implements the Get-Prefetch cmdlet. 
+    /// This class implements the Copy-File cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsCommon.Copy, "FileRaw")]
-    public class CopyFileRawCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Copy, "File")]
+    public class CopyFileCommand : PSCmdlet
     {
         #region Parameters
 
@@ -103,5 +103,5 @@ namespace PowerForensics.Cmdlets
 
         #endregion Cmdlet Overrides
     }
-    #endregion CopyFileRawCommand
+    #endregion CopyFileCommand
 }

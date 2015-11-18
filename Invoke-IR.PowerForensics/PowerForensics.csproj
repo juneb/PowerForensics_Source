@@ -140,7 +140,7 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\LogFile\LogFile.cs" />
     <Compile Include="Cmdlets\BootSector\Get-MasterBootRecord.cs" />
     <Compile Include="PowerForensics\BootSectors\MasterBootRecord.cs" />
-    <Compile Include="Cmdlets\Utilities\Copy-FileRaw.cs" />
+    <Compile Include="Cmdlets\Utilities\Copy-File.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\UsnJrnl.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\AttributeFactory.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\Attr.cs" />
@@ -155,12 +155,12 @@
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\Attributes\VolumeName.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\FileRecord\FileRecord.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\FileRecord\IndexEntry.cs" />
-    <Compile Include="Cmdlets\Utilities\Get-ChildItemRaw.cs" />
+    <Compile Include="Cmdlets\Utilities\Get-ChildItem.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\Get-FileRecordIndex.cs" />
     <Compile Include="Cmdlets\FileSystems\Ntfs\Get-FileRecord.cs" />
     <Compile Include="Cmdlets\Utilities\Invoke-DD.cs" />
     <Compile Include="Cmdlets\BootSector\Get-PartitionTable.cs" />
-    <Compile Include="Cmdlets\Utilities\Get-ContentRaw.cs" />
+    <Compile Include="Cmdlets\Utilities\Get-Content.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MasterFileTable\MasterFileTable.cs" />
     <Compile Include="PowerForensics\FileSystems\Ntfs\MetadataFiles\VolumeBootRecord.cs" />
     <Compile Include="Win32\MftIndex.cs" />
