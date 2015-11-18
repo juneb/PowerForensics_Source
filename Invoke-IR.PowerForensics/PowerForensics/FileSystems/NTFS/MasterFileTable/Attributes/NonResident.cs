@@ -125,7 +125,7 @@ namespace PowerForensics.Ntfs
                         break;
                     }
                     
-                } while (((offset + DataRunLengthByteCount + DataRunOffsetByteCount + 1) < bytes.Length) && (DataRunOffsetByteCount <= 3) && (DataRunLengthByteCount != 0));
+                } while (((offset + DataRunLengthByteCount + DataRunOffsetByteCount + 1) < bytes.Length) && (DataRunLengthByteCount != 0));
                 
                 DataRun = dataRunList.ToArray();
             }

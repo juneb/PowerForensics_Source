@@ -270,6 +270,19 @@ namespace PowerForensics.Ntfs
                 {
                     return attr as NonResident;
                 }
+                
+                AttributeList attrList = attr as AttributeList;
+                if (attrList != null)
+                {
+                    foreach (AttrRef ar in attrList.AttributeReference)
+                    {
+                        if (ar.NameString == "$J")
+                        {
+                            FileRecord record = new FileRecord(FileRecord.GetRecordBytes(fileRecord.VolumePath, (int)ar.RecordNumber), fileRecord.VolumePath, true);
+                            return GetJStream(record);
+                        }
+                    }
+                }
             }
             throw new Exception("No $J attribute found.");
         }
