@@ -14,7 +14,7 @@ namespace PowerForensics.Cmdlets
     /// <summary> 
     /// This class implements the Invoke-ForensicTimeline cmdlet. 
     /// </summary> 
-    [Cmdlet(VerbsLifecycle.Invoke, "ForensicTimeline")]
+    [Cmdlet(VerbsLifecycle.Invoke, "Timeline")]
     public class InvokeForensicTimelineCommand : PSCmdlet
     {
         #region Parameters

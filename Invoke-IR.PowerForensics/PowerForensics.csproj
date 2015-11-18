@@ -63,8 +63,8 @@
     <Compile Include="Cmdlets\BinShred\BinShredLexer.cs" />
     <Compile Include="Cmdlets\BinShred\BinShredListener.cs" />
     <Compile Include="Cmdlets\BinShred\BinShredParser.cs" />
-    <Compile Include="Cmdlets\ForensicTimeline\ConvertTo-ForensicTimeline.cs" />
-    <Compile Include="Cmdlets\ForensicTimeline\Invoke-ForensicTimeline.cs" />
+    <Compile Include="Cmdlets\ForensicTimeline\ConvertTo-Timeline.cs" />
+    <Compile Include="Cmdlets\ForensicTimeline\Invoke-Timeline.cs" />
     <Compile Include="Cmdlets\OperatingSystem\Windows\Get-EventLog.cs" />
     <Compile Include="Cmdlets\OperatingSystem\Windows\Get-RegistryKey.cs" />
     <Compile Include="Cmdlets\OperatingSystem\Windows\Get-RegistryValue.cs" />
